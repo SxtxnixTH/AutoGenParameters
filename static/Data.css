@@ -1,0 +1,2124 @@
+/* =========================================================
+   RESET
+========================================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family:
+        "Arial Rounded MT Bold",
+        "Segoe UI",
+        Arial,
+        sans-serif;
+}
+
+
+/* =========================================================
+   ROOT VARIABLES
+========================================================= */
+
+:root {
+
+    /* ---------- Dark Theme ---------- */
+
+    --bg-main: #000;
+
+    --bg-gradient:
+        radial-gradient(
+            circle at top left,
+            rgba(255, 255, 255, 0.08) 0%,
+            transparent 30%
+        ),
+        radial-gradient(
+            circle at bottom right,
+            rgba(255, 255, 255, 0.05) 0%,
+            transparent 40%
+        ),
+        linear-gradient(
+            135deg,
+            #252525 0%,
+            #141414 35%,
+            #080808 70%,
+            #000 100%
+        );
+
+    --text-main: #fff;
+
+    --text-secondary: #a8a8a8;
+
+    --glass-bg:
+        rgba(255, 255, 255, 0.05);
+
+    --glass-bg-light:
+        rgba(255, 255, 255, 0.08);
+
+    --border-glass:
+        rgba(255, 255, 255, 0.1);
+
+    --shadow-main:
+        0 8px 32px rgba(0, 0, 0, 0.5),
+        inset 0 0 20px rgba(255, 255, 255, 0.03);
+
+    --scroll-track:
+        rgba(255, 255, 255, 0.05);
+
+    --scroll-thumb:
+        rgba(255, 255, 255, 0.4);
+
+    /* ---------- Solid Dropdown ---------- */
+
+    --dropdown-bg: #161616;
+}
+
+
+/* =========================================================
+   BODY
+========================================================= */
+
+body {
+    min-height: 100vh;
+    overflow-x: hidden;
+
+    background:
+        var(--bg-gradient);
+
+    color:
+        var(--text-main);
+
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.1px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+
+    padding: 40px 20px;
+
+    transition:
+        background 0.5s ease,
+        color 0.5s ease;
+}
+
+
+/* =========================================================
+   CONTAINER
+========================================================= */
+
+.container {
+    position: relative;
+
+    /*
+        Container อยู่เหนือ Developer Credit
+        แต่ไม่สร้างปัญหากับ Dropdown ภายใน
+    */
+
+    z-index: 10;
+
+    width: 90%;
+    max-width: 900px;
+
+    margin-top: 60px;
+    padding: 40px;
+
+    background:
+        var(--glass-bg);
+
+    border:
+        1px solid
+        var(--border-glass);
+
+    border-radius: 24px;
+
+    text-align: center;
+
+    box-shadow:
+        var(--shadow-main);
+
+    isolation: isolate;
+
+    transition:
+        background 0.5s ease,
+        box-shadow 0.5s ease,
+        color 0.5s ease;
+}
+
+
+/* =========================================================
+   GLASS / SHINE EFFECT
+========================================================= */
+
+.glass-layer {
+    position: absolute;
+
+    inset: 0;
+
+    border-radius: 24px;
+
+    overflow: hidden;
+
+    background:
+        var(--glass-bg);
+
+    backdrop-filter:
+        blur(12px);
+
+    -webkit-backdrop-filter:
+        blur(12px);
+
+    border:
+        1px solid
+        var(--border-glass);
+
+    box-shadow:
+        var(--shadow-main);
+
+    pointer-events: none;
+
+    z-index: 1;
+}
+
+
+/* =========================================================
+   GLASS SHINE
+========================================================= */
+
+.glass-layer::before {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: -180%;
+
+    width: 80%;
+    height: 100%;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.06) 20%,
+            rgba(255, 255, 255, 0.20) 50%,
+            rgba(255, 255, 255, 0.06) 80%,
+            transparent 100%
+        );
+
+    transform:
+        skewX(-25deg);
+
+    transition:
+        left 1.1s cubic-bezier(.22, .61, .36, 1);
+
+    pointer-events: none;
+}
+
+
+.container:hover .glass-layer::before {
+    left: 220%;
+}
+
+
+/* =========================================================
+   CONTENT ABOVE GLASS
+========================================================= */
+
+.container > *:not(.glass-layer) {
+    position: relative;
+    z-index: 2;
+}
+
+
+/* =========================================================
+   TYPOGRAPHY
+========================================================= */
+
+.container h1 {
+    font-family:
+        "Arial Rounded MT Bold",
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+    font-weight: 800;
+
+    letter-spacing: 0.3px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #fff,
+            #bdbdbd,
+            #fff
+        );
+
+    background-clip:
+        text;
+
+    -webkit-background-clip:
+        text;
+
+    color:
+        transparent;
+
+    -webkit-text-fill-color:
+        transparent;
+
+    text-shadow:
+        0 0 12px
+        rgba(255, 255, 255, 0.15);
+}
+
+
+.container p {
+    margin-top: 8px;
+    margin-bottom: 25px;
+
+    font-size: 0.95rem;
+    font-weight: 600;
+
+    color:
+        var(--text-secondary);
+}
+
+
+/* =========================================================
+   THEME BUTTON
+========================================================= */
+
+#theme-toggle {
+    position: fixed;
+
+    top: 20px;
+    right: 20px;
+
+    z-index: 9999999;
+
+    padding: 10px 20px;
+
+    border: none;
+
+    border-radius: 20px;
+
+    cursor: pointer;
+
+    background:
+        rgba(255, 255, 255, 0.1);
+
+    color:
+        #fff;
+
+    font-weight: 700;
+
+    backdrop-filter:
+        blur(10px);
+
+    -webkit-backdrop-filter:
+        blur(10px);
+
+    transition:
+        0.3s;
+}
+
+
+#theme-toggle:hover {
+    background:
+        rgba(255, 255, 255, 0.2);
+}
+
+
+/* =========================================================
+   ACTION AREA
+========================================================= */
+
+.action-area {
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    gap: 0;
+
+    margin-top: 25px;
+
+    position: relative;
+
+    z-index: 100;
+}
+
+
+/* =========================================================
+   DROPDOWN BASE
+========================================================= */
+
+.dropdown {
+    position: relative;
+
+    width: 100%;
+    max-width: 650px;
+
+    margin: 0 auto;
+}
+
+
+/* =========================================================
+   SYSTEM DROPDOWN
+========================================================= */
+
+.system-dropdown {
+    position: relative;
+
+    z-index: 3000;
+}
+
+
+/* =========================================================
+   TYPE DROPDOWN
+========================================================= */
+
+.type-dropdown {
+    width: 100%;
+
+    position: relative;
+
+    z-index: 2000;
+}
+
+
+/* =========================================================
+   ACTIVE DROPDOWN
+========================================================= */
+
+.dropdown.active {
+    /*
+        สูงกว่า Developer / Result
+    */
+
+    z-index: 999999;
+}
+
+
+/* =========================================================
+   DROPDOWN SELECTED
+========================================================= */
+
+.dropdown-selected {
+    position: relative;
+
+    width: 100%;
+    height: 50px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 0 24px;
+
+    border-radius: 20px;
+
+    /*
+        ทึบ 100%
+    */
+
+    background:
+        #161616;
+
+    border:
+        2px solid
+        rgba(255, 255, 255, 0.35);
+
+    /*
+        ห้าม透ผ่าน Background
+    */
+
+    backdrop-filter: none;
+
+    -webkit-backdrop-filter: none;
+
+    cursor: pointer;
+
+    color:
+        var(--text-main);
+
+    font-weight: 700;
+
+    transition:
+        background 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
+
+    z-index: 2;
+}
+
+
+.dropdown-selected:hover {
+    border-color:
+        #fff;
+}
+
+
+/* =========================================================
+   DROPDOWN LIST
+========================================================= */
+
+.dropdown-list {
+    position: absolute;
+
+    top:
+        calc(100% + 6px);
+
+    left: 0;
+
+    width: 100%;
+
+    /*
+        สำคัญที่สุด
+        อยู่เหนือทุก Content
+    */
+
+    z-index: 9999999;
+
+    list-style: none;
+
+    margin: 0;
+    padding: 0;
+
+    border-radius: 20px;
+
+    overflow: hidden;
+
+    /*
+        ทึบจริง 100%
+    */
+
+    background:
+        #161616;
+
+    color:
+        var(--text-main);
+
+    border:
+        2px solid
+        rgba(255, 255, 255, 0.15);
+
+    display: none;
+
+    box-shadow:
+        0 20px 40px
+        rgba(0, 0, 0, 0.70);
+
+    backdrop-filter: none;
+
+    -webkit-backdrop-filter: none;
+
+    isolation: isolate;
+}
+
+
+/* =========================================================
+   DROPDOWN LIST ITEM
+========================================================= */
+
+.dropdown-list li {
+    position: relative;
+
+    padding: 16px;
+
+    text-align: center;
+
+    cursor: pointer;
+
+    font-weight: 700;
+
+    background:
+        #161616;
+
+    color:
+        var(--text-main);
+
+    transition:
+        background 0.2s ease;
+}
+
+
+.dropdown-list li:hover {
+    background:
+        #242424;
+}
+
+
+.dropdown-list li.selected {
+    background:
+        #2b2b2b;
+
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   ACTIVE DROPDOWN LIST
+========================================================= */
+
+.dropdown.active .dropdown-list {
+    display: block;
+}
+
+
+.dropdown.active .dropdown-selected {
+    border-color:
+        #fff;
+
+    box-shadow:
+        0 0 12px
+        rgba(255, 255, 255, 0.25);
+}
+
+
+/* =========================================================
+   ARROW
+========================================================= */
+
+.arrow {
+    transition:
+        transform 0.3s ease;
+}
+
+
+.dropdown.active .arrow {
+    transform:
+        rotate(180deg);
+}
+
+
+/* =========================================================
+   PARAMETER FORM
+========================================================= */
+
+.parameter-form {
+    width: 100%;
+    max-width: 650px;
+
+    margin:
+        25px auto 0;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 18px;
+
+    text-align: left;
+
+    animation:
+        parameterFormIn
+        0.25s ease;
+
+    position: relative;
+
+    z-index: 5;
+}
+
+
+.parameter-form.hidden {
+    display: none;
+}
+
+
+/* =========================================================
+   INPUT WRAPPER
+========================================================= */
+
+.input-wrapper {
+    position: relative;
+
+    width: 100%;
+}
+
+
+/* =========================================================
+   TEXT INPUT
+========================================================= */
+
+.input-wrapper input {
+    width: 100%;
+    height: 50px;
+
+    padding:
+        0
+        48px
+        0
+        18px;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.15);
+
+    border-radius: 16px;
+
+    outline: none;
+
+    background:
+        rgba(255, 255, 255, 0.06);
+
+    color:
+        var(--text-main);
+
+    font-size: 15px;
+
+    font-weight: 700;
+
+    font-family:
+        "Arial Rounded MT Bold",
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+    transition:
+        border-color 0.25s ease,
+        box-shadow 0.25s ease,
+        background 0.25s ease;
+}
+
+
+.input-wrapper input::placeholder {
+    color:
+        var(--text-secondary);
+
+    opacity:
+        0.85;
+
+    font-weight:
+        600;
+}
+
+
+.input-wrapper input:focus {
+    border-color:
+        rgba(255, 255, 255, 0.45);
+
+    box-shadow:
+        0 0 12px
+        rgba(255, 255, 255, 0.08);
+}
+
+
+/* =========================================================
+   INPUT STATUS
+========================================================= */
+
+.input-status {
+    position: absolute;
+
+    top: 50%;
+    right: 17px;
+
+    width: 11px;
+    height: 11px;
+
+    border-radius: 50%;
+
+    background:
+        transparent;
+
+    transform:
+        translateY(-50%)
+        scale(0);
+
+    opacity: 0;
+
+    transition:
+        transform 0.2s ease,
+        opacity 0.2s ease;
+}
+
+
+/* =========================================================
+   VALID STATUS
+========================================================= */
+
+.input-status.valid {
+    background:
+        #35d66f;
+
+    box-shadow:
+        0 0 8px
+        rgba(53, 214, 111, 0.75);
+
+    transform:
+        translateY(-50%)
+        scale(1);
+
+    opacity: 1;
+}
+
+
+/* =========================================================
+   NODEB WRAPPER
+========================================================= */
+
+.nodeb-wrapper {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: stretch;
+}
+
+
+/* =========================================================
+   NODEB HINT
+========================================================= */
+
+.nodeb-hint {
+    position: static;
+
+    margin-top: 6px;
+    margin-left: 8px;
+
+    font-size: 0.78rem;
+
+    font-weight: 600;
+
+    line-height: 1.2;
+
+    color:
+        var(--text-secondary);
+
+    opacity:
+        0.75;
+
+    text-align:
+        left;
+}
+
+
+.nodeb-hint.hidden {
+    display:
+        none;
+}
+
+
+/* =========================================================
+   TYPE STATUS
+========================================================= */
+
+.type-dropdown > .input-status {
+    position: absolute;
+
+    top: 50%;
+    right: 45px;
+
+    width: 11px;
+    height: 11px;
+
+    border-radius: 50%;
+
+    transform:
+        translateY(-50%)
+        scale(0);
+
+    opacity: 0;
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   TYPE VALIDATION INDICATOR
+========================================================= */
+
+.type-dropdown > .input-status.valid {
+    background:
+        transparent;
+
+    box-shadow:
+        none;
+
+    transform:
+        translateY(-50%)
+        scale(0);
+
+    opacity:
+        0;
+}
+
+
+/* =========================================================
+   BUTTON GROUP
+========================================================= */
+
+.button-group {
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    gap: 20px;
+
+    margin-top: 25px;
+}
+
+
+/* =========================================================
+   ACTION BUTTONS
+========================================================= */
+
+#autogen-btn,
+#clear-btn {
+    width: 140px;
+    height: 44px;
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+    border-radius: 20px;
+
+    cursor: pointer;
+
+    transition:
+        all 0.3s ease;
+}
+
+
+/* =========================================================
+   GENERATE BUTTON
+========================================================= */
+
+#autogen-btn {
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.15);
+
+    background:
+        rgba(255, 255, 255, 0.08);
+
+    color:
+        #fff;
+
+    backdrop-filter:
+        blur(10px);
+
+    -webkit-backdrop-filter:
+        blur(10px);
+
+    box-shadow:
+        0 4px 15px
+        rgba(0, 0, 0, 0.25);
+}
+
+
+#autogen-btn:hover {
+    background:
+        rgba(255, 255, 255, 0.18);
+
+    transform:
+        translateY(-2px);
+}
+
+
+#autogen-btn:active {
+    transform:
+        scale(0.97);
+}
+
+
+/* =========================================================
+   CLEAR BUTTON
+========================================================= */
+
+#clear-btn {
+    border:
+        none;
+
+    background:
+        rgba(255, 80, 80, 0.15);
+
+    color:
+        #ff8f8f;
+}
+
+
+#clear-btn:hover {
+    background:
+        rgba(255, 80, 80, 0.25);
+
+    transform:
+        translateY(-2px);
+}
+
+
+#clear-btn:active {
+    transform:
+        scale(0.97);
+}
+
+
+/* =========================================================
+   RESULT
+========================================================= */
+
+#result {
+    max-height:
+        500px;
+
+    overflow-y:
+        auto;
+
+    margin-top:
+        20px;
+
+    position:
+        relative;
+
+    z-index:
+        1;
+}
+
+
+/* =========================================================
+   RESULT PANEL
+========================================================= */
+
+.result-panel {
+    position:
+        relative;
+
+    z-index:
+        1;
+
+    max-height:
+        420px;
+
+    overflow-y:
+        auto;
+
+    padding:
+        20px;
+
+    line-height:
+        1.8;
+
+    text-align:
+        left;
+
+    background:
+        rgba(255, 255, 255, 0.04);
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.08);
+
+    border-radius:
+        18px;
+}
+
+
+.result-panel ul {
+    padding-left:
+        25px;
+}
+
+
+.result-panel li {
+    margin-bottom:
+        4px;
+
+    font-weight:
+        600;
+}
+
+
+/* =========================================================
+   CUSTOM SCROLLBAR
+========================================================= */
+
+.container::-webkit-scrollbar,
+.result-panel::-webkit-scrollbar {
+    width:
+        14px;
+}
+
+
+.container::-webkit-scrollbar-track,
+.result-panel::-webkit-scrollbar-track {
+    background:
+        var(--scroll-track);
+
+    border-radius:
+        999px;
+}
+
+
+.container::-webkit-scrollbar-thumb,
+.result-panel::-webkit-scrollbar-thumb {
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.45),
+            rgba(255, 255, 255, 0.20)
+        );
+
+    border-radius:
+        999px;
+
+    border:
+        2px solid transparent;
+
+    background-clip:
+        padding-box;
+
+    backdrop-filter:
+        blur(10px);
+
+    box-shadow:
+        inset 0 0 4px
+        rgba(255, 255, 255, 0.15),
+
+        0 0 8px
+        rgba(255, 255, 255, 0.08);
+}
+
+
+.container::-webkit-scrollbar-thumb:hover,
+.result-panel::-webkit-scrollbar-thumb:hover {
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.70),
+            rgba(255, 255, 255, 0.35)
+        );
+}
+
+
+/* =========================================================
+   FIREFOX SCROLLBAR
+========================================================= */
+
+.container,
+.result-panel {
+    scrollbar-width:
+        thin;
+
+    scrollbar-color:
+        rgba(255, 255, 255, 0.4)
+        rgba(255, 255, 255, 0.08);
+}
+
+
+/* =========================================================
+   CURSOR GLOW
+========================================================= */
+
+.cursor-glow {
+    position:
+        fixed;
+
+    width:
+        180px;
+
+    height:
+        180px;
+
+    border-radius:
+        50%;
+
+    pointer-events:
+        none;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(255, 255, 255, 0.25) 0%,
+            rgba(255, 255, 255, 0.10) 35%,
+            transparent 70%
+        );
+
+    filter:
+        blur(25px);
+
+    transform:
+        translate(-50%, -50%);
+
+    z-index:
+        -1;
+}
+
+
+/* =========================================================
+   HIDDEN
+========================================================= */
+
+.hidden {
+    display:
+        none !important;
+}
+
+
+/* =========================================================
+   ANIMATION
+========================================================= */
+
+@keyframes moveGlow {
+
+    from {
+        transform:
+            rotate(0deg);
+    }
+
+    to {
+        transform:
+            rotate(360deg);
+    }
+}
+
+
+@keyframes parameterFormIn {
+
+    from {
+        opacity:
+            0;
+
+        transform:
+            translateY(-8px);
+    }
+
+    to {
+        opacity:
+            1;
+
+        transform:
+            translateY(0);
+    }
+}
+
+
+/* =========================================================
+   DESKTOP BACKGROUND GLOW
+========================================================= */
+
+@media (min-width: 1024px) {
+
+    body::before {
+        content:
+            "";
+
+        position:
+            fixed;
+
+        top:
+            -50%;
+
+        left:
+            -50%;
+
+        width:
+            200%;
+
+        height:
+            200%;
+
+        background:
+            radial-gradient(
+                circle,
+                rgba(255, 255, 255, 0.04),
+                transparent 60%
+            );
+
+        animation:
+            moveGlow
+            12s linear infinite;
+
+        pointer-events:
+            none;
+
+        z-index:
+            -2;
+    }
+}
+
+
+/* =========================================================
+   STATUS MESSAGE
+========================================================= */
+
+.status-message {
+    margin:
+        0;
+
+    font-size:
+        0.95rem;
+
+    font-weight:
+        700;
+
+    transition:
+        color 0.3s ease;
+}
+
+
+.status-message.warning {
+    color:
+        #ffb347;
+}
+
+
+.status-message.error {
+    color:
+        #ff8080;
+}
+
+
+/* =========================================================
+   LIGHT THEME
+========================================================= */
+
+body.light-theme {
+
+    --bg-gradient:
+        radial-gradient(
+            circle at top left,
+            rgba(0, 0, 0, 0.025) 0%,
+            transparent 35%
+        ),
+
+        radial-gradient(
+            circle at bottom right,
+            rgba(0, 0, 0, 0.025) 0%,
+            transparent 40%
+        ),
+
+        linear-gradient(
+            135deg,
+            #eeeeee 0%,
+            #e5e5e5 45%,
+            #dcdcdc 100%
+        );
+
+    --text-main:
+        #111111;
+
+    --text-secondary:
+        #555555;
+
+    --glass-bg:
+        rgba(255, 255, 255, 0.72);
+
+    --border-glass:
+        rgba(0, 0, 0, 0.16);
+
+    --shadow-main:
+        0 10px 30px
+        rgba(0, 0, 0, 0.16),
+
+        inset 0 0 20px
+        rgba(255, 255, 255, 0.35);
+
+    --scroll-track:
+        rgba(0, 0, 0, 0.08);
+
+    --scroll-thumb:
+        rgba(0, 0, 0, 0.35);
+
+    --dropdown-bg:
+        #ffffff;
+
+    background:
+        var(--bg-gradient);
+
+    color:
+        var(--text-main);
+}
+
+
+/* =========================================================
+   LIGHT CONTAINER
+========================================================= */
+
+body.light-theme .container {
+
+    background:
+        var(--glass-bg);
+
+    color:
+        #000;
+
+    border-color:
+        var(--border-glass);
+
+    box-shadow:
+        var(--shadow-main);
+}
+
+
+/* =========================================================
+   LIGHT HEADING
+========================================================= */
+
+body.light-theme .container h1 {
+
+    background:
+        none;
+
+    color:
+        #000;
+
+    -webkit-text-fill-color:
+        #000;
+
+    text-shadow:
+        0 0 8px
+        rgba(0, 0, 0, 0.08);
+}
+
+
+/* =========================================================
+   LIGHT PARAGRAPH
+========================================================= */
+
+body.light-theme .container p {
+
+    color:
+        #555;
+}
+
+
+/* =========================================================
+   LIGHT THEME BUTTON
+========================================================= */
+
+body.light-theme #theme-toggle {
+
+    background:
+        rgba(0, 0, 0, 0.1);
+
+    color:
+        #000;
+}
+
+
+body.light-theme #theme-toggle:hover {
+
+    background:
+        rgba(0, 0, 0, 0.2);
+}
+
+
+/* =========================================================
+   LIGHT GENERATE BUTTON
+========================================================= */
+
+body.light-theme #autogen-btn {
+
+    background:
+        rgba(0, 0, 0, 0.08);
+
+    color:
+        #000;
+
+    border-color:
+        rgba(0, 0, 0, 0.1);
+}
+
+
+body.light-theme #autogen-btn:hover {
+
+    background:
+        rgba(0, 0, 0, 0.15);
+}
+
+
+/* =========================================================
+   LIGHT CLEAR BUTTON
+========================================================= */
+
+body.light-theme #clear-btn {
+
+    background:
+        rgba(180, 0, 0, 0.08);
+
+    color:
+        #b91c1c;
+}
+
+
+body.light-theme #clear-btn:hover {
+
+    background:
+        rgba(180, 0, 0, 0.15);
+}
+
+
+/* =========================================================
+   LIGHT RESULT
+========================================================= */
+
+body.light-theme .result-panel {
+
+    background:
+        rgba(0, 0, 0, 0.035);
+
+    border:
+        1px solid
+        rgba(0, 0, 0, 0.12);
+
+    box-shadow:
+        inset 0 1px 2px
+        rgba(255, 255, 255, 0.5);
+}
+
+
+/* =========================================================
+   LIGHT GLASS SHINE
+========================================================= */
+
+body.light-theme .glass-layer {
+
+    background:
+        rgba(255, 255, 255, 0.55);
+
+    border-color:
+        rgba(0, 0, 0, 0.08);
+
+    box-shadow:
+        0 10px 30px
+        rgba(0, 0, 0, 0.15);
+}
+
+
+body.light-theme .glass-layer::before {
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(0, 0, 0, 0.03) 20%,
+            rgba(0, 0, 0, 0.10) 50%,
+            rgba(0, 0, 0, 0.03) 80%,
+            transparent 100%
+        );
+}
+
+
+/* =========================================================
+   LIGHT CURSOR GLOW
+========================================================= */
+
+body.light-theme .cursor-glow {
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(0, 0, 0, 0.22) 0%,
+            rgba(0, 0, 0, 0.10) 35%,
+            transparent 70%
+        );
+}
+
+
+/* =========================================================
+   LIGHT DROPDOWN
+========================================================= */
+
+body.light-theme .dropdown-selected {
+
+    /*
+        ทึบ 100%
+    */
+
+    background:
+        #f2f2f2;
+
+    color:
+        #000;
+
+    border-color:
+        rgba(0, 0, 0, 0.35);
+
+    backdrop-filter:
+        none;
+
+    -webkit-backdrop-filter:
+        none;
+}
+
+
+body.light-theme .dropdown-selected:hover {
+
+    border-color:
+        #000;
+}
+
+
+body.light-theme .dropdown-list {
+
+    /*
+        ทึบ 100%
+    */
+
+    background:
+        #ffffff;
+
+    color:
+        #000;
+
+    border-color:
+        rgba(0, 0, 0, 0.12);
+
+    box-shadow:
+        0 20px 40px
+        rgba(0, 0, 0, 0.20);
+
+    backdrop-filter:
+        none;
+
+    -webkit-backdrop-filter:
+        none;
+}
+
+
+body.light-theme .dropdown-list li {
+
+    background:
+        #ffffff;
+
+    color:
+        #000;
+}
+
+
+body.light-theme .dropdown-list li:hover {
+
+    background:
+        #eeeeee;
+}
+
+
+body.light-theme .dropdown-list li.selected {
+
+    background:
+        #e5e5e5;
+}
+
+
+body.light-theme .dropdown.active .dropdown-selected {
+
+    border-color:
+        #000;
+
+    box-shadow:
+        0 0 12px
+        rgba(0, 0, 0, 0.12);
+}
+
+
+/* =========================================================
+   LIGHT INPUT
+========================================================= */
+
+body.light-theme .input-wrapper input {
+
+    background:
+        rgba(0, 0, 0, 0.035);
+
+    color:
+        #000;
+
+    border-color:
+        rgba(0, 0, 0, 0.18);
+}
+
+
+body.light-theme .input-wrapper input::placeholder {
+
+    color:
+        #666;
+}
+
+
+body.light-theme .input-wrapper input:focus {
+
+    border-color:
+        rgba(0, 0, 0, 0.45);
+
+    box-shadow:
+        0 0 12px
+        rgba(0, 0, 0, 0.08);
+}
+
+
+/* =========================================================
+   LIGHT NODEB HINT
+========================================================= */
+
+body.light-theme .nodeb-hint {
+
+    color:
+        #666;
+}
+
+
+/* =========================================================
+   LIGHT SCROLLBAR
+========================================================= */
+
+body.light-theme .container::-webkit-scrollbar-track,
+body.light-theme .result-panel::-webkit-scrollbar-track {
+
+    background:
+        rgba(0, 0, 0, 0.12);
+}
+
+
+body.light-theme .container::-webkit-scrollbar-thumb,
+body.light-theme .result-panel::-webkit-scrollbar-thumb {
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(80, 80, 80, 0.85),
+            rgba(120, 120, 120, 0.65)
+        );
+}
+
+
+body.light-theme .container::-webkit-scrollbar-thumb:hover,
+body.light-theme .result-panel::-webkit-scrollbar-thumb:hover {
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(0, 0, 0, 0.65),
+            rgba(0, 0, 0, 0.35)
+        );
+}
+
+
+body.light-theme .container,
+body.light-theme .result-panel {
+
+    scrollbar-color:
+        rgba(0, 0, 0, 0.45)
+        rgba(0, 0, 0, 0.08);
+}
+
+
+/* =========================================================
+   LIGHT STATUS MESSAGE
+========================================================= */
+
+body.light-theme .status-message.warning {
+
+    color:
+        #b45309;
+}
+
+
+body.light-theme .status-message.error {
+
+    color:
+        #b91c1c;
+}
+
+
+/* =========================================================
+   DEVELOPER CREDIT
+========================================================= */
+
+/*
+    Developer ต้องอยู่นอก Container
+    และอยู่ด้านล่างสุดเสมอ
+
+    HTML:
+
+    <main class="container">
+        ...
+    </main>
+
+    <footer class="developer-credit">
+        Developed by rk_sxtxnix
+    </footer>
+*/
+
+.developer-credit {
+
+    position:
+        relative;
+
+    /*
+        อยู่ต่ำกว่า Container
+        และไม่แย่ง Layer กับ Dropdown
+    */
+
+    z-index:
+        1;
+
+    width:
+        100%;
+
+    margin-top:
+        25px;
+
+    text-align:
+        center;
+
+    font-size:
+        0.8rem;
+
+    font-weight:
+        600;
+
+    letter-spacing:
+        0.5px;
+
+    color:
+        var(--text-secondary);
+
+    opacity:
+        0.75;
+
+    pointer-events:
+        auto;
+
+    transition:
+        color 0.3s ease,
+        opacity 0.3s ease;
+}
+
+
+.developer-credit:hover {
+
+    opacity:
+        1;
+}
+
+
+/* =========================================================
+   FINAL DROPDOWN STACKING FIX
+========================================================= */
+
+/*
+    ลำดับ Layer:
+
+    Developer
+        ↓
+    Container
+        ↓
+    Action Area
+        ↓
+    Dropdown
+        ↓
+    Dropdown List
+*/
+
+.container {
+    z-index:
+        10;
+}
+
+
+.action-area {
+    z-index:
+        100;
+}
+
+
+.system-dropdown {
+    z-index:
+        3000;
+}
+
+
+.type-dropdown {
+    z-index:
+        2000;
+}
+
+
+.dropdown.active {
+    z-index:
+        999999;
+}
+
+
+.dropdown.active .dropdown-list {
+    z-index:
+        9999999;
+}
+
+
+/*
+    ป้องกัน Developer จากการแทรก
+    เข้าไปในพื้นที่ Dropdown
+*/
+
+.dropdown-list {
+
+    background:
+        #161616 !important;
+
+    opacity:
+        1 !important;
+
+    backdrop-filter:
+        none !important;
+
+    -webkit-backdrop-filter:
+        none !important;
+
+    isolation:
+        isolate;
+}
+
+
+.dropdown-list li {
+
+    background:
+        #161616;
+}
+
+
+body.light-theme .dropdown-list {
+
+    background:
+        #ffffff !important;
+
+    opacity:
+        1 !important;
+
+    backdrop-filter:
+        none !important;
+
+    -webkit-backdrop-filter:
+        none !important;
+}
+
+
+body.light-theme .dropdown-list li {
+
+    background:
+        #ffffff;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+
+/* ---------- Mobile ---------- */
+
+@media (max-width: 767px) {
+
+    body {
+
+        background:
+            linear-gradient(
+                180deg,
+                #2d2d2d,
+                #151515,
+                #000
+            );
+
+        padding:
+            30px 10px;
+    }
+
+
+    body.light-theme {
+
+        background:
+            linear-gradient(
+                180deg,
+                #eeeeee,
+                #e5e5e5,
+                #dcdcdc
+            );
+    }
+
+
+    .container {
+
+        width:
+            95%;
+
+        padding:
+            20px;
+
+        margin-top:
+            50px;
+    }
+
+
+    .container h1 {
+
+        font-size:
+            1.8rem;
+    }
+
+
+    .container p {
+
+        font-size:
+            1rem;
+    }
+
+
+    .button-group {
+
+        gap:
+            12px;
+    }
+
+
+    #autogen-btn,
+    #clear-btn {
+
+        width:
+            130px;
+    }
+
+
+    .developer-credit {
+
+        margin-top:
+            20px;
+
+        font-size:
+            0.75rem;
+    }
+}
+
+
+/* ---------- Tablet ---------- */
+
+@media (min-width: 768px) and (max-width: 1023px) {
+
+    body {
+
+        background:
+            linear-gradient(
+                135deg,
+                #202020,
+                #101010,
+                #000
+            );
+    }
+
+
+    body.light-theme {
+
+        background:
+            linear-gradient(
+                135deg,
+                #fff,
+                #f5f5f5,
+                #dcdcdc
+            );
+    }
+}
+
+
+/* =========================================================
+   END OF DATA.CSS
+========================================================= */
+
+
+
+/* =========================================================
+   AUTOGEN RESULT TABLE
+   ========================================================= */
+
+.autogen-summary {
+    text-align: left;
+    margin-bottom: 18px;
+    padding: 14px 16px;
+    border: 1px solid var(--border-glass);
+    border-radius: 14px;
+    background: var(--glass-bg-light);
+}
+
+.autogen-summary p {
+    margin: 4px 0;
+    color: var(--text-main);
+}
+
+.result-table-wrapper {
+    width: 100%;
+    max-height: 520px;
+    overflow: auto;
+    border: 1px solid var(--border-glass);
+    border-radius: 14px;
+}
+
+.autogen-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 0.9rem;
+}
+
+.autogen-table th,
+.autogen-table td {
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--border-glass);
+    vertical-align: top;
+}
+
+.autogen-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: var(--dropdown-bg);
+    color: var(--text-main);
+}
+
+.autogen-table tbody th {
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.autogen-table tbody td {
+    color: var(--text-secondary);
+    word-break: break-word;
+}
+
+.autogen-table tbody tr:last-child th,
+.autogen-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+body.light-theme .autogen-summary {
+    background: rgba(0, 0, 0, 0.035);
+}
+
+body.light-theme .autogen-table thead th {
+    background: #f2f2f2;
+    color: #000;
+}
+
+body.light-theme .autogen-table tbody th {
+    color: #111;
+}
+
+body.light-theme .autogen-table tbody td {
+    color: #444;
+}
+
+@media (max-width: 767px) {
+    .autogen-table {
+        min-width: 620px;
+    }
+
+    .result-table-wrapper {
+        max-height: 440px;
+    }
+}
