@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- =====================================================
+    META
+    ====================================================== -->
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="AutoGenParameters - static GitHub Pages application"
+    >
+
+    <!-- =====================================================
+    PAGE INFO
+    ====================================================== -->
+    <title>AutoGenParameters</title>
+
+    <!-- =====================================================
+    FAVICON
+    ====================================================== -->
+    <link
+        rel="icon"
+        type="image/png"
+        href="static/ICON.png"
+    >
+
+    <!-- =====================================================
+    CSS
+    ====================================================== -->
+    <link
+        rel="stylesheet"
+        href="static/Data.css"
+    >
+</head>
+
+
+<body>
+
+    <noscript>
+        <div style="padding:20px;text-align:center;">
+            JavaScript is required to use AutoGenParameters.
+        </div>
+    </noscript>
+
+    <!-- =====================================================
+    THEME TOGGLE
+    ====================================================== -->
+    <button
+        id="theme-toggle"
+        type="button"
+        aria-label="Toggle theme"
+    >
+        🌙 Dark
+    </button>
+
+
+    <!-- =====================================================
+    CURSOR GLOW
+    ====================================================== -->
+    <div
+        class="cursor-glow"
+        aria-hidden="true"
+    ></div>
+
+
+    <!-- =====================================================
+    MAIN CONTAINER
+    ====================================================== -->
+    <main class="container">
+
+        <!-- =================================================
+        GLASS EFFECT LAYER
+        ================================================== -->
+        <div
+            class="glass-layer"
+            aria-hidden="true"
+        ></div>
+
+
+        <!-- =================================================
+        HEADER
+        ================================================== -->
+        <h1>AutoGenParameters</h1>
+
+        <p>
+            Select a system and generate parameters automatically.
+        </p>
+
+
+        <!-- =================================================
+        ACTION AREA
+        ================================================== -->
+        <div class="action-area">
+
+            <!-- =============================================
+            SYSTEM DROPDOWN
+            ============================================== -->
+            <div class="dropdown system-dropdown">
+
+                <div
+                    class="dropdown-selected"
+                    id="dropdownSelected"
+                    role="button"
+                    tabindex="0"
+                    aria-haspopup="listbox"
+                    aria-expanded="false"
+                >
+                    <span id="selectedText">
+                        SYSTEM
+                    </span>
+
+                    <span
+                        class="arrow"
+                        aria-hidden="true"
+                    >
+                        ▾
+                    </span>
+                </div>
+
+
+                <ul
+                    class="dropdown-list"
+                    id="dropdownList"
+                    role="listbox"
+                    aria-label="Select system"
+                >
+                    <li
+                        data-value="3G2100"
+                        role="option"
+                    >
+                        3G2100
+                    </li>
+
+                    <li
+                        data-value="4G1800"
+                        role="option"
+                    >
+                        4G1800
+                    </li>
+
+                    <li
+                        data-value="4G2100"
+                        role="option"
+                    >
+                        4G2100
+                    </li>
+
+                    <li
+                        data-value="4G2600"
+                        role="option"
+                    >
+                        4G2600
+                    </li>
+
+                    <li
+                        data-value="5G2600"
+                        role="option"
+                    >
+                        5G2600
+                    </li>
+                </ul>
+
+            </div>
+
+
+            <!-- =============================================
+            PARAMETER FORM
+            ============================================== -->
+            <div
+                id="parameter-form"
+                class="parameter-form hidden"
+            >
+
+                <!-- =========================================
+                SITE CODE
+                ========================================== -->
+                <div class="input-wrapper">
+
+                    <input
+                        id="site-code"
+                        type="text"
+                        maxlength="5"
+                        autocomplete="off"
+                        spellcheck="false"
+                        placeholder="SITE CODE"
+                    >
+
+                    <span
+                        id="site-code-status"
+                        class="input-status"
+                        aria-hidden="true"
+                    ></span>
+
+                </div>
+
+
+                <!-- =========================================
+                NODEB NAME
+                ========================================== -->
+                <div class="input-wrapper nodeb-wrapper">
+
+                    <input
+                        id="nodeb-name"
+                        type="text"
+                        maxlength="8"
+                        autocomplete="off"
+                        spellcheck="false"
+                        placeholder="NODEB NAME"
+                    >
+
+                    <span
+                        id="nodeb-name-status"
+                        class="input-status"
+                        aria-hidden="true"
+                    ></span>
+
+
+                    <!-- NODEB HINT -->
+                    <div
+                        id="nodeb-hint"
+                        class="nodeb-hint hidden"
+                    >
+                        _D1 → _D9
+                    </div>
+
+                </div>
+
+
+                <!-- =========================================
+                TYPE DROPDOWN
+                ========================================== -->
+                <div
+                    class="dropdown type-dropdown"
+                    id="typeDropdown"
+                >
+
+                    <div
+                        class="dropdown-selected"
+                        id="typeDropdownSelected"
+                        role="button"
+                        tabindex="0"
+                        aria-haspopup="listbox"
+                        aria-expanded="false"
+                    >
+                        <span id="typeSelectedText">
+                            TYPE
+                        </span>
+
+                        <span
+                            class="arrow"
+                            aria-hidden="true"
+                        >
+                            ▾
+                        </span>
+                    </div>
+
+
+                    <ul
+                        class="dropdown-list"
+                        id="typeDropdownList"
+                        role="listbox"
+                        aria-label="Select type"
+                    >
+                        <li
+                            data-value="NODE"
+                            role="option"
+                        >
+                            NODE
+                        </li>
+
+                        <li
+                            data-value="DISTRIBUTED"
+                            role="option"
+                        >
+                            DISTRIBUTED
+                        </li>
+                    </ul>
+
+
+                    <span
+                        id="type-status"
+                        class="input-status"
+                        aria-hidden="true"
+                    ></span>
+
+                </div>
+
+            </div>
+
+
+            <!-- =============================================
+            BUTTON GROUP
+            ============================================== -->
+            <div class="button-group">
+
+                <button
+                    id="autogen-btn"
+                    type="button"
+                >
+                    ⚡ AutoGen
+                </button>
+
+                <button
+                    id="clear-btn"
+                    type="button"
+                >
+                    🗑 Clear
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+        RESULT PANEL
+        ================================================== -->
+        <div
+            id="result"
+            class="result-panel hidden"
+            aria-live="polite"
+        ></div>
+
+    </main>
+
+
+    <!-- =====================================================
+    DEVELOPER CREDIT
+    ====================================================== -->
+    <footer class="developer-credit">
+        Developed by rk_sxtxnix
+    </footer>
+
+
+    <!-- =====================================================
+    JAVASCRIPT
+    ====================================================== -->
+
+    <!-- SheetJS -->
+    <script
+        src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"
+    ></script>
+
+    <!-- Excel Loader -->
+    <script src="Deploy.js"></script>
+
+    <!-- Main Application -->
+    <script src="static/Data.js"></script>
+
+</body>
+
+</html>
+

@@ -1,0 +1,2 @@
+AutoGenParameters - GitHub Pages deployment package
+Static-only: no Flask / Python / Data.py / backend endpoint required.
