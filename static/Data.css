@@ -19,9 +19,6 @@
 ========================================================= */
 
 :root {
-
-    /* ---------- Dark Theme ---------- */
-
     --bg-main: #000;
 
     --bg-gradient:
@@ -44,7 +41,6 @@
         );
 
     --text-main: #fff;
-
     --text-secondary: #a8a8a8;
 
     --glass-bg:
@@ -61,14 +57,13 @@
         inset 0 0 20px rgba(255, 255, 255, 0.03);
 
     --scroll-track:
-        rgba(255, 255, 255, 0.05);
+        transparent;
 
     --scroll-thumb:
-        rgba(255, 255, 255, 0.4);
+        rgba(255, 255, 255, 0.40);
 
-    /* ---------- Solid Dropdown ---------- */
-
-    --dropdown-bg: #161616;
+    --dropdown-bg:
+        #161616;
 }
 
 
@@ -109,12 +104,6 @@ body {
 
 .container {
     position: relative;
-
-    /*
-        Container อยู่เหนือ Developer Credit
-        แต่ไม่สร้างปัญหากับ Dropdown ภายใน
-    */
-
     z-index: 10;
 
     width: 90%;
@@ -152,11 +141,9 @@ body {
 
 .glass-layer {
     position: absolute;
-
     inset: 0;
 
     border-radius: 24px;
-
     overflow: hidden;
 
     background:
@@ -176,20 +163,13 @@ body {
         var(--shadow-main);
 
     pointer-events: none;
-
     z-index: 1;
 }
-
-
-/* =========================================================
-   GLASS SHINE
-========================================================= */
 
 .glass-layer::before {
     content: "";
 
     position: absolute;
-
     top: 0;
     left: -180%;
 
@@ -215,15 +195,9 @@ body {
     pointer-events: none;
 }
 
-
 .container:hover .glass-layer::before {
     left: 220%;
 }
-
-
-/* =========================================================
-   CONTENT ABOVE GLASS
-========================================================= */
 
 .container > *:not(.glass-layer) {
     position: relative;
@@ -243,7 +217,6 @@ body {
         sans-serif;
 
     font-weight: 800;
-
     letter-spacing: 0.3px;
 
     background:
@@ -254,23 +227,16 @@ body {
             #fff
         );
 
-    background-clip:
-        text;
+    background-clip: text;
+    -webkit-background-clip: text;
 
-    -webkit-background-clip:
-        text;
-
-    color:
-        transparent;
-
-    -webkit-text-fill-color:
-        transparent;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
 
     text-shadow:
         0 0 12px
         rgba(255, 255, 255, 0.15);
 }
-
 
 .container p {
     margin-top: 8px;
@@ -281,6 +247,55 @@ body {
 
     color:
         var(--text-secondary);
+}
+
+
+/* =========================================================
+   DATE / TIME DISPLAY
+========================================================= */
+
+#datetime-display {
+    position: fixed;
+
+    top: 20px;
+    right: 120px;
+    left: auto;
+
+    z-index: 9999999;
+
+    padding: 9px 16px;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.16);
+
+    border-radius: 16px;
+
+    background:
+        rgba(255, 255, 255, 0.08);
+
+    color:
+        rgba(255, 255, 255, 0.9);
+
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+
+    backdrop-filter:
+        blur(12px);
+
+    -webkit-backdrop-filter:
+        blur(12px);
+
+    box-shadow:
+        0 6px 20px
+        rgba(0, 0, 0, 0.18);
+
+    white-space: nowrap;
+    user-select: none;
+
+    transition:
+        0.3s ease;
 }
 
 
@@ -299,7 +314,6 @@ body {
     padding: 10px 20px;
 
     border: none;
-
     border-radius: 20px;
 
     cursor: pointer;
@@ -322,7 +336,6 @@ body {
         0.3s;
 }
 
-
 #theme-toggle:hover {
     background:
         rgba(255, 255, 255, 0.2);
@@ -338,6 +351,7 @@ body {
 
     display: flex;
     flex-direction: column;
+
     justify-content: center;
     align-items: center;
 
@@ -346,7 +360,6 @@ body {
     margin-top: 25px;
 
     position: relative;
-
     z-index: 100;
 }
 
@@ -364,40 +377,24 @@ body {
     margin: 0 auto;
 }
 
-
-/* =========================================================
-   SYSTEM DROPDOWN
-========================================================= */
-
 .system-dropdown {
     position: relative;
-
     z-index: 3000;
 }
 
-
-/* =========================================================
-   TYPE DROPDOWN
-========================================================= */
-
 .type-dropdown {
     width: 100%;
-
     position: relative;
-
     z-index: 2000;
 }
 
-
-/* =========================================================
-   ACTIVE DROPDOWN
-========================================================= */
+.tower-type-dropdown {
+    width: 100%;
+    position: relative;
+    z-index: 1900;
+}
 
 .dropdown.active {
-    /*
-        สูงกว่า Developer / Result
-    */
-
     z-index: 999999;
 }
 
@@ -413,16 +410,13 @@ body {
     height: 50px;
 
     display: flex;
+
     justify-content: space-between;
     align-items: center;
 
     padding: 0 24px;
 
     border-radius: 20px;
-
-    /*
-        ทึบ 100%
-    */
 
     background:
         #161616;
@@ -431,12 +425,7 @@ body {
         2px solid
         rgba(255, 255, 255, 0.35);
 
-    /*
-        ห้าม透ผ่าน Background
-    */
-
     backdrop-filter: none;
-
     -webkit-backdrop-filter: none;
 
     cursor: pointer;
@@ -453,7 +442,6 @@ body {
 
     z-index: 2;
 }
-
 
 .dropdown-selected:hover {
     border-color:
@@ -475,11 +463,6 @@ body {
 
     width: 100%;
 
-    /*
-        สำคัญที่สุด
-        อยู่เหนือทุก Content
-    */
-
     z-index: 9999999;
 
     list-style: none;
@@ -491,12 +474,8 @@ body {
 
     overflow: hidden;
 
-    /*
-        ทึบจริง 100%
-    */
-
     background:
-        #161616;
+        #161616 !important;
 
     color:
         var(--text-main);
@@ -511,17 +490,13 @@ body {
         0 20px 40px
         rgba(0, 0, 0, 0.70);
 
-    backdrop-filter: none;
-
-    -webkit-backdrop-filter: none;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
 
     isolation: isolate;
+
+    opacity: 1 !important;
 }
-
-
-/* =========================================================
-   DROPDOWN LIST ITEM
-========================================================= */
 
 .dropdown-list li {
     position: relative;
@@ -544,12 +519,10 @@ body {
         background 0.2s ease;
 }
 
-
 .dropdown-list li:hover {
     background:
         #242424;
 }
-
 
 .dropdown-list li.selected {
     background:
@@ -558,15 +531,9 @@ body {
     font-weight: 700;
 }
 
-
-/* =========================================================
-   ACTIVE DROPDOWN LIST
-========================================================= */
-
 .dropdown.active .dropdown-list {
     display: block;
 }
-
 
 .dropdown.active .dropdown-selected {
     border-color:
@@ -586,7 +553,6 @@ body {
     transition:
         transform 0.3s ease;
 }
-
 
 .dropdown.active .arrow {
     transform:
@@ -617,10 +583,8 @@ body {
         0.25s ease;
 
     position: relative;
-
     z-index: 5;
 }
-
 
 .parameter-form.hidden {
     display: none;
@@ -633,7 +597,6 @@ body {
 
 .input-wrapper {
     position: relative;
-
     width: 100%;
 }
 
@@ -667,7 +630,6 @@ body {
         var(--text-main);
 
     font-size: 15px;
-
     font-weight: 700;
 
     font-family:
@@ -682,7 +644,6 @@ body {
         background 0.25s ease;
 }
 
-
 .input-wrapper input::placeholder {
     color:
         var(--text-secondary);
@@ -693,7 +654,6 @@ body {
     font-weight:
         600;
 }
-
 
 .input-wrapper input:focus {
     border-color:
@@ -734,11 +694,6 @@ body {
         opacity 0.2s ease;
 }
 
-
-/* =========================================================
-   VALID STATUS
-========================================================= */
-
 .input-status.valid {
     background:
         #35d66f;
@@ -761,7 +716,6 @@ body {
 
 .nodeb-wrapper {
     display: flex;
-
     flex-direction: column;
 
     align-items: stretch;
@@ -779,9 +733,7 @@ body {
     margin-left: 8px;
 
     font-size: 0.78rem;
-
     font-weight: 600;
-
     line-height: 1.2;
 
     color:
@@ -794,10 +746,8 @@ body {
         left;
 }
 
-
 .nodeb-hint.hidden {
-    display:
-        none;
+    display: none;
 }
 
 
@@ -825,11 +775,6 @@ body {
     pointer-events: none;
 }
 
-
-/* =========================================================
-   TYPE VALIDATION INDICATOR
-========================================================= */
-
 .type-dropdown > .input-status.valid {
     background:
         transparent;
@@ -843,6 +788,27 @@ body {
 
     opacity:
         0;
+}
+
+
+/* =========================================================
+   3G2100 ONLY FIELDS
+========================================================= */
+
+.system-3g2100-field.hidden,
+.tower-type-dropdown.hidden {
+    display:
+        none;
+}
+
+
+/* =========================================================
+   3G2100 NUMERIC INPUT
+========================================================= */
+
+.system-3g2100-field input {
+    text-align:
+        left;
 }
 
 
@@ -877,7 +843,6 @@ body {
     align-items: center;
 
     font-size: 14px;
-
     font-weight: 700;
 
     border-radius: 20px;
@@ -915,7 +880,6 @@ body {
         rgba(0, 0, 0, 0.25);
 }
 
-
 #autogen-btn:hover {
     background:
         rgba(255, 255, 255, 0.18);
@@ -923,7 +887,6 @@ body {
     transform:
         translateY(-2px);
 }
-
 
 #autogen-btn:active {
     transform:
@@ -946,7 +909,6 @@ body {
         #ff8f8f;
 }
 
-
 #clear-btn:hover {
     background:
         rgba(255, 80, 80, 0.25);
@@ -954,7 +916,6 @@ body {
     transform:
         translateY(-2px);
 }
-
 
 #clear-btn:active {
     transform:
@@ -982,11 +943,6 @@ body {
     z-index:
         1;
 }
-
-
-/* =========================================================
-   RESULT PANEL
-========================================================= */
 
 .result-panel {
     position:
@@ -1021,12 +977,10 @@ body {
         18px;
 }
 
-
 .result-panel ul {
     padding-left:
         25px;
 }
-
 
 .result-panel li {
     margin-bottom:
@@ -1038,79 +992,557 @@ body {
 
 
 /* =========================================================
-   CUSTOM SCROLLBAR
+   AUTOGEN SUMMARY
 ========================================================= */
 
-.container::-webkit-scrollbar,
-.result-panel::-webkit-scrollbar {
-    width:
-        14px;
-}
+.autogen-summary {
+    width: 100%;
 
+    text-align: left;
 
-.container::-webkit-scrollbar-track,
-.result-panel::-webkit-scrollbar-track {
-    background:
-        var(--scroll-track);
+    margin-bottom:
+        18px;
 
-    border-radius:
-        999px;
-}
-
-
-.container::-webkit-scrollbar-thumb,
-.result-panel::-webkit-scrollbar-thumb {
-    background:
-        linear-gradient(
-            180deg,
-            rgba(255, 255, 255, 0.45),
-            rgba(255, 255, 255, 0.20)
-        );
-
-    border-radius:
-        999px;
+    padding:
+        14px 16px;
 
     border:
-        2px solid transparent;
+        1px solid
+        var(--border-glass);
 
-    background-clip:
-        padding-box;
+    border-radius:
+        14px;
 
-    backdrop-filter:
-        blur(10px);
+    background:
+        var(--glass-bg-light);
 
-    box-shadow:
-        inset 0 0 4px
-        rgba(255, 255, 255, 0.15),
-
-        0 0 8px
-        rgba(255, 255, 255, 0.08);
+    box-sizing:
+        border-box;
 }
 
+.autogen-summary p {
+    margin:
+        4px 0;
 
-.container::-webkit-scrollbar-thumb:hover,
-.result-panel::-webkit-scrollbar-thumb:hover {
-    background:
-        linear-gradient(
-            180deg,
-            rgba(255, 255, 255, 0.70),
-            rgba(255, 255, 255, 0.35)
-        );
+    color:
+        var(--text-main);
 }
 
 
 /* =========================================================
-   FIREFOX SCROLLBAR
+   RESULT TABLE WRAPPER
 ========================================================= */
 
-.container,
-.result-panel {
-    scrollbar-width:
-        thin;
+.result-table-wrapper {
+    width: 100%;
+    max-width: 100%;
 
-    scrollbar-color:
-        rgba(255, 255, 255, 0.4)
-        rgba(255, 255, 255, 0.08);
+    max-height:
+        520px;
+
+    overflow-x:
+        hidden;
+
+    overflow-y:
+        auto;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.06);
+
+    border-radius:
+        14px;
+
+    box-sizing:
+        border-box;
+}
+
+
+/* =========================================================
+   AUTOGEN TABLE
+========================================================= */
+
+.autogen-table {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+
+    border-collapse:
+        collapse;
+
+    table-layout:
+        fixed;
+
+    text-align:
+        left;
+
+    font-size:
+        0.9rem;
+}
+
+.autogen-table th,
+.autogen-table td {
+    min-width:
+        0;
+
+    max-width:
+        100%;
+
+    padding:
+        9px 12px;
+
+    border-bottom:
+        1px solid
+        var(--border-glass);
+
+    vertical-align:
+        top;
+
+    overflow-wrap:
+        anywhere;
+
+    word-break:
+        break-word;
+}
+
+
+/* =========================================================
+   TABLE HEADER
+========================================================= */
+
+.autogen-table thead th {
+    position:
+        sticky;
+
+    top:
+        0;
+
+    z-index:
+        2;
+
+    background:
+        var(--dropdown-bg);
+
+    color:
+        var(--text-main);
+
+    overflow:
+        hidden;
+}
+
+
+/* =========================================================
+   TABLE BODY
+========================================================= */
+
+.autogen-table tbody th {
+    font-weight:
+        600;
+
+    color:
+        var(--text-main);
+}
+
+.autogen-table tbody td {
+    color:
+        var(--text-secondary);
+
+    word-break:
+        break-word;
+}
+
+.autogen-table tbody tr:last-child th,
+.autogen-table tbody tr:last-child td {
+    border-bottom:
+        1px solid
+        var(--border-glass);
+}
+
+
+/* =========================================================
+   PARAMETER TABLE COLUMN ALIGNMENT
+   Parameter = left
+   Generated Value = right
+========================================================= */
+
+.autogen-table th:first-child,
+.autogen-table td:first-child {
+    width:
+        42%;
+
+    text-align:
+        left;
+
+    overflow-wrap:
+        anywhere;
+
+    word-break:
+        break-word;
+}
+
+.autogen-table th:last-child,
+.autogen-table td:last-child {
+    width:
+        58%;
+
+    text-align:
+        right !important;
+
+    overflow-wrap:
+        anywhere;
+
+    word-break:
+        break-word;
+}
+
+
+/* =========================================================
+   GENERATED VALUE
+========================================================= */
+
+.autogen-table td:last-child .parameter-value-plain,
+.autogen-table td:last-child .parameter-value-truncated {
+    display:
+        block;
+
+    width:
+        100%;
+
+    max-width:
+        100%;
+
+    text-align:
+        right;
+
+    overflow-wrap:
+        anywhere;
+
+    word-break:
+        break-word;
+}
+
+.parameter-value-plain {
+    display:
+        block;
+
+    width:
+        100%;
+
+    max-width:
+        100%;
+
+    text-align:
+        right;
+
+    word-break:
+        break-word;
+}
+
+.parameter-value-truncated {
+    display:
+        block;
+
+    width:
+        100%;
+
+    max-width:
+        100%;
+
+    overflow:
+        hidden;
+
+    text-overflow:
+        ellipsis;
+
+    white-space:
+        nowrap;
+
+    text-align:
+        right;
+
+    cursor:
+        help;
+
+    outline:
+        none;
+
+    border-bottom:
+        1px dashed
+        rgba(255, 255, 255, 0.32);
+
+    transition:
+        border-color 0.2s ease;
+}
+
+.parameter-value-truncated:hover,
+.parameter-value-truncated:focus-visible {
+    border-bottom-color:
+        rgba(255, 255, 255, 0.70);
+}
+
+
+/* =========================================================
+   GENERATED VALUE - HOVER TOOLTIP
+========================================================= */
+
+.value-hover-tooltip {
+    position:
+        fixed;
+
+    max-width:
+        320px;
+
+    padding:
+        10px 14px;
+
+    border-radius:
+        12px;
+
+    background:
+        #161616;
+
+    color:
+        #fff;
+
+    font-size:
+        0.85rem;
+
+    font-weight:
+        600;
+
+    line-height:
+        1.55;
+
+    text-align:
+        left;
+
+    white-space:
+        normal;
+
+    word-break:
+        break-word;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.14);
+
+    box-shadow:
+        0 16px 34px
+        rgba(0, 0, 0, 0.45);
+
+    z-index:
+        999999999;
+
+    pointer-events:
+        none;
+}
+
+.value-hover-tooltip.hidden {
+    display:
+        none;
+}
+
+
+/* =========================================================
+   SHOW ALL / SHOW LESS TOGGLE
+========================================================= */
+
+.parameter-list-toggle {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+
+    margin: 8px 0 0;
+    padding: 16px 0 14px;
+
+    gap: 8px;
+    text-align: center;
+
+    position: relative;
+    left: 16px;
+}
+
+
+/* =========================================================
+   SHOW ALL / SHOW LESS LABEL
+========================================================= */
+
+.parameter-list-toggle-label {
+    font-size:
+        0.75rem;
+
+    font-weight:
+        700;
+}
+
+
+/* =========================================================
+   SHOW ALL / SHOW LESS BUTTON
+========================================================= */
+
+.parameter-list-toggle-btn {
+    width:
+        36px;
+
+    height:
+        36px;
+
+    padding:
+        0;
+
+    margin:
+        0;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.18);
+
+    border-radius:
+        50%;
+
+    background:
+        rgba(255, 255, 255, 0.06);
+
+    color:
+        var(--text-main);
+
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    cursor:
+        pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+
+/* =========================================================
+   HOVER
+========================================================= */
+
+.parameter-list-toggle-btn:hover {
+    background:
+        rgba(255, 255, 255, 0.14);
+
+    border-color:
+        rgba(255, 255, 255, 0.35);
+}
+
+
+/* =========================================================
+   ACTIVE
+========================================================= */
+
+.parameter-list-toggle-btn:active {
+    transform:
+        scale(0.94);
+}
+
+
+/* =========================================================
+   CIRCLE
+========================================================= */
+
+.parameter-list-toggle-circle {
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    width:
+        100%;
+
+    height:
+        100%;
+}
+
+
+/* =========================================================
+   ARROW
+========================================================= */
+
+.parameter-list-toggle-arrow {
+    width:
+        0;
+
+    height:
+        0;
+
+    border-left:
+        6px solid transparent;
+
+    border-right:
+        6px solid transparent;
+
+    border-top:
+        8px solid currentColor;
+
+    transition:
+        transform 0.25s ease;
+}
+
+
+/* =========================================================
+   ARROW UP
+========================================================= */
+
+.parameter-list-toggle-arrow.up {
+    transform:
+        rotate(180deg);
+}
+
+
+/* =========================================================
+   DEVELOPER CREDIT
+========================================================= */
+
+.developer-credit {
+    position:
+        relative;
+    z-index:
+        1;
+    width:
+        100%;
+    margin-top:
+        25px;
+    text-align:
+        center;
+    font-size:
+        0.9rem;
+    font-weight:
+        600;
+    letter-spacing:
+        0.5px;
+    color:
+        var(--text-secondary);
+    opacity:
+        0.75;
+    pointer-events:
+        auto;
+    transition:
+        color 0.3s ease,
+        opacity 0.3s ease;
+}
+
+.developer-credit:hover {
+    opacity:
+        1;
 }
 
 
@@ -1168,7 +1600,6 @@ body {
 ========================================================= */
 
 @keyframes moveGlow {
-
     from {
         transform:
             rotate(0deg);
@@ -1180,9 +1611,7 @@ body {
     }
 }
 
-
 @keyframes parameterFormIn {
-
     from {
         opacity:
             0;
@@ -1264,12 +1693,10 @@ body {
         color 0.3s ease;
 }
 
-
 .status-message.warning {
     color:
         #ffb347;
 }
-
 
 .status-message.error {
     color:
@@ -1278,24 +1705,95 @@ body {
 
 
 /* =========================================================
+   UNIFIED SCROLLBAR
+   Chrome / Edge / Safari
+========================================================= */
+
+.container::-webkit-scrollbar,
+.result-table-wrapper::-webkit-scrollbar,
+.result-panel::-webkit-scrollbar {
+    width:
+        14px;
+
+    height:
+        14px;
+}
+
+.container::-webkit-scrollbar-track,
+.result-table-wrapper::-webkit-scrollbar-track,
+.result-panel::-webkit-scrollbar-track {
+    background:
+        transparent;
+
+    border-radius:
+        999px;
+}
+
+.container::-webkit-scrollbar-thumb,
+.result-table-wrapper::-webkit-scrollbar-thumb,
+.result-panel::-webkit-scrollbar-thumb {
+    background:
+        rgba(255, 255, 255, 0.40);
+
+    border:
+        0;
+
+    border-radius:
+        999px;
+
+    box-shadow:
+        none;
+}
+
+.container::-webkit-scrollbar-thumb:hover,
+.result-table-wrapper::-webkit-scrollbar-thumb:hover,
+.result-panel::-webkit-scrollbar-thumb:hover {
+    background:
+        rgba(255, 255, 255, 0.65);
+
+    border:
+        0;
+
+    border-radius:
+        999px;
+
+    box-shadow:
+        none;
+}
+
+
+/* =========================================================
+   FIREFOX SCROLLBAR
+========================================================= */
+
+.container,
+.result-table-wrapper,
+.result-panel {
+    scrollbar-width:
+        auto;
+
+    scrollbar-color:
+        rgba(255, 255, 255, 0.40)
+        transparent;
+}
+
+
+/* =========================================================
    LIGHT THEME
 ========================================================= */
 
 body.light-theme {
-
     --bg-gradient:
         radial-gradient(
             circle at top left,
             rgba(0, 0, 0, 0.025) 0%,
             transparent 35%
         ),
-
         radial-gradient(
             circle at bottom right,
             rgba(0, 0, 0, 0.025) 0%,
             transparent 40%
         ),
-
         linear-gradient(
             135deg,
             #eeeeee 0%,
@@ -1318,15 +1816,14 @@ body.light-theme {
     --shadow-main:
         0 10px 30px
         rgba(0, 0, 0, 0.16),
-
         inset 0 0 20px
         rgba(255, 255, 255, 0.35);
 
     --scroll-track:
-        rgba(0, 0, 0, 0.08);
+        transparent;
 
     --scroll-thumb:
-        rgba(0, 0, 0, 0.35);
+        rgba(0, 0, 0, 0.40);
 
     --dropdown-bg:
         #ffffff;
@@ -1344,7 +1841,6 @@ body.light-theme {
 ========================================================= */
 
 body.light-theme .container {
-
     background:
         var(--glass-bg);
 
@@ -1364,7 +1860,6 @@ body.light-theme .container {
 ========================================================= */
 
 body.light-theme .container h1 {
-
     background:
         none;
 
@@ -1385,9 +1880,28 @@ body.light-theme .container h1 {
 ========================================================= */
 
 body.light-theme .container p {
-
     color:
         #555;
+}
+
+
+/* =========================================================
+   LIGHT DATE / TIME
+========================================================= */
+
+body.light-theme #datetime-display {
+    background:
+        rgba(255, 255, 255, 0.55);
+
+    color:
+        rgba(0, 0, 0, 0.75);
+
+    border-color:
+        rgba(0, 0, 0, 0.12);
+
+    box-shadow:
+        0 6px 20px
+        rgba(0, 0, 0, 0.10);
 }
 
 
@@ -1396,7 +1910,6 @@ body.light-theme .container p {
 ========================================================= */
 
 body.light-theme #theme-toggle {
-
     background:
         rgba(0, 0, 0, 0.1);
 
@@ -1404,84 +1917,17 @@ body.light-theme #theme-toggle {
         #000;
 }
 
-
 body.light-theme #theme-toggle:hover {
-
     background:
         rgba(0, 0, 0, 0.2);
 }
 
 
 /* =========================================================
-   LIGHT GENERATE BUTTON
-========================================================= */
-
-body.light-theme #autogen-btn {
-
-    background:
-        rgba(0, 0, 0, 0.08);
-
-    color:
-        #000;
-
-    border-color:
-        rgba(0, 0, 0, 0.1);
-}
-
-
-body.light-theme #autogen-btn:hover {
-
-    background:
-        rgba(0, 0, 0, 0.15);
-}
-
-
-/* =========================================================
-   LIGHT CLEAR BUTTON
-========================================================= */
-
-body.light-theme #clear-btn {
-
-    background:
-        rgba(180, 0, 0, 0.08);
-
-    color:
-        #b91c1c;
-}
-
-
-body.light-theme #clear-btn:hover {
-
-    background:
-        rgba(180, 0, 0, 0.15);
-}
-
-
-/* =========================================================
-   LIGHT RESULT
-========================================================= */
-
-body.light-theme .result-panel {
-
-    background:
-        rgba(0, 0, 0, 0.035);
-
-    border:
-        1px solid
-        rgba(0, 0, 0, 0.12);
-
-    box-shadow:
-        inset 0 1px 2px
-        rgba(255, 255, 255, 0.5);
-}
-
-
-/* =========================================================
-   LIGHT GLASS SHINE
+   LIGHT GLASS
 ========================================================= */
 
 body.light-theme .glass-layer {
-
     background:
         rgba(255, 255, 255, 0.55);
 
@@ -1493,9 +1939,7 @@ body.light-theme .glass-layer {
         rgba(0, 0, 0, 0.15);
 }
 
-
 body.light-theme .glass-layer::before {
-
     background:
         linear-gradient(
             90deg,
@@ -1513,7 +1957,6 @@ body.light-theme .glass-layer::before {
 ========================================================= */
 
 body.light-theme .cursor-glow {
-
     background:
         radial-gradient(
             circle,
@@ -1529,11 +1972,6 @@ body.light-theme .cursor-glow {
 ========================================================= */
 
 body.light-theme .dropdown-selected {
-
-    /*
-        ทึบ 100%
-    */
-
     background:
         #f2f2f2;
 
@@ -1550,22 +1988,14 @@ body.light-theme .dropdown-selected {
         none;
 }
 
-
 body.light-theme .dropdown-selected:hover {
-
     border-color:
         #000;
 }
 
-
 body.light-theme .dropdown-list {
-
-    /*
-        ทึบ 100%
-    */
-
     background:
-        #ffffff;
+        #ffffff !important;
 
     color:
         #000;
@@ -1578,15 +2008,16 @@ body.light-theme .dropdown-list {
         rgba(0, 0, 0, 0.20);
 
     backdrop-filter:
-        none;
+        none !important;
 
     -webkit-backdrop-filter:
-        none;
+        none !important;
+
+    opacity:
+        1 !important;
 }
 
-
 body.light-theme .dropdown-list li {
-
     background:
         #ffffff;
 
@@ -1594,23 +2025,17 @@ body.light-theme .dropdown-list li {
         #000;
 }
 
-
 body.light-theme .dropdown-list li:hover {
-
     background:
         #eeeeee;
 }
 
-
 body.light-theme .dropdown-list li.selected {
-
     background:
         #e5e5e5;
 }
 
-
 body.light-theme .dropdown.active .dropdown-selected {
-
     border-color:
         #000;
 
@@ -1625,7 +2050,6 @@ body.light-theme .dropdown.active .dropdown-selected {
 ========================================================= */
 
 body.light-theme .input-wrapper input {
-
     background:
         rgba(0, 0, 0, 0.035);
 
@@ -1636,16 +2060,12 @@ body.light-theme .input-wrapper input {
         rgba(0, 0, 0, 0.18);
 }
 
-
 body.light-theme .input-wrapper input::placeholder {
-
     color:
         #666;
 }
 
-
 body.light-theme .input-wrapper input:focus {
-
     border-color:
         rgba(0, 0, 0, 0.45);
 
@@ -1660,9 +2080,150 @@ body.light-theme .input-wrapper input:focus {
 ========================================================= */
 
 body.light-theme .nodeb-hint {
-
     color:
         #666;
+}
+
+
+/* =========================================================
+   LIGHT BUTTONS
+========================================================= */
+
+body.light-theme #autogen-btn {
+    background:
+        rgba(0, 0, 0, 0.08);
+
+    color:
+        #000;
+
+    border-color:
+        rgba(0, 0, 0, 0.1);
+}
+
+body.light-theme #autogen-btn:hover {
+    background:
+        rgba(0, 0, 0, 0.15);
+}
+
+body.light-theme #clear-btn {
+    background:
+        rgba(180, 0, 0, 0.08);
+
+    color:
+        #b91c1c;
+}
+
+body.light-theme #clear-btn:hover {
+    background:
+        rgba(180, 0, 0, 0.15);
+}
+
+
+/* =========================================================
+   LIGHT RESULT
+========================================================= */
+
+body.light-theme .result-panel {
+    background:
+        rgba(0, 0, 0, 0.035);
+
+    border:
+        1px solid
+        rgba(0, 0, 0, 0.12);
+
+    box-shadow:
+        inset 0 1px 2px
+        rgba(255, 255, 255, 0.5);
+}
+
+
+/* =========================================================
+   LIGHT AUTOGEN SUMMARY
+========================================================= */
+
+body.light-theme .autogen-summary {
+    background:
+        rgba(0, 0, 0, 0.035);
+}
+
+
+/* =========================================================
+   LIGHT TABLE
+========================================================= */
+
+body.light-theme .autogen-table thead th {
+    background:
+        #f2f2f2;
+
+    color:
+        #000;
+}
+
+body.light-theme .autogen-table tbody th {
+    color:
+        #111;
+}
+
+body.light-theme .autogen-table tbody td {
+    color:
+        #444;
+}
+
+
+/* =========================================================
+   LIGHT GENERATED VALUE
+========================================================= */
+
+body.light-theme .parameter-value-truncated {
+    border-bottom-color:
+        rgba(0, 0, 0, 0.28);
+}
+
+body.light-theme .parameter-value-truncated:hover,
+body.light-theme .parameter-value-truncated:focus-visible {
+    border-bottom-color:
+        rgba(0, 0, 0, 0.55);
+}
+
+
+/* =========================================================
+   LIGHT TOOLTIP
+========================================================= */
+
+body.light-theme .value-hover-tooltip {
+    background:
+        #ffffff;
+
+    color:
+        #111;
+
+    border-color:
+        rgba(0, 0, 0, 0.12);
+
+    box-shadow:
+        0 16px 34px
+        rgba(0, 0, 0, 0.18);
+}
+
+
+/* =========================================================
+   LIGHT TOGGLE
+========================================================= */
+
+body.light-theme .parameter-list-toggle-btn {
+    border-color:
+        rgba(0, 0, 0, 0.16);
+
+    background:
+        rgba(0, 0, 0, 0.045);
+}
+
+body.light-theme .parameter-list-toggle-btn:hover {
+    background:
+        rgba(0, 0, 0, 0.10);
+
+    border-color:
+        rgba(0, 0, 0, 0.28);
 }
 
 
@@ -1670,44 +2231,54 @@ body.light-theme .nodeb-hint {
    LIGHT SCROLLBAR
 ========================================================= */
 
-body.light-theme .container::-webkit-scrollbar-track,
-body.light-theme .result-panel::-webkit-scrollbar-track {
-
-    background:
-        rgba(0, 0, 0, 0.12);
+body.light-theme .container,
+body.light-theme .result-table-wrapper,
+body.light-theme .result-panel {
+    scrollbar-color:
+        rgba(0, 0, 0, 0.40)
+        transparent;
 }
 
+body.light-theme .container::-webkit-scrollbar-track,
+body.light-theme .result-table-wrapper::-webkit-scrollbar-track,
+body.light-theme .result-panel::-webkit-scrollbar-track {
+    background:
+        transparent;
+
+    border-radius:
+        999px;
+}
 
 body.light-theme .container::-webkit-scrollbar-thumb,
+body.light-theme .result-table-wrapper::-webkit-scrollbar-thumb,
 body.light-theme .result-panel::-webkit-scrollbar-thumb {
-
     background:
-        linear-gradient(
-            180deg,
-            rgba(80, 80, 80, 0.85),
-            rgba(120, 120, 120, 0.65)
-        );
-}
+        rgba(70, 70, 70, 0.65);
 
+    border:
+        0;
+
+    border-radius:
+        999px;
+
+    box-shadow:
+        none;
+}
 
 body.light-theme .container::-webkit-scrollbar-thumb:hover,
+body.light-theme .result-table-wrapper::-webkit-scrollbar-thumb:hover,
 body.light-theme .result-panel::-webkit-scrollbar-thumb:hover {
-
     background:
-        linear-gradient(
-            180deg,
-            rgba(0, 0, 0, 0.65),
-            rgba(0, 0, 0, 0.35)
-        );
-}
+        rgba(0, 0, 0, 0.75);
 
+    border:
+        0;
 
-body.light-theme .container,
-body.light-theme .result-panel {
+    border-radius:
+        999px;
 
-    scrollbar-color:
-        rgba(0, 0, 0, 0.45)
-        rgba(0, 0, 0, 0.08);
+    box-shadow:
+        none;
 }
 
 
@@ -1716,138 +2287,49 @@ body.light-theme .result-panel {
 ========================================================= */
 
 body.light-theme .status-message.warning {
-
     color:
         #b45309;
 }
 
-
 body.light-theme .status-message.error {
-
     color:
         #b91c1c;
 }
 
 
 /* =========================================================
-   DEVELOPER CREDIT
+   DROPDOWN STACKING
 ========================================================= */
-
-/*
-    Developer ต้องอยู่นอก Container
-    และอยู่ด้านล่างสุดเสมอ
-
-    HTML:
-
-    <main class="container">
-        ...
-    </main>
-
-    <footer class="developer-credit">
-        Developed by rk_sxtxnix
-    </footer>
-*/
-
-.developer-credit {
-
-    position:
-        relative;
-
-    /*
-        อยู่ต่ำกว่า Container
-        และไม่แย่ง Layer กับ Dropdown
-    */
-
-    z-index:
-        1;
-
-    width:
-        100%;
-
-    margin-top:
-        25px;
-
-    text-align:
-        center;
-
-    font-size:
-        0.8rem;
-
-    font-weight:
-        600;
-
-    letter-spacing:
-        0.5px;
-
-    color:
-        var(--text-secondary);
-
-    opacity:
-        0.75;
-
-    pointer-events:
-        auto;
-
-    transition:
-        color 0.3s ease,
-        opacity 0.3s ease;
-}
-
-
-.developer-credit:hover {
-
-    opacity:
-        1;
-}
-
-
-/* =========================================================
-   FINAL DROPDOWN STACKING FIX
-========================================================= */
-
-/*
-    ลำดับ Layer:
-
-    Developer
-        ↓
-    Container
-        ↓
-    Action Area
-        ↓
-    Dropdown
-        ↓
-    Dropdown List
-*/
 
 .container {
     z-index:
         10;
 }
 
-
 .action-area {
     z-index:
         100;
 }
-
 
 .system-dropdown {
     z-index:
         3000;
 }
 
-
 .type-dropdown {
     z-index:
         2000;
 }
 
+.tower-type-dropdown {
+    z-index:
+        1900;
+}
 
 .dropdown.active {
     z-index:
         999999;
 }
-
 
 .dropdown.active .dropdown-list {
     z-index:
@@ -1855,71 +2337,13 @@ body.light-theme .status-message.error {
 }
 
 
-/*
-    ป้องกัน Developer จากการแทรก
-    เข้าไปในพื้นที่ Dropdown
-*/
-
-.dropdown-list {
-
-    background:
-        #161616 !important;
-
-    opacity:
-        1 !important;
-
-    backdrop-filter:
-        none !important;
-
-    -webkit-backdrop-filter:
-        none !important;
-
-    isolation:
-        isolate;
-}
-
-
-.dropdown-list li {
-
-    background:
-        #161616;
-}
-
-
-body.light-theme .dropdown-list {
-
-    background:
-        #ffffff !important;
-
-    opacity:
-        1 !important;
-
-    backdrop-filter:
-        none !important;
-
-    -webkit-backdrop-filter:
-        none !important;
-}
-
-
-body.light-theme .dropdown-list li {
-
-    background:
-        #ffffff;
-}
-
-
 /* =========================================================
-   RESPONSIVE
+   RESPONSIVE - MOBILE
 ========================================================= */
-
-
-/* ---------- Mobile ---------- */
 
 @media (max-width: 767px) {
 
     body {
-
         background:
             linear-gradient(
                 180deg,
@@ -1932,9 +2356,7 @@ body.light-theme .dropdown-list li {
             30px 10px;
     }
 
-
     body.light-theme {
-
         background:
             linear-gradient(
                 180deg,
@@ -1944,9 +2366,7 @@ body.light-theme .dropdown-list li {
             );
     }
 
-
     .container {
-
         width:
             95%;
 
@@ -1957,53 +2377,80 @@ body.light-theme .dropdown-list li {
             50px;
     }
 
-
     .container h1 {
-
         font-size:
             1.8rem;
     }
 
-
     .container p {
-
         font-size:
             1rem;
     }
 
-
     .button-group {
-
         gap:
             12px;
     }
 
-
     #autogen-btn,
     #clear-btn {
-
         width:
             130px;
     }
 
-
     .developer-credit {
-
         margin-top:
             20px;
 
         font-size:
-            0.75rem;
+            0.9rem;
+    }
+
+    .autogen-table {
+        width:
+            100%;
+
+        max-width:
+            100%;
+
+        min-width:
+            0;
+
+        table-layout:
+            fixed;
+    }
+
+    .result-table-wrapper {
+        width:
+            100%;
+
+        max-width:
+            100%;
+
+        max-height:
+            440px;
+
+        overflow-x:
+            hidden;
+
+        overflow-y:
+            auto;
+    }
+
+    .value-hover-tooltip {
+        max-width:
+            240px;
     }
 }
 
 
-/* ---------- Tablet ---------- */
+/* =========================================================
+   RESPONSIVE - TABLET
+========================================================= */
 
 @media (min-width: 768px) and (max-width: 1023px) {
 
     body {
-
         background:
             linear-gradient(
                 135deg,
@@ -2013,9 +2460,7 @@ body.light-theme .dropdown-list li {
             );
     }
 
-
     body.light-theme {
-
         background:
             linear-gradient(
                 135deg,
@@ -2026,99 +2471,3 @@ body.light-theme .dropdown-list li {
     }
 }
 
-
-/* =========================================================
-   END OF DATA.CSS
-========================================================= */
-
-
-
-/* =========================================================
-   AUTOGEN RESULT TABLE
-   ========================================================= */
-
-.autogen-summary {
-    text-align: left;
-    margin-bottom: 18px;
-    padding: 14px 16px;
-    border: 1px solid var(--border-glass);
-    border-radius: 14px;
-    background: var(--glass-bg-light);
-}
-
-.autogen-summary p {
-    margin: 4px 0;
-    color: var(--text-main);
-}
-
-.result-table-wrapper {
-    width: 100%;
-    max-height: 520px;
-    overflow: auto;
-    border: 1px solid var(--border-glass);
-    border-radius: 14px;
-}
-
-.autogen-table {
-    width: 100%;
-    border-collapse: collapse;
-    text-align: left;
-    font-size: 0.9rem;
-}
-
-.autogen-table th,
-.autogen-table td {
-    padding: 9px 12px;
-    border-bottom: 1px solid var(--border-glass);
-    vertical-align: top;
-}
-
-.autogen-table thead th {
-    position: sticky;
-    top: 0;
-    z-index: 2;
-    background: var(--dropdown-bg);
-    color: var(--text-main);
-}
-
-.autogen-table tbody th {
-    font-weight: 600;
-    color: var(--text-main);
-}
-
-.autogen-table tbody td {
-    color: var(--text-secondary);
-    word-break: break-word;
-}
-
-.autogen-table tbody tr:last-child th,
-.autogen-table tbody tr:last-child td {
-    border-bottom: 0;
-}
-
-body.light-theme .autogen-summary {
-    background: rgba(0, 0, 0, 0.035);
-}
-
-body.light-theme .autogen-table thead th {
-    background: #f2f2f2;
-    color: #000;
-}
-
-body.light-theme .autogen-table tbody th {
-    color: #111;
-}
-
-body.light-theme .autogen-table tbody td {
-    color: #444;
-}
-
-@media (max-width: 767px) {
-    .autogen-table {
-        min-width: 620px;
-    }
-
-    .result-table-wrapper {
-        max-height: 440px;
-    }
-}
