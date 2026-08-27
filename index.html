@@ -2,9 +2,11 @@
 <html lang="en">
 
 <head>
+
     <!-- =====================================================
     META
     ====================================================== -->
+
     <meta charset="UTF-8">
 
     <meta
@@ -14,56 +16,78 @@
 
     <meta
         name="description"
-        content="AutoGenParameters - static GitHub Pages application"
+        content="AutoGenParameters"
     >
+
 
     <!-- =====================================================
     PAGE INFO
     ====================================================== -->
+
     <title>AutoGenParameters</title>
+
 
     <!-- =====================================================
     FAVICON
     ====================================================== -->
+
     <link
         rel="icon"
         type="image/png"
         href="static/ICON.png"
     >
 
+
     <!-- =====================================================
     CSS
     ====================================================== -->
+
     <link
         rel="stylesheet"
         href="static/Data.css"
     >
+
 </head>
 
 
 <body>
 
+
+    <!-- =====================================================
+    NOSCRIPT
+    ====================================================== -->
+
     <noscript>
+
         <div style="padding:20px;text-align:center;">
-            JavaScript is required to use AutoGenParameters.
+
+            JavaScript is required to use
+            AutoGenParameters.
+
         </div>
+
     </noscript>
+
 
     <!-- =====================================================
     THEME TOGGLE
     ====================================================== -->
+
     <button
         id="theme-toggle"
         type="button"
         aria-label="Toggle theme"
     >
+
         🌙 Dark
+
     </button>
 
 
     <!-- =====================================================
     CURSOR GLOW
     ====================================================== -->
+
     <div
         class="cursor-glow"
         aria-hidden="true"
@@ -73,11 +97,14 @@
     <!-- =====================================================
     MAIN CONTAINER
     ====================================================== -->
+
     <main class="container">
+
 
         <!-- =================================================
         GLASS EFFECT LAYER
         ================================================== -->
+
         <div
             class="glass-layer"
             aria-hidden="true"
@@ -87,7 +114,10 @@
         <!-- =================================================
         HEADER
         ================================================== -->
-        <h1>AutoGenParameters</h1>
+
+        <h1>
+            AutoGenParameters
+        </h1>
 
         <p>
             Select a system and generate parameters automatically.
@@ -97,11 +127,14 @@
         <!-- =================================================
         ACTION AREA
         ================================================== -->
+
         <div class="action-area">
+
 
             <!-- =============================================
             SYSTEM DROPDOWN
             ============================================== -->
+
             <div class="dropdown system-dropdown">
 
                 <div
@@ -112,6 +145,7 @@
                     aria-haspopup="listbox"
                     aria-expanded="false"
                 >
+
                     <span id="selectedText">
                         SYSTEM
                     </span>
@@ -122,6 +156,7 @@
                     >
                         ▾
                     </span>
+
                 </div>
 
 
@@ -131,9 +166,11 @@
                     role="listbox"
                     aria-label="Select system"
                 >
+
                     <li
                         data-value="3G2100"
                         role="option"
+                        tabindex="-1"
                     >
                         3G2100
                     </li>
@@ -141,6 +178,7 @@
                     <li
                         data-value="4G1800"
                         role="option"
+                        tabindex="-1"
                     >
                         4G1800
                     </li>
@@ -148,6 +186,7 @@
                     <li
                         data-value="4G2100"
                         role="option"
+                        tabindex="-1"
                     >
                         4G2100
                     </li>
@@ -155,6 +194,7 @@
                     <li
                         data-value="4G2600"
                         role="option"
+                        tabindex="-1"
                     >
                         4G2600
                     </li>
@@ -162,9 +202,11 @@
                     <li
                         data-value="5G2600"
                         role="option"
+                        tabindex="-1"
                     >
                         5G2600
                     </li>
+
                 </ul>
 
             </div>
@@ -173,14 +215,17 @@
             <!-- =============================================
             PARAMETER FORM
             ============================================== -->
+
             <div
                 id="parameter-form"
                 class="parameter-form hidden"
             >
 
+
                 <!-- =========================================
                 SITE CODE
                 ========================================== -->
+
                 <div class="input-wrapper">
 
                     <input
@@ -190,6 +235,7 @@
                         autocomplete="off"
                         spellcheck="false"
                         placeholder="SITE CODE"
+                        aria-label="Site Code"
                     >
 
                     <span
@@ -204,6 +250,7 @@
                 <!-- =========================================
                 NODEB NAME
                 ========================================== -->
+
                 <div class="input-wrapper nodeb-wrapper">
 
                     <input
@@ -213,6 +260,7 @@
                         autocomplete="off"
                         spellcheck="false"
                         placeholder="NODEB NAME"
+                        aria-label="NodeB Name"
                     >
 
                     <span
@@ -223,6 +271,7 @@
 
 
                     <!-- NODEB HINT -->
+
                     <div
                         id="nodeb-hint"
                         class="nodeb-hint hidden"
@@ -236,6 +285,7 @@
                 <!-- =========================================
                 TYPE DROPDOWN
                 ========================================== -->
+
                 <div
                     class="dropdown type-dropdown"
                     id="typeDropdown"
@@ -249,6 +299,7 @@
                         aria-haspopup="listbox"
                         aria-expanded="false"
                     >
+
                         <span id="typeSelectedText">
                             TYPE
                         </span>
@@ -259,6 +310,7 @@
                         >
                             ▾
                         </span>
+
                     </div>
 
 
@@ -268,9 +320,11 @@
                         role="listbox"
                         aria-label="Select type"
                     >
+
                         <li
                             data-value="NODE"
                             role="option"
+                            tabindex="-1"
                         >
                             NODE
                         </li>
@@ -278,9 +332,11 @@
                         <li
                             data-value="DISTRIBUTED"
                             role="option"
+                            tabindex="-1"
                         >
                             DISTRIBUTED
                         </li>
+
                     </ul>
 
 
@@ -295,9 +351,10 @@
             </div>
 
 
-            <!-- =============================================
+            <!-- =================================================
             BUTTON GROUP
-            ============================================== -->
+            ================================================== -->
+
             <div class="button-group">
 
                 <button
@@ -322,6 +379,7 @@
         <!-- =================================================
         RESULT PANEL
         ================================================== -->
+
         <div
             id="result"
             class="result-panel hidden"
@@ -334,8 +392,11 @@
     <!-- =====================================================
     DEVELOPER CREDIT
     ====================================================== -->
+
     <footer class="developer-credit">
+
         Developed by rk_sxtxnix
+
     </footer>
 
 
@@ -343,16 +404,35 @@
     JAVASCRIPT
     ====================================================== -->
 
-    <!-- SheetJS -->
+
+    <!-- =====================================================
+    SHEETJS
+    ====================================================== -->
+
     <script
-        src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"
+        src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"
     ></script>
 
-    <!-- Excel Loader -->
-    <script src="Deploy.js"></script>
 
-    <!-- Main Application -->
-    <script src="static/Data.js"></script>
+    <!-- =====================================================
+    DEPLOY.JS
+    Must load AFTER SheetJS
+    ====================================================== -->
+
+    <script
+        src="Deploy.js"
+    ></script>
+
+
+    <!-- =====================================================
+    DATA.JS
+    Must load AFTER Deploy.js
+    ====================================================== -->
+
+    <script
+        src="static/Data.js"
+    ></script>
+
 
 </body>
 
