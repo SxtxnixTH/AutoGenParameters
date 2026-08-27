@@ -1,80 +1,20 @@
 /* =========================================================
-   THEME TOGGLE
+   AUTOGEN PARAMETERS - DATA.JS
+   ---------------------------------------------------------
+   GitHub Pages / Static Deployment
+   No Flask / Python / API endpoint required.
 ========================================================= */
-
-const themeToggleBtn =
-    document.getElementById("theme-toggle");
-
-if (themeToggleBtn) {
-
-    const savedTheme =
-        localStorage.getItem("autogen-theme");
-
-    if (savedTheme === "light") {
-        document.body.classList.add("light-theme");
-    }
-
-    const updateThemeButton = () => {
-
-        const isLightTheme =
-            document.body.classList.contains("light-theme");
-
-        themeToggleBtn.textContent =
-            isLightTheme
-                ? "☀️ Light"
-                : "🌙 Dark";
-    };
-
-    updateThemeButton();
-
-    themeToggleBtn.addEventListener(
-        "click",
-        () => {
-
-            document.body.classList.toggle("light-theme");
-
-            const isLightTheme =
-                document.body.classList.contains("light-theme");
-
-            localStorage.setItem(
-                "autogen-theme",
-                isLightTheme
-                    ? "light"
-                    : "dark"
-            );
-
-            updateThemeButton();
-        }
-    );
-}
-
-
-/* =========================================================
-   CURSOR GLOW
-========================================================= */
-
-const glow =
-    document.querySelector(".cursor-glow");
-
-if (glow) {
-
-    document.addEventListener(
-        "mousemove",
-        (e) => {
-
-            glow.style.left =
-                `${e.clientX}px`;
-
-            glow.style.top =
-                `${e.clientY}px`;
-        }
-    );
-}
 
 
 /* =========================================================
    ELEMENTS
 ========================================================= */
+
+const themeToggleBtn =
+    document.getElementById("theme-toggle");
+
+const datetimeDisplay =
+    document.getElementById("datetime-display");
 
 const autoBtn =
     document.getElementById("autogen-btn");
@@ -85,18 +25,22 @@ const clearBtn =
 const result =
     document.getElementById("result");
 
+const parameterForm =
+    document.getElementById("parameter-form");
+
+
+/* =========================================================
+   SYSTEM DROPDOWN
+========================================================= */
+
 const dropdown =
     document.querySelector(".system-dropdown");
 
 const selected =
-    document.getElementById(
-        "dropdownSelected"
-    );
+    document.getElementById("dropdownSelected");
 
 const selectedText =
-    document.getElementById(
-        "selectedText"
-    );
+    document.getElementById("selectedText");
 
 const items =
     document.querySelectorAll(
@@ -105,20 +49,36 @@ const items =
 
 
 /* =========================================================
-   SYSTEM
+   TYPE DROPDOWN
 ========================================================= */
 
-let selectedSystem = "";
+const typeDropdown =
+    document.getElementById("typeDropdown");
+
+const typeDropdownSelected =
+    document.getElementById(
+        "typeDropdownSelected"
+    );
+
+const typeSelectedText =
+    document.getElementById(
+        "typeSelectedText"
+    );
+
+const typeDropdownItems =
+    document.querySelectorAll(
+        "#typeDropdownList li"
+    );
+
+const typeStatus =
+    document.getElementById(
+        "type-status"
+    );
 
 
 /* =========================================================
-   PARAMETER FORM
+   PARAMETER INPUTS
 ========================================================= */
-
-const parameterForm =
-    document.getElementById(
-        "parameter-form"
-    );
 
 const siteCodeInput =
     document.getElementById(
@@ -147,57 +107,213 @@ const nodebHint =
 
 
 /* =========================================================
-   SYSTEM → NODE NAME
+   3G2100 ELEMENTS
 ========================================================= */
 
-function getNodeNameLabel(system) {
+const towerTypeDropdown =
+    document.getElementById(
+        "towerTypeDropdown"
+    );
 
-    if (system.startsWith("3G")) {
-        return "NODEB NAME";
+const towerTypeDropdownSelected =
+    document.getElementById(
+        "towerTypeDropdownSelected"
+    );
+
+const towerTypeSelectedText =
+    document.getElementById(
+        "towerTypeSelectedText"
+    );
+
+const towerTypeDropdownItems =
+    document.querySelectorAll(
+        "#towerTypeDropdownList li"
+    );
+
+const cellIdWrapper =
+    document.getElementById(
+        "cellIdWrapper"
+    );
+
+const nodebIdWrapper =
+    document.getElementById(
+        "nodebIdWrapper"
+    );
+
+const localCellIdWrapper =
+    document.getElementById(
+        "localCellIdWrapper"
+    );
+
+const cellIdInput =
+    document.getElementById(
+        "cell-id"
+    );
+
+const nodebIdInput =
+    document.getElementById(
+        "nodeb-id"
+    );
+
+const localCellIdInput =
+    document.getElementById(
+        "local-cellid"
+    );
+
+const cellIdStatus =
+    document.getElementById(
+        "cell-id-status"
+    );
+
+const nodebIdStatus =
+    document.getElementById(
+        "nodeb-id-status"
+    );
+
+const localCellIdStatus =
+    document.getElementById(
+        "local-cellid-status"
+    );
+
+
+/* =========================================================
+   SYSTEM STATE
+========================================================= */
+
+let selectedSystem = "";
+
+let selectedType = "";
+
+let selectedTowerType = "";
+
+
+/* =========================================================
+   THEME TOGGLE
+========================================================= */
+
+if (themeToggleBtn) {
+
+    const savedTheme =
+        localStorage.getItem(
+            "autogen-theme"
+        );
+
+    if (savedTheme === "light") {
+
+        document.body.classList.add(
+            "light-theme"
+        );
+
     }
 
-    if (system.startsWith("4G")) {
-        return "ENODEB NAME";
-    }
+    const updateThemeButton = () => {
 
-    if (system.startsWith("5G")) {
-        return "GNODEB NAME";
-    }
+        const isLightTheme =
+            document.body.classList.contains(
+                "light-theme"
+            );
 
-    return "NODEB NAME";
+        themeToggleBtn.textContent =
+            isLightTheme
+                ? "☀️ Light"
+                : "🌙 Dark";
+    };
+
+    updateThemeButton();
+
+    themeToggleBtn.addEventListener(
+        "click",
+        () => {
+
+            document.body.classList.toggle(
+                "light-theme"
+            );
+
+            const isLightTheme =
+                document.body.classList.contains(
+                    "light-theme"
+                );
+
+            localStorage.setItem(
+                "autogen-theme",
+                isLightTheme
+                    ? "light"
+                    : "dark"
+            );
+
+            updateThemeButton();
+        }
+    );
 }
 
 
 /* =========================================================
-   TYPE DROPDOWN
+   DATE / TIME
 ========================================================= */
 
-const typeDropdown =
-    document.getElementById(
-        "typeDropdown"
+function updateDateTime() {
+
+    if (!datetimeDisplay) {
+        return;
+    }
+
+    const now = new Date();
+
+    const date =
+        now.toLocaleDateString(
+            "en-GB",
+            {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric"
+            }
+        );
+
+    const time =
+        now.toLocaleTimeString(
+            "en-GB",
+            {
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit"
+            }
+        );
+
+    datetimeDisplay.textContent =
+        `${date} ${time}`;
+}
+
+updateDateTime();
+
+setInterval(
+    updateDateTime,
+    1000
+);
+
+
+/* =========================================================
+   CURSOR GLOW
+========================================================= */
+
+const glow =
+    document.querySelector(
+        ".cursor-glow"
     );
 
-const typeDropdownSelected =
-    document.getElementById(
-        "typeDropdownSelected"
-    );
+if (glow) {
 
-const typeSelectedText =
-    document.getElementById(
-        "typeSelectedText"
-    );
+    document.addEventListener(
+        "mousemove",
+        (e) => {
 
-const typeDropdownItems =
-    document.querySelectorAll(
-        "#typeDropdownList li"
-    );
+            glow.style.left =
+                `${e.clientX}px`;
 
-const typeStatus =
-    document.getElementById(
-        "type-status"
+            glow.style.top =
+                `${e.clientY}px`;
+        }
     );
-
-let selectedType = "";
+}
 
 
 /* =========================================================
@@ -206,22 +322,80 @@ let selectedType = "";
 
 const systemParameters = {};
 
+
+/* =========================================================
+   DEFAULT SYSTEM DATA
+========================================================= */
+
+function createDefaultSystemData() {
+
+    return {
+
+        siteCode: "",
+
+        nodebName: "",
+
+        type: "",
+
+        towerType: "",
+
+        cellId: "",
+
+        nodebId: "",
+
+        localCellId: ""
+    };
+}
+
+
+/* =========================================================
+   INITIALIZE SYSTEM DATA
+========================================================= */
+
 items.forEach(
     (item) => {
 
         const system =
-            item.dataset.value || "";
+            String(
+                item.dataset.value || ""
+            )
+                .trim()
+                .toUpperCase();
 
         if (system) {
 
-            systemParameters[system] = {
-                siteCode: "",
-                nodebName: "",
-                type: ""
-            };
+            systemParameters[system] =
+                createDefaultSystemData();
         }
     }
 );
+
+
+/* =========================================================
+   NODE NAME LABEL
+========================================================= */
+
+function getNodeNameLabel(system) {
+
+    const value =
+        String(system || "")
+            .trim()
+            .toUpperCase();
+
+    if (value.startsWith("3G")) {
+        return "NODEB NAME";
+    }
+
+    if (value.startsWith("4G")) {
+        return "ENODEB NAME";
+    }
+
+    if (value.startsWith("5G")) {
+        return "GNODEB NAME";
+    }
+
+    return "NODEB NAME";
+}
 
 
 /* =========================================================
@@ -230,21 +404,27 @@ items.forEach(
 
 function isValidSiteCode(value) {
 
-    return /^[A-Za-z0-9]{5}$/.test(
-        value
+    return /^[A-Z0-9]{5}$/.test(
+        String(value || "")
+            .trim()
+            .toUpperCase()
     );
 }
 
 
 function isValidNodebName(value) {
 
+    const cleanValue =
+        String(value || "")
+            .trim()
+            .toUpperCase();
+
     return (
-        /^[A-Za-z0-9]{5}$/.test(
-            value
-        )
-        ||
-        /^[A-Za-z0-9]{5}_D[1-9]$/.test(
-            value
+        /^[A-Z0-9]{5}$/.test(
+            cleanValue
+        ) ||
+        /^[A-Z0-9]{5}_D[1-9]$/.test(
+            cleanValue
         )
     );
 }
@@ -253,9 +433,21 @@ function isValidNodebName(value) {
 function isValidType(value) {
 
     return (
-        value === "NODE"
-        ||
+        value === "NODE" ||
         value === "DISTRIBUTED"
+    );
+}
+
+
+function isValidFixedNumber(
+    value,
+    length
+) {
+
+    return new RegExp(
+        `^[0-9]{${length}}$`
+    ).test(
+        String(value || "")
     );
 }
 
@@ -273,10 +465,6 @@ function setValidStatus(
         return;
     }
 
-    /*
-        TYPE ไม่มีไฟเขียว
-    */
-
     if (element === typeStatus) {
 
         element.classList.remove(
@@ -288,9 +476,293 @@ function setValidStatus(
 
     element.classList.toggle(
         "valid",
-        valid
+        Boolean(valid)
     );
 }
+
+
+/* =========================================================
+   AUTO TYPE
+========================================================= */
+
+function getAutoType(nodebName) {
+
+    const value =
+        String(nodebName || "")
+            .trim()
+            .toUpperCase();
+
+    if (!value) {
+        return "";
+    }
+
+    if (value.includes("_")) {
+        return "DISTRIBUTED";
+    }
+
+    return "NODE";
+}
+
+
+/* =========================================================
+   TYPE DISPLAY
+========================================================= */
+
+function updateTypeDisplay() {
+
+    if (typeSelectedText) {
+
+        typeSelectedText.textContent =
+            selectedType || "TYPE";
+    }
+
+    typeDropdownItems.forEach(
+        (item) => {
+
+            item.classList.toggle(
+                "selected",
+                item.dataset.value ===
+                    selectedType
+            );
+        }
+    );
+}
+
+
+/* =========================================================
+   3G2100 FIELD VISIBILITY
+========================================================= */
+
+function update3G2100Fields(system) {
+
+    const is3G2100 =
+        String(system || "")
+            .trim()
+            .toUpperCase() ===
+        "3G2100";
+
+    if (towerTypeDropdown) {
+
+        towerTypeDropdown.classList.toggle(
+            "hidden",
+            !is3G2100
+        );
+    }
+
+    if (cellIdWrapper) {
+
+        cellIdWrapper.classList.toggle(
+            "hidden",
+            !is3G2100
+        );
+    }
+
+    if (nodebIdWrapper) {
+
+        nodebIdWrapper.classList.toggle(
+            "hidden",
+            !is3G2100
+        );
+    }
+
+    if (localCellIdWrapper) {
+
+        localCellIdWrapper.classList.toggle(
+            "hidden",
+            !is3G2100
+        );
+    }
+}
+
+
+/* =========================================================
+   NORMALIZE NUMERIC FIELD
+========================================================= */
+
+function normalizeNumericField(
+    input,
+    length
+) {
+
+    if (!input) {
+        return;
+    }
+
+    let value =
+        String(input.value || "")
+            .replace(
+                /[^0-9]/g,
+                ""
+            )
+            .slice(
+                0,
+                length
+            );
+
+    if (!value) {
+
+        input.value = "";
+
+        return;
+    }
+
+    input.value =
+        value.padStart(
+            length,
+            "0"
+        );
+}
+
+
+/* =========================================================
+   3G2100 VALIDATION
+========================================================= */
+
+function update3G2100Validation() {
+
+    const is3G2100 =
+        String(selectedSystem || "")
+            .trim()
+            .toUpperCase() ===
+        "3G2100";
+
+    if (!is3G2100) {
+
+        setValidStatus(
+            cellIdStatus,
+            false
+        );
+
+        setValidStatus(
+            nodebIdStatus,
+            false
+        );
+
+        setValidStatus(
+            localCellIdStatus,
+            false
+        );
+
+        return;
+    }
+
+    const cellValid =
+        Boolean(cellIdInput) &&
+        isValidFixedNumber(
+            cellIdInput.value,
+            5
+        );
+
+    const nodebIdValid =
+        Boolean(nodebIdInput) &&
+        isValidFixedNumber(
+            nodebIdInput.value,
+            4
+        );
+
+    const localCellIdValid =
+        Boolean(localCellIdInput) &&
+        isValidFixedNumber(
+            localCellIdInput.value,
+            2
+        );
+
+    setValidStatus(
+        cellIdStatus,
+        cellValid
+    );
+
+    setValidStatus(
+        nodebIdStatus,
+        nodebIdValid
+    );
+
+    setValidStatus(
+        localCellIdStatus,
+        localCellIdValid
+    );
+}
+
+
+/* =========================================================
+   3G2100 NUMERIC INPUT HANDLER
+========================================================= */
+
+function setupNumericField(
+    input,
+    length
+) {
+
+    if (!input) {
+        return;
+    }
+
+    input.addEventListener(
+        "input",
+        () => {
+
+            input.value =
+                input.value
+                    .replace(
+                        /[^0-9]/g,
+                        ""
+                    )
+                    .slice(
+                        0,
+                        length
+                    );
+
+            update3G2100Validation();
+
+            saveCurrentSystem();
+        }
+    );
+
+
+    input.addEventListener(
+        "blur",
+        () => {
+
+            if (!input.value) {
+
+                update3G2100Validation();
+
+                saveCurrentSystem();
+
+                return;
+            }
+
+            normalizeNumericField(
+                input,
+                length
+            );
+
+            update3G2100Validation();
+
+            saveCurrentSystem();
+        }
+    );
+}
+
+
+/* =========================================================
+   SETUP 3G2100 NUMERIC FIELDS
+========================================================= */
+
+setupNumericField(
+    cellIdInput,
+    5
+);
+
+setupNumericField(
+    nodebIdInput,
+    4
+);
+
+setupNumericField(
+    localCellIdInput,
+    2
+);
 
 
 /* =========================================================
@@ -318,7 +790,25 @@ function saveCurrentSystem() {
                 : "",
 
         type:
-            selectedType || ""
+            selectedType || "",
+
+        towerType:
+            selectedTowerType || "",
+
+        cellId:
+            cellIdInput
+                ? cellIdInput.value
+                : "",
+
+        nodebId:
+            nodebIdInput
+                ? nodebIdInput.value
+                : "",
+
+        localCellId:
+            localCellIdInput
+                ? localCellIdInput.value
+                : ""
     };
 }
 
@@ -333,26 +823,36 @@ function loadSystem(system) {
         return;
     }
 
+    const cleanSystem =
+        String(system || "")
+            .trim()
+            .toUpperCase();
+
     const data =
         systemParameters[
-            system
-        ] || {
-
-            siteCode: "",
-            nodebName: "",
-            type: ""
-        };
+            cleanSystem
+        ] ||
+        createDefaultSystemData();
 
 
     /* -----------------------------------------
-       UPDATE NODE NAME LABEL
+       FIELD VISIBILITY
+    ----------------------------------------- */
+
+    update3G2100Fields(
+        cleanSystem
+    );
+
+
+    /* -----------------------------------------
+       NODE NAME LABEL
     ----------------------------------------- */
 
     if (nodebNameInput) {
 
         nodebNameInput.placeholder =
             getNodeNameLabel(
-                system
+                cleanSystem
             );
     }
 
@@ -369,7 +869,7 @@ function loadSystem(system) {
 
 
     /* -----------------------------------------
-       NODEB / ENODEB / GNODEB NAME
+       NODE NAME
     ----------------------------------------- */
 
     if (nodebNameInput) {
@@ -383,38 +883,92 @@ function loadSystem(system) {
        TYPE
     ----------------------------------------- */
 
-    selectedType =
-        data.type || "";
+    if (data.type) {
 
+        selectedType =
+            data.type;
 
-    if (typeSelectedText) {
+    } else {
 
-        typeSelectedText.textContent =
-            selectedType || "TYPE";
+        selectedType =
+            getAutoType(
+                data.nodebName || ""
+            );
     }
+
+    updateTypeDisplay();
 
 
     /* -----------------------------------------
-       SELECTED TYPE STYLE
+       TOWER TYPE
     ----------------------------------------- */
 
-    typeDropdownItems.forEach(
+    selectedTowerType =
+        cleanSystem === "3G2100"
+            ? data.towerType || ""
+            : "";
+
+    if (towerTypeSelectedText) {
+
+        towerTypeSelectedText.textContent =
+            selectedTowerType ||
+            "TOWER TYPE";
+    }
+
+    towerTypeDropdownItems.forEach(
         (item) => {
 
             item.classList.toggle(
                 "selected",
                 item.dataset.value ===
-                    selectedType
+                    selectedTowerType
             );
         }
     );
 
 
     /* -----------------------------------------
-       VALIDATION
+       CELL ID
     ----------------------------------------- */
 
+    if (cellIdInput) {
+
+        cellIdInput.value =
+            cleanSystem === "3G2100"
+                ? data.cellId || ""
+                : "";
+    }
+
+
+    /* -----------------------------------------
+       NODEB ID
+    ----------------------------------------- */
+
+    if (nodebIdInput) {
+
+        nodebIdInput.value =
+            cleanSystem === "3G2100"
+                ? data.nodebId || ""
+                : "";
+    }
+
+
+    /* -----------------------------------------
+       LOCAL CELL ID
+    ----------------------------------------- */
+
+    if (localCellIdInput) {
+
+        localCellIdInput.value =
+            cleanSystem === "3G2100"
+                ? data.localCellId || ""
+                : "";
+    }
+
+
     updateValidation();
+
+    update3G2100Validation();
 }
 
 
@@ -425,13 +979,13 @@ function loadSystem(system) {
 function updateValidation() {
 
     const siteValid =
-        siteCodeInput &&
+        Boolean(siteCodeInput) &&
         isValidSiteCode(
             siteCodeInput.value
         );
 
     const nodebValid =
-        nodebNameInput &&
+        Boolean(nodebNameInput) &&
         isValidNodebName(
             nodebNameInput.value
         );
@@ -442,30 +996,15 @@ function updateValidation() {
         );
 
 
-    /* -----------------------------------------
-       SITE CODE
-    ----------------------------------------- */
-
     setValidStatus(
         siteCodeStatus,
         siteValid
     );
 
-
-    /* -----------------------------------------
-       NODEB NAME
-    ----------------------------------------- */
-
     setValidStatus(
         nodebNameStatus,
         nodebValid
     );
-
-
-    /* -----------------------------------------
-       TYPE
-       ไม่มีสีเขียว
-    ----------------------------------------- */
 
     setValidStatus(
         typeStatus,
@@ -474,7 +1013,7 @@ function updateValidation() {
 
 
     /* -----------------------------------------
-       NODEB HINT
+       NODE NAME HINT
     ----------------------------------------- */
 
     if (
@@ -486,7 +1025,7 @@ function updateValidation() {
             nodebNameInput.value;
 
         const showHint =
-            /^[A-Za-z0-9]{5}_$/.test(
+            /^[A-Z0-9]{5}_$/.test(
                 value
             );
 
@@ -508,13 +1047,17 @@ if (siteCodeInput) {
         "input",
         () => {
 
-            let value =
+            const value =
                 siteCodeInput.value
+                    .toUpperCase()
                     .replace(
-                        /[^A-Za-z0-9]/g,
+                        /[^A-Z0-9]/g,
                         ""
                     )
-                    .slice(0, 5);
+                    .slice(
+                        0,
+                        5
+                    );
 
             siteCodeInput.value =
                 value;
@@ -538,30 +1081,23 @@ if (nodebNameInput) {
         () => {
 
             let value =
-                nodebNameInput.value;
+                nodebNameInput.value
+                    .toUpperCase();
 
 
-            /* =====================================
-               FIRST 5 CHARACTERS
-            ===================================== */
+            /* -----------------------------------------
+               EMPTY
+            ----------------------------------------- */
 
-            const firstFive =
-                value
-                    .slice(0, 5)
-                    .replace(
-                        /[^A-Za-z0-9]/g,
-                        ""
-                    );
-
-
-            /* =====================================
-               ยังไม่ครบ 5 ตัว
-            ===================================== */
-
-            if (value.length <= 5) {
+            if (value.length === 0) {
 
                 nodebNameInput.value =
-                    firstFive;
+                    "";
+
+                selectedType =
+                    "";
+
+                updateTypeDisplay();
 
                 saveCurrentSystem();
 
@@ -571,10 +1107,45 @@ if (nodebNameInput) {
             }
 
 
-            /* =====================================
-               CHARACTER 6
-               ต้องเป็น _
-            ===================================== */
+            /* -----------------------------------------
+               FIRST 5 CHARACTERS
+            ----------------------------------------- */
+
+            const firstFive =
+                value
+                    .slice(
+                        0,
+                        5
+                    )
+                    .replace(
+                        /[^A-Z0-9]/g,
+                        ""
+                    );
+
+
+            if (value.length <= 5) {
+
+                nodebNameInput.value =
+                    firstFive;
+
+                selectedType =
+                    getAutoType(
+                        firstFive
+                    );
+
+                updateTypeDisplay();
+
+                saveCurrentSystem();
+
+                updateValidation();
+
+                return;
+            }
+
+
+            /* -----------------------------------------
+               CHARACTER 6 MUST BE _
+            ----------------------------------------- */
 
             if (
                 value.charAt(5) !== "_"
@@ -583,6 +1154,13 @@ if (nodebNameInput) {
                 nodebNameInput.value =
                     firstFive;
 
+                selectedType =
+                    getAutoType(
+                        firstFive
+                    );
+
+                updateTypeDisplay();
+
                 saveCurrentSystem();
 
                 updateValidation();
@@ -591,18 +1169,24 @@ if (nodebNameInput) {
             }
 
 
-            /* =====================================
-               หลัง _ ต้องเป็น D
-            ===================================== */
+            /* -----------------------------------------
+               ABC12_
+            ----------------------------------------- */
 
-            let suffix =
+            const suffix =
                 value.slice(6);
 
 
             if (suffix.length === 0) {
 
                 nodebNameInput.value =
-                    firstFive + "_";
+                    firstFive +
+                    "_";
+
+                selectedType =
+                    "DISTRIBUTED";
+
+                updateTypeDisplay();
 
                 saveCurrentSystem();
 
@@ -611,13 +1195,23 @@ if (nodebNameInput) {
                 return;
             }
 
+
+            /* -----------------------------------------
+               CHARACTER AFTER _ MUST BE D
+            ----------------------------------------- */
 
             if (
                 suffix.charAt(0) !== "D"
             ) {
 
                 nodebNameInput.value =
-                    firstFive + "_";
+                    firstFive +
+                    "_";
+
+                selectedType =
+                    "DISTRIBUTED";
+
+                updateTypeDisplay();
 
                 saveCurrentSystem();
 
@@ -627,26 +1221,32 @@ if (nodebNameInput) {
             }
 
 
-            /* =====================================
-               หลัง D ต้องเป็น 1-9
-            ===================================== */
+            /* -----------------------------------------
+               AFTER D MUST BE 1-9
+            ----------------------------------------- */
 
-            let number =
+            const number =
                 suffix
                     .slice(1)
                     .replace(
                         /[^1-9]/g,
                         ""
+                    )
+                    .slice(
+                        0,
+                        1
                     );
-
-            number =
-                number.slice(0, 1);
 
 
             nodebNameInput.value =
                 firstFive +
                 "_D" +
                 number;
+
+            selectedType =
+                "DISTRIBUTED";
+
+            updateTypeDisplay();
 
             saveCurrentSystem();
 
@@ -657,7 +1257,7 @@ if (nodebNameInput) {
 
 
 /* =========================================================
-   TYPE CUSTOM DROPDOWN
+   TYPE DROPDOWN OPEN / CLOSE
 ========================================================= */
 
 if (
@@ -671,14 +1271,6 @@ if (
 
             e.stopPropagation();
 
-
-            /*
-                CLOSE SYSTEM DROPDOWN FIRST
-
-                ป้องกัน SYSTEM และ TYPE
-                เปิดพร้อมกัน
-            */
-
             if (dropdown) {
 
                 dropdown.classList.remove(
@@ -686,10 +1278,12 @@ if (
                 );
             }
 
+            if (towerTypeDropdown) {
 
-            /*
-                TOGGLE TYPE DROPDOWN
-            */
+                towerTypeDropdown.classList.remove(
+                    "active"
+                );
+            }
 
             typeDropdown.classList.toggle(
                 "active"
@@ -712,66 +1306,15 @@ typeDropdownItems.forEach(
 
                 e.stopPropagation();
 
-
-                /* -----------------------------------------
-                   REMOVE SELECTED
-                ----------------------------------------- */
-
-                typeDropdownItems.forEach(
-                    (x) => {
-
-                        x.classList.remove(
-                            "selected"
-                        );
-                    }
-                );
-
-
-                /* -----------------------------------------
-                   SET SELECTED
-                ----------------------------------------- */
-
-                item.classList.add(
-                    "selected"
-                );
-
-
-                /* -----------------------------------------
-                   GET TYPE
-                ----------------------------------------- */
-
                 selectedType =
-                    item.dataset.value || "";
+                    item.dataset.value ||
+                    "";
 
-
-                /* -----------------------------------------
-                   UPDATE TEXT
-                ----------------------------------------- */
-
-                if (typeSelectedText) {
-
-                    typeSelectedText.textContent =
-                        selectedType || "TYPE";
-                }
-
-
-                /* -----------------------------------------
-                   SAVE
-                ----------------------------------------- */
+                updateTypeDisplay();
 
                 saveCurrentSystem();
 
-
-                /* -----------------------------------------
-                   VALIDATE
-                ----------------------------------------- */
-
                 updateValidation();
-
-
-                /* -----------------------------------------
-                   CLOSE TYPE
-                ----------------------------------------- */
 
                 if (typeDropdown) {
 
@@ -786,7 +1329,7 @@ typeDropdownItems.forEach(
 
 
 /* =========================================================
-   SYSTEM DROPDOWN
+   SYSTEM DROPDOWN OPEN / CLOSE
 ========================================================= */
 
 if (
@@ -800,14 +1343,6 @@ if (
 
             e.stopPropagation();
 
-
-            /*
-                CLOSE TYPE DROPDOWN FIRST
-
-                ป้องกัน SYSTEM และ TYPE
-                เปิดพร้อมกัน
-            */
-
             if (typeDropdown) {
 
                 typeDropdown.classList.remove(
@@ -815,10 +1350,12 @@ if (
                 );
             }
 
+            if (towerTypeDropdown) {
 
-            /*
-                TOGGLE SYSTEM DROPDOWN
-            */
+                towerTypeDropdown.classList.remove(
+                    "active"
+                );
+            }
 
             dropdown.classList.toggle(
                 "active"
@@ -850,7 +1387,7 @@ items.forEach(
 
 
                 /* -----------------------------------------
-                   REMOVE SELECTED
+                   REMOVE OLD SELECTION
                 ----------------------------------------- */
 
                 items.forEach(
@@ -864,24 +1401,23 @@ items.forEach(
 
 
                 /* -----------------------------------------
-                   SET SELECTED
+                   SELECT SYSTEM
                 ----------------------------------------- */
 
                 item.classList.add(
                     "selected"
                 );
 
-
-                /* -----------------------------------------
-                   GET SYSTEM
-                ----------------------------------------- */
-
                 selectedSystem =
-                    item.dataset.value || "";
+                    String(
+                        item.dataset.value || ""
+                    )
+                        .trim()
+                        .toUpperCase();
 
 
                 /* -----------------------------------------
-                   UPDATE SYSTEM TEXT
+                   DISPLAY SYSTEM
                 ----------------------------------------- */
 
                 if (selectedText) {
@@ -892,7 +1428,7 @@ items.forEach(
 
 
                 /* -----------------------------------------
-                   UPDATE NODE NAME PLACEHOLDER
+                   NODE NAME LABEL
                 ----------------------------------------- */
 
                 if (nodebNameInput) {
@@ -917,7 +1453,7 @@ items.forEach(
 
 
                 /* -----------------------------------------
-                   LOAD SYSTEM
+                   LOAD SYSTEM DATA
                 ----------------------------------------- */
 
                 loadSystem(
@@ -926,7 +1462,7 @@ items.forEach(
 
 
                 /* -----------------------------------------
-                   CLOSE SYSTEM
+                   CLOSE DROPDOWN
                 ----------------------------------------- */
 
                 if (dropdown) {
@@ -949,11 +1485,6 @@ document.addEventListener(
     "click",
     (e) => {
 
-
-        /* -----------------------------------------
-           SYSTEM
-        ----------------------------------------- */
-
         if (
             dropdown &&
             !dropdown.contains(
@@ -967,10 +1498,6 @@ document.addEventListener(
         }
 
 
-        /* -----------------------------------------
-           TYPE
-        ----------------------------------------- */
-
         if (
             typeDropdown &&
             !typeDropdown.contains(
@@ -982,19 +1509,73 @@ document.addEventListener(
                 "active"
             );
         }
+
+
+        if (
+            towerTypeDropdown &&
+            !towerTypeDropdown.contains(
+                e.target
+            )
+        ) {
+
+            towerTypeDropdown.classList.remove(
+                "active"
+            );
+        }
     }
 );
 
 
 /* =========================================================
-   ESC KEY → CLOSE ALL DROPDOWNS
+   ESC KEY
 ========================================================= */
 
 document.addEventListener(
     "keydown",
     (e) => {
 
-        if (e.key === "Escape") {
+        if (e.key !== "Escape") {
+            return;
+        }
+
+        if (dropdown) {
+
+            dropdown.classList.remove(
+                "active"
+            );
+        }
+
+        if (typeDropdown) {
+
+            typeDropdown.classList.remove(
+                "active"
+            );
+        }
+
+        if (towerTypeDropdown) {
+
+            towerTypeDropdown.classList.remove(
+                "active"
+            );
+        }
+    }
+);
+
+
+/* =========================================================
+   TOWER TYPE DROPDOWN
+========================================================= */
+
+if (
+    towerTypeDropdown &&
+    towerTypeDropdownSelected
+) {
+
+    towerTypeDropdownSelected.addEventListener(
+        "click",
+        (e) => {
+
+            e.stopPropagation();
 
             if (dropdown) {
 
@@ -1009,108 +1590,1220 @@ document.addEventListener(
                     "active"
                 );
             }
+
+            towerTypeDropdown.classList.toggle(
+                "active"
+            );
         }
+    );
+}
+
+
+/* =========================================================
+   TOWER TYPE OPTIONS
+========================================================= */
+
+towerTypeDropdownItems.forEach(
+    (item) => {
+
+        item.addEventListener(
+            "click",
+            (e) => {
+
+                e.stopPropagation();
+
+                selectedTowerType =
+                    item.dataset.value ||
+                    "";
+
+                towerTypeDropdownItems.forEach(
+                    (x) => {
+
+                        x.classList.toggle(
+                            "selected",
+                            x === item
+                        );
+                    }
+                );
+
+                if (towerTypeSelectedText) {
+
+                    towerTypeSelectedText.textContent =
+                        selectedTowerType ||
+                        "TOWER TYPE";
+                }
+
+                saveCurrentSystem();
+
+                if (towerTypeDropdown) {
+
+                    towerTypeDropdown.classList.remove(
+                        "active"
+                    );
+                }
+            }
+        );
     }
 );
 
 
 /* =========================================================
-   AUTO GENERATE
-   GitHub Pages / Static Version
+   ESCAPE HTML
 ========================================================= */
 
 function escapeHtml(value) {
 
     return String(value ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
 }
 
 
+/* =========================================================
+   SYSTEM FILE NAME
+========================================================= */
+
+function getSystemFileName(
+    system,
+    siteCode
+) {
+
+    const cleanSystem =
+        String(system || "")
+            .trim()
+            .toUpperCase();
+
+    const cleanSiteCode =
+        String(siteCode || "")
+            .trim()
+            .toUpperCase();
+
+
+    if (!cleanSystem) {
+        return "";
+    }
+
+
+    if (!cleanSiteCode) {
+
+        return `${cleanSystem}.xlsx`;
+    }
+
+
+    return `${cleanSystem}_${cleanSiteCode}.xlsx`;
+}
+
+
+/* =========================================================
+   FIND HEADER INDEX
+========================================================= */
+
+function normalizeHeader(header) {
+
+    return String(header || "")
+        .trim()
+        .toUpperCase()
+        .replace(
+            /\*/g,
+            ""
+        )
+        .replace(
+            /[\s-]+/g,
+            "_"
+        )
+        .replace(
+            /_+/g,
+            "_"
+        )
+        .replace(
+            /^_|_$/g,
+            ""
+        );
+}
+
+
+function findHeaderIndex(
+    headers,
+    possibleNames
+) {
+
+    const normalizedNames =
+        possibleNames.map(
+            normalizeHeader
+        );
+
+    return headers.findIndex(
+        (header) => {
+
+            return normalizedNames.includes(
+                normalizeHeader(header)
+            );
+        }
+    );
+}
+
+
+/* =========================================================
+   GET DATASET VALUE
+========================================================= */
+
+function getDatasetValue(
+    data,
+    keys
+) {
+
+    if (
+        !data ||
+        typeof data !== "object"
+    ) {
+        return "";
+    }
+
+    for (const key of keys) {
+
+        if (
+            data[key] !== undefined &&
+            data[key] !== null &&
+            String(data[key]).trim() !== ""
+        ) {
+
+            return String(
+                data[key]
+            );
+        }
+    }
+
+    return "";
+}
+
+
+/* =========================================================
+   SET GENERATED VALUE
+========================================================= */
+
+function setGeneratedValue(
+    headers,
+    row,
+    possibleHeaders,
+    dataKeys,
+    input
+) {
+
+    let index =
+        findHeaderIndex(
+            headers,
+            possibleHeaders
+        );
+
+
+    if (index < 0) {
+
+        headers.push(
+            possibleHeaders[0]
+        );
+
+        row.push("");
+
+        index =
+            headers.length - 1;
+    }
+
+
+    const datasetValue =
+        getDatasetValue(
+            window.__lastGeneratedData,
+            dataKeys
+        );
+
+
+    if (
+        datasetValue !== ""
+    ) {
+
+        row[index] =
+            datasetValue;
+
+    } else if (
+        input &&
+        String(input.value || "").trim() !== ""
+    ) {
+
+        row[index] =
+            input.value;
+    }
+
+
+    return index;
+}
+
+
+/* =========================================================
+   RENDER GENERATED RESULT
+========================================================= */
+
 function renderGeneratedResult(data) {
 
+    if (
+        !data ||
+        typeof data !== "object"
+    ) {
+
+        return `
+            <p class="status-message error">
+                Invalid response from dataset.
+            </p>
+        `;
+    }
+
+
+    /* =====================================================
+       ERROR
+    ===================================================== */
+
+    if (data.error) {
+
+        return `
+            <p class="status-message error">
+                ${escapeHtml(data.error)}
+            </p>
+        `;
+    }
+
+
+    /* =====================================================
+       DATA
+    ===================================================== */
+
+    const headers =
+        Array.isArray(data.headers)
+            ? [...data.headers]
+            : [];
+
+    const row =
+        Array.isArray(data.row)
+            ? [...data.row]
+            : [];
+
+
+    /* =====================================================
+       CURRENT SYSTEM
+    ===================================================== */
+
+    const currentSystem =
+        String(
+            data.system ||
+            selectedSystem ||
+            ""
+        )
+            .trim()
+            .toUpperCase();
+
+    const is3G2100 =
+        currentSystem ===
+        "3G2100";
+
+
+    /* =====================================================
+       KEEP DATA AVAILABLE FOR 3G VALUES
+    ===================================================== */
+
+    window.__lastGeneratedData =
+        data;
+
+
+    /* =====================================================
+       3G2100 PARAMETERS
+    ===================================================== */
+
+    if (is3G2100) {
+
+
+        /* -----------------------------------------
+           CELL ID
+        ----------------------------------------- */
+
+        let cellIdIndex =
+            findHeaderIndex(
+                headers,
+                [
+                    "CELL_ID",
+                    "CELLID",
+                    "CELL_ID_"
+                ]
+            );
+
+
+        if (cellIdIndex < 0) {
+
+            headers.push(
+                "CELL_ID"
+            );
+
+            row.push("");
+
+            cellIdIndex =
+                headers.length - 1;
+        }
+
+
+        const cellIdValue =
+            getDatasetValue(
+                data,
+                [
+                    "cell_id",
+                    "cellId",
+                    "CELL_ID",
+                    "cellID"
+                ]
+            );
+
+
+        if (cellIdValue !== "") {
+
+            row[cellIdIndex] =
+                cellIdValue;
+
+        } else if (
+            cellIdInput
+        ) {
+
+            row[cellIdIndex] =
+                cellIdInput.value || "";
+        }
+
+
+        /* -----------------------------------------
+           NODEB ID
+        ----------------------------------------- */
+
+        let nodebIdIndex =
+            findHeaderIndex(
+                headers,
+                [
+                    "NODEB_ID",
+                    "NODEBID",
+                    "NODEB_ID_"
+                ]
+            );
+
+
+        if (nodebIdIndex < 0) {
+
+            headers.push(
+                "NODEB_ID"
+            );
+
+            row.push("");
+
+            nodebIdIndex =
+                headers.length - 1;
+        }
+
+
+        const nodebIdValue =
+            getDatasetValue(
+                data,
+                [
+                    "nodeb_id",
+                    "nodebId",
+                    "NODEB_ID",
+                    "nodeBId"
+                ]
+            );
+
+
+        if (nodebIdValue !== "") {
+
+            row[nodebIdIndex] =
+                nodebIdValue;
+
+        } else if (
+            nodebIdInput
+        ) {
+
+            row[nodebIdIndex] =
+                nodebIdInput.value || "";
+        }
+
+
+        /* -----------------------------------------
+           LOCAL CELL ID
+        ----------------------------------------- */
+
+        let localCellIdIndex =
+            findHeaderIndex(
+                headers,
+                [
+                    "LOCAL_CELLID",
+                    "LOCAL_CELL_ID",
+                    "LOCALCELLID",
+                    "LOCAL_CELLID_"
+                ]
+            );
+
+
+        if (localCellIdIndex < 0) {
+
+            headers.push(
+                "LOCAL_CELLID"
+            );
+
+            row.push("");
+
+            localCellIdIndex =
+                headers.length - 1;
+        }
+
+
+        const localCellIdValue =
+            getDatasetValue(
+                data,
+                [
+                    "local_cellid",
+                    "local_cell_id",
+                    "localCellId",
+                    "localCellID",
+                    "LOCAL_CELLID"
+                ]
+            );
+
+
+        if (
+            localCellIdValue !== ""
+        ) {
+
+            row[localCellIdIndex] =
+                localCellIdValue;
+
+        } else if (
+            localCellIdInput
+        ) {
+
+            row[localCellIdIndex] =
+                localCellIdInput.value || "";
+        }
+    }
+
+
+    /* =====================================================
+       EMPTY RESULT
+    ===================================================== */
+
+    if (!headers.length) {
+
+        return `
+            <p class="status-message warning">
+                No generated parameters found.
+            </p>
+        `;
+    }
+
+
+    /* =====================================================
+       SETTINGS
+    ===================================================== */
+
+    const MAX_VISIBLE_LENGTH =
+        80;
+
+    const INITIAL_PARAMETER_COUNT =
+        5;
+
+
+    /* =====================================================
+       GENERATE PARAMETER ROW
+    ===================================================== */
+
+    const generateParameterRow = (
+        header,
+        index
+    ) => {
+
+        const value =
+            String(
+                row[index] ?? ""
+            ).trim();
+
+        const isLong =
+            value.length >
+            MAX_VISIBLE_LENGTH;
+
+
+        /* -------------------------------------
+           NORMAL VALUE
+        ------------------------------------- */
+
+        if (!isLong) {
+
+            return `
+                <tr
+                    class="generated-parameter-row"
+                >
+
+                    <th>
+                        ${escapeHtml(header)}
+                    </th>
+
+                    <td>
+                        ${escapeHtml(value)}
+                    </td>
+
+                </tr>
+            `;
+        }
+
+
+        /* -------------------------------------
+           LONG VALUE
+        ------------------------------------- */
+
+        const shortValue =
+            value.slice(
+                0,
+                MAX_VISIBLE_LENGTH
+            ) + "...";
+
+
+        return `
+            <tr
+                class="generated-parameter-row parameter-long-row"
+            >
+
+                <th>
+                    ${escapeHtml(header)}
+                </th>
+
+                <td>
+
+                    <div
+                        class="parameter-value-container"
+                    >
+
+                        <span
+                            class="parameter-value-short"
+                        >
+                            ${escapeHtml(shortValue)}
+                        </span>
+
+                        <span
+                            class="parameter-value-full hidden"
+                        >
+                            ${escapeHtml(value)}
+                        </span>
+
+                        <button
+                            type="button"
+                            class="parameter-expand-btn"
+                            aria-expanded="false"
+                            aria-label="Show full value"
+                            title="Show full value"
+                        >
+
+                            <span
+                                class="parameter-expand-icon"
+                            ></span>
+
+                        </button>
+
+                    </div>
+
+                </td>
+
+            </tr>
+        `;
+    };
+
+
+    /* =====================================================
+       GENERATE ALL ROWS
+    ===================================================== */
+
     const rows =
-        data.headers
+        headers
             .map(
                 (header, index) => {
 
-                    const value =
-                        data.row[index];
+                    const rowHtml =
+                        generateParameterRow(
+                            header,
+                            index
+                        );
 
-                    return `
-                        <tr>
-                            <th>${escapeHtml(header)}</th>
-                            <td>${escapeHtml(value)}</td>
-                        </tr>
-                    `;
+
+                    if (
+                        index >=
+                        INITIAL_PARAMETER_COUNT
+                    ) {
+
+                        return rowHtml.replace(
+                            "generated-parameter-row",
+                            "generated-parameter-row parameter-hidden-row hidden"
+                        );
+                    }
+
+
+                    return rowHtml;
                 }
             )
             .join("");
 
 
+    /* =====================================================
+       SHOW ALL BUTTON
+    ===================================================== */
+
+    const hasMoreParameters =
+        headers.length >
+        INITIAL_PARAMETER_COUNT;
+
+
+    const showAllButton =
+        hasMoreParameters
+            ? `
+                <div
+                    class="parameter-list-toggle"
+                >
+
+                    <button
+                        type="button"
+                        class="parameter-list-toggle-btn"
+                        aria-expanded="false"
+                        aria-label="Show All Parameters"
+                    >
+
+                        <span
+                            class="parameter-list-toggle-circle"
+                        >
+
+                            <span
+                                class="parameter-list-toggle-arrow"
+                            ></span>
+
+                        </span>
+
+                    </button>
+
+                    <span
+                        class="parameter-list-toggle-label"
+                    >
+                        Show All Parameters
+                    </span>
+
+                </div>
+            `
+            : "";
+
+
+    /* =====================================================
+       FILE NAME
+    ===================================================== */
+
+    const system =
+        data.system ||
+        selectedSystem ||
+        "";
+
+    const siteCode =
+        data.siteCode ||
+        (
+            siteCodeInput
+                ? siteCodeInput.value
+                : ""
+        );
+
+    const fileName =
+        data.fileName ||
+        getSystemFileName(
+            system,
+            siteCode
+        );
+
+
+    /* =====================================================
+       NODE NAME
+    ===================================================== */
+
+    const nodeName =
+        data.nodebName ||
+        data.nodeName ||
+        (
+            nodebNameInput
+                ? nodebNameInput.value
+                : ""
+        );
+
+
+    /* =====================================================
+       TYPE
+    ===================================================== */
+
+    const displayType =
+        data.type ||
+        selectedType ||
+        "";
+
+
+    /* =====================================================
+       TOWER TYPE
+    ===================================================== */
+
+    const displayTowerType =
+        data.towerType ||
+        selectedTowerType ||
+        "";
+
+
+    /* =====================================================
+       RESULT
+    ===================================================== */
+
     return `
-        <div class="autogen-summary">
+
+        <div
+            class="autogen-summary"
+        >
 
             <p>
-                <strong>SYSTEM:</strong>
-                ${escapeHtml(data.system)}
+
+                <strong>
+                    SYSTEM:
+                </strong>
+
+                ${escapeHtml(system)}
+
             </p>
 
-            <p>
-                <strong>SITE CODE:</strong>
-                ${escapeHtml(data.siteCode)}
-            </p>
 
             <p>
-                <strong>${escapeHtml(
-                    getNodeNameLabel(data.system)
-                )}:</strong>
-                ${escapeHtml(data.nodebName)}
+
+                <strong>
+                    SITE CODE:
+                </strong>
+
+                ${escapeHtml(siteCode)}
+
             </p>
 
-            <p>
-                <strong>TYPE:</strong>
-                ${escapeHtml(data.type)}
-            </p>
 
             <p>
-                <strong>DATASET:</strong>
-                ${escapeHtml(data.filePath)}
+
+                <strong>
+                    ${escapeHtml(
+                        getNodeNameLabel(
+                            system
+                        )
+                    )}:
+                </strong>
+
+                ${escapeHtml(nodeName)}
+
             </p>
 
+
             <p>
-                <strong>SHEET:</strong>
-                ${escapeHtml(data.sheetName)}
+
+                <strong>
+                    TYPE:
+                </strong>
+
+                ${escapeHtml(displayType)}
+
+            </p>
+
+
+            ${
+                currentSystem === "3G2100"
+                    ? `
+                        <p>
+
+                            <strong>
+                                TOWER TYPE:
+                            </strong>
+
+                            ${escapeHtml(
+                                displayTowerType
+                            )}
+
+                        </p>
+                    `
+                    : ""
+            }
+
+
+            <p>
+
+                <strong>
+                    FILE:
+                </strong>
+
+                ${escapeHtml(fileName)}
+
             </p>
 
         </div>
 
-        <div class="result-table-wrapper">
 
-            <table class="autogen-table">
+        <div
+            class="result-table-wrapper"
+        >
+
+            <table
+                class="autogen-table"
+            >
 
                 <thead>
 
                     <tr>
-                        <th>Parameter</th>
-                        <th>Generated Value</th>
+
+                        <th>
+                            Parameter
+                        </th>
+
+                        <th>
+                            Generated Value
+                        </th>
+
                     </tr>
 
                 </thead>
 
+
                 <tbody>
+
                     ${rows}
+
                 </tbody>
 
             </table>
 
+
+            ${showAllButton}
+
         </div>
+
     `;
 }
 
+
+/* =========================================================
+   PARAMETER EXPAND / COLLAPSE
+========================================================= */
+
+function setupParameterExpandButtons() {
+
+    if (!result) {
+        return;
+    }
+
+
+    if (
+        result.dataset.expandReady ===
+        "true"
+    ) {
+
+        return;
+    }
+
+
+    result.dataset.expandReady =
+        "true";
+
+
+    result.addEventListener(
+        "click",
+        (e) => {
+
+
+            /* =================================================
+               LONG VALUE BUTTON
+            ================================================= */
+
+            const valueButton =
+                e.target.closest(
+                    ".parameter-expand-btn"
+                );
+
+
+            if (
+                valueButton &&
+                result.contains(
+                    valueButton
+                )
+            ) {
+
+                const container =
+                    valueButton.closest(
+                        ".parameter-value-container"
+                    );
+
+
+                if (!container) {
+                    return;
+                }
+
+
+                const shortValue =
+                    container.querySelector(
+                        ".parameter-value-short"
+                    );
+
+                const fullValue =
+                    container.querySelector(
+                        ".parameter-value-full"
+                    );
+
+
+                if (
+                    !shortValue ||
+                    !fullValue
+                ) {
+
+                    return;
+                }
+
+
+                const expanded =
+                    valueButton.getAttribute(
+                        "aria-expanded"
+                    ) === "true";
+
+
+                if (!expanded) {
+
+                    shortValue.classList.add(
+                        "hidden"
+                    );
+
+                    fullValue.classList.remove(
+                        "hidden"
+                    );
+
+                    valueButton.setAttribute(
+                        "aria-expanded",
+                        "true"
+                    );
+
+                    valueButton.setAttribute(
+                        "aria-label",
+                        "Show less"
+                    );
+
+                    valueButton.setAttribute(
+                        "title",
+                        "Show less"
+                    );
+
+                } else {
+
+                    fullValue.classList.add(
+                        "hidden"
+                    );
+
+                    shortValue.classList.remove(
+                        "hidden"
+                    );
+
+                    valueButton.setAttribute(
+                        "aria-expanded",
+                        "false"
+                    );
+
+                    valueButton.setAttribute(
+                        "aria-label",
+                        "Show full value"
+                    );
+
+                    valueButton.setAttribute(
+                        "title",
+                        "Show full value"
+                    );
+                }
+
+
+                return;
+            }
+
+
+            /* =================================================
+               SHOW ALL PARAMETERS BUTTON
+            ================================================= */
+
+            const listButton =
+                e.target.closest(
+                    ".parameter-list-toggle-btn"
+                );
+
+
+            if (
+                !listButton ||
+                !result.contains(
+                    listButton
+                )
+            ) {
+
+                return;
+            }
+
+
+            const tableWrapper =
+                listButton.closest(
+                    ".result-table-wrapper"
+                );
+
+
+            if (!tableWrapper) {
+                return;
+            }
+
+
+            const hiddenRows =
+                tableWrapper.querySelectorAll(
+                    ".parameter-hidden-row"
+                );
+
+
+            const label =
+                tableWrapper.querySelector(
+                    ".parameter-list-toggle-label"
+                );
+
+
+            const arrow =
+                tableWrapper.querySelector(
+                    ".parameter-list-toggle-arrow"
+                );
+
+
+            const expanded =
+                listButton.getAttribute(
+                    "aria-expanded"
+                ) === "true";
+
+
+            /* =================================================
+               SHOW ALL
+            ================================================= */
+
+            if (!expanded) {
+
+                hiddenRows.forEach(
+                    (row) => {
+
+                        row.classList.remove(
+                            "hidden"
+                        );
+                    }
+                );
+
+
+                listButton.setAttribute(
+                    "aria-expanded",
+                    "true"
+                );
+
+
+                listButton.setAttribute(
+                    "aria-label",
+                    "Show Less"
+                );
+
+
+                if (label) {
+
+                    label.textContent =
+                        "Show Less";
+                }
+
+
+                if (arrow) {
+
+                    arrow.classList.add(
+                        "up"
+                    );
+                }
+
+                return;
+            }
+
+
+            /* =================================================
+               SHOW ONLY FIRST 5
+            ================================================= */
+
+            hiddenRows.forEach(
+                (row) => {
+
+                    row.classList.add(
+                        "hidden"
+                    );
+                }
+            );
+
+
+            listButton.setAttribute(
+                "aria-expanded",
+                "false"
+            );
+
+
+            listButton.setAttribute(
+                "aria-label",
+                "Show All Parameters"
+            );
+
+
+            if (label) {
+
+                label.textContent =
+                    "Show All Parameters";
+            }
+
+
+            if (arrow) {
+
+                arrow.classList.remove(
+                    "up"
+                );
+            }
+
+
+            tableWrapper.scrollIntoView({
+                behavior: "smooth",
+                block: "nearest"
+            });
+        }
+    );
+}
+
+
+/* =========================================================
+   INITIALIZE PARAMETER EXPAND BUTTONS
+========================================================= */
+
+setupParameterExpandButtons();
+
+
+/* =========================================================
+   AUTO GENERATE - GITHUB PAGES
+========================================================= */
 
 if (autoBtn) {
 
@@ -1120,20 +2813,25 @@ if (autoBtn) {
 
 
             /* -----------------------------------------
-               CHECK SYSTEM
+               SYSTEM REQUIRED
             ----------------------------------------- */
 
             if (!selectedSystem) {
 
-                result.innerHTML = `
-                    <p class="status-message warning">
-                        Please select a system first.
-                    </p>
-                `;
+                if (result) {
 
-                result.classList.remove(
-                    "hidden"
-                );
+                    result.innerHTML = `
+                        <p
+                            class="status-message warning"
+                        >
+                            Please select a system first.
+                        </p>
+                    `;
+
+                    result.classList.remove(
+                        "hidden"
+                    );
+                }
 
                 return;
             }
@@ -1144,13 +2842,13 @@ if (autoBtn) {
             ----------------------------------------- */
 
             const siteValid =
-                siteCodeInput &&
+                Boolean(siteCodeInput) &&
                 isValidSiteCode(
                     siteCodeInput.value
                 );
 
             const nodebValid =
-                nodebNameInput &&
+                Boolean(nodebNameInput) &&
                 isValidNodebName(
                     nodebNameInput.value
                 );
@@ -1161,95 +2859,288 @@ if (autoBtn) {
                 );
 
 
+            /* -----------------------------------------
+               3G2100 VALIDATION
+            ----------------------------------------- */
+
+            const is3G2100 =
+                selectedSystem ===
+                "3G2100";
+
+
+            const cellValid =
+                !is3G2100 ||
+                (
+                    Boolean(cellIdInput) &&
+                    isValidFixedNumber(
+                        cellIdInput.value,
+                        5
+                    )
+                );
+
+
+            const nodebIdValid =
+                !is3G2100 ||
+                (
+                    Boolean(nodebIdInput) &&
+                    isValidFixedNumber(
+                        nodebIdInput.value,
+                        4
+                    )
+                );
+
+
+            const localCellIdValid =
+                !is3G2100 ||
+                (
+                    Boolean(localCellIdInput) &&
+                    isValidFixedNumber(
+                        localCellIdInput.value,
+                        2
+                    )
+                );
+
+
             if (
                 !siteValid ||
                 !nodebValid ||
-                !typeValid
+                !typeValid ||
+                !cellValid ||
+                !nodebIdValid ||
+                !localCellIdValid
             ) {
 
-                result.innerHTML = `
-                    <p class="status-message warning">
-                        Please complete all parameters correctly.
-                    </p>
-                `;
+                if (result) {
 
-                result.classList.remove(
-                    "hidden"
-                );
+                    result.innerHTML = `
+                        <p
+                            class="status-message warning"
+                        >
+                            Please complete all parameters correctly.
+                        </p>
+                    `;
+
+                    result.classList.remove(
+                        "hidden"
+                    );
+                }
 
                 updateValidation();
+
+                update3G2100Validation();
 
                 return;
             }
 
 
             /* -----------------------------------------
-               SAVE CURRENT SYSTEM
+               SAVE
             ----------------------------------------- */
 
             saveCurrentSystem();
 
 
             /* -----------------------------------------
-               LOADING
+               CHECK DEPLOY.JS
             ----------------------------------------- */
 
-            result.innerHTML = `
-                <p class="status-message">
-                    Loading dataset...
-                </p>
-            `;
+            if (
+                typeof window.generateFromDataset !==
+                "function"
+            ) {
 
-            result.classList.remove(
-                "hidden"
-            );
+                if (result) {
+
+                    result.innerHTML = `
+                        <p
+                            class="status-message error"
+                        >
+                            Deploy.js is not loaded correctly.
+                        </p>
+                    `;
+
+                    result.classList.remove(
+                        "hidden"
+                    );
+                }
+
+                return;
+            }
 
 
             /* -----------------------------------------
-               LOAD DATASET
+               LOADING
             ----------------------------------------- */
 
-            try {
-
-                const data =
-                    await generateFromDataset(
-                        selectedSystem,
-                        siteCodeInput.value,
-                        nodebNameInput.value,
-                        selectedType
-                    );
-
-
-                result.innerHTML =
-                    renderGeneratedResult(
-                        data
-                    );
-
-                result.classList.remove(
-                    "hidden"
-                );
-
-            } catch (error) {
-
-                console.error(
-                    "AutoGen Error:",
-                    error
-                );
+            if (result) {
 
                 result.innerHTML = `
-                    <p class="status-message error">
-                        ${escapeHtml(
-                            error &&
-                            error.message
-                                ? error.message
-                                : "Failed to load dataset."
-                        )}
+                    <p
+                        class="status-message"
+                    >
+                        Generating parameters...
                     </p>
                 `;
 
                 result.classList.remove(
                     "hidden"
                 );
+            }
+
+
+            /* -----------------------------------------
+               STATIC DATASET GENERATION
+            ----------------------------------------- */
+
+            try {
+
+                const data =
+                    await window.generateFromDataset(
+                        selectedSystem,
+                        siteCodeInput
+                            ? siteCodeInput.value
+                            : "",
+                        nodebNameInput
+                            ? nodebNameInput.value
+                            : "",
+                        selectedType
+                    );
+
+
+                /* -------------------------------------
+                   SAFETY CHECK
+                ------------------------------------- */
+
+                if (
+                    !data ||
+                    typeof data !== "object"
+                ) {
+
+                    throw new Error(
+                        "Invalid response from dataset."
+                    );
+                }
+
+
+                /* -------------------------------------
+                   ADD UI VALUES
+                ------------------------------------- */
+
+                data.system =
+                    data.system ||
+                    selectedSystem;
+
+                data.siteCode =
+                    siteCodeInput
+                        ? siteCodeInput.value
+                        : "";
+
+                data.nodebName =
+                    nodebNameInput
+                        ? nodebNameInput.value
+                        : "";
+
+                data.type =
+                    selectedType;
+
+                data.towerType =
+                    is3G2100
+                        ? selectedTowerType
+                        : "";
+
+                data.cell_id =
+                    data.cell_id ||
+                    data.cellId ||
+                    (
+                        cellIdInput
+                            ? cellIdInput.value
+                            : ""
+                    );
+
+                data.nodeb_id =
+                    data.nodeb_id ||
+                    data.nodebId ||
+                    (
+                        nodebIdInput
+                            ? nodebIdInput.value
+                            : ""
+                    );
+
+                data.local_cellid =
+                    data.local_cellid ||
+                    data.localCellId ||
+                    (
+                        localCellIdInput
+                            ? localCellIdInput.value
+                            : ""
+                    );
+
+                data.fileName =
+                    data.fileName ||
+                    getSystemFileName(
+                        selectedSystem,
+                        data.siteCode
+                    );
+
+
+                /* -------------------------------------
+                   STORE LAST DATASET
+                ------------------------------------- */
+
+                window.__lastGeneratedData =
+                    data;
+
+
+                /* -------------------------------------
+                   RENDER RESULT
+                ------------------------------------- */
+
+                if (result) {
+
+                    result.innerHTML =
+                        renderGeneratedResult(
+                            data
+                        );
+
+                    result.classList.remove(
+                        "hidden"
+                    );
+                }
+
+            }
+
+
+            /* -----------------------------------------
+               ERROR
+            ----------------------------------------- */
+
+            catch (error) {
+
+                console.error(
+                    "AutoGen Error:",
+                    error
+                );
+
+
+                if (result) {
+
+                    result.innerHTML = `
+                        <p
+                            class="status-message error"
+                        >
+                            ${escapeHtml(
+                                error &&
+                                error.message
+                                    ? error.message
+                                    : "Failed to generate parameters."
+                            )}
+                        </p>
+                    `;
+
+                    result.classList.remove(
+                        "hidden"
+                    );
+                }
             }
         }
     );
@@ -1257,7 +3148,7 @@ if (autoBtn) {
 
 
 /* =========================================================
-   CLEAR RESULT
+   CLEAR BUTTON
 ========================================================= */
 
 if (clearBtn) {
@@ -1283,8 +3174,19 @@ if (clearBtn) {
 
 
             /* -----------------------------------------
-               RESET SYSTEM TEXT
+               CLEAR LAST DATASET
             ----------------------------------------- */
+
+            window.__lastGeneratedData =
+                null;
+
+
+            /* -----------------------------------------
+               RESET SYSTEM
+            ----------------------------------------- */
+
+            selectedSystem = "";
+
 
             if (selectedText) {
 
@@ -1292,18 +3194,6 @@ if (clearBtn) {
                     "SYSTEM";
             }
 
-
-            /* -----------------------------------------
-               RESET SYSTEM
-            ----------------------------------------- */
-
-            selectedSystem =
-                "";
-
-
-            /* -----------------------------------------
-               REMOVE SYSTEM SELECTED
-            ----------------------------------------- */
 
             items.forEach(
                 (item) => {
@@ -1316,32 +3206,32 @@ if (clearBtn) {
 
 
             /* -----------------------------------------
-               CLEAR ALL SYSTEM DATA
+               RESET ALL SYSTEM DATA
             ----------------------------------------- */
 
             items.forEach(
                 (item) => {
 
                     const system =
-                        item.dataset.value || "";
+                        String(
+                            item.dataset.value || ""
+                        )
+                            .trim()
+                            .toUpperCase();
 
                     if (system) {
 
                         systemParameters[
                             system
-                        ] = {
-
-                            siteCode: "",
-                            nodebName: "",
-                            type: ""
-                        };
+                        ] =
+                            createDefaultSystemData();
                     }
                 }
             );
 
 
             /* -----------------------------------------
-               CLEAR SITE CODE
+               RESET SITE CODE
             ----------------------------------------- */
 
             if (siteCodeInput) {
@@ -1352,7 +3242,7 @@ if (clearBtn) {
 
 
             /* -----------------------------------------
-               CLEAR NODEB / ENODEB / GNODEB NAME
+               RESET NODE NAME
             ----------------------------------------- */
 
             if (nodebNameInput) {
@@ -1366,11 +3256,10 @@ if (clearBtn) {
 
 
             /* -----------------------------------------
-               CLEAR TYPE
+               RESET TYPE
             ----------------------------------------- */
 
-            selectedType =
-                "";
+            selectedType = "";
 
 
             if (typeSelectedText) {
@@ -1379,10 +3268,6 @@ if (clearBtn) {
                     "TYPE";
             }
 
-
-            /* -----------------------------------------
-               REMOVE TYPE SELECTED
-            ----------------------------------------- */
 
             typeDropdownItems.forEach(
                 (item) => {
@@ -1395,7 +3280,56 @@ if (clearBtn) {
 
 
             /* -----------------------------------------
-               CLEAR STATUS
+               RESET TOWER TYPE
+            ----------------------------------------- */
+
+            selectedTowerType = "";
+
+
+            if (towerTypeSelectedText) {
+
+                towerTypeSelectedText.textContent =
+                    "TOWER TYPE";
+            }
+
+
+            towerTypeDropdownItems.forEach(
+                (item) => {
+
+                    item.classList.remove(
+                        "selected"
+                    );
+                }
+            );
+
+
+            /* -----------------------------------------
+               RESET 3G2100 INPUTS
+            ----------------------------------------- */
+
+            if (cellIdInput) {
+
+                cellIdInput.value =
+                    "";
+            }
+
+
+            if (nodebIdInput) {
+
+                nodebIdInput.value =
+                    "";
+            }
+
+
+            if (localCellIdInput) {
+
+                localCellIdInput.value =
+                    "";
+            }
+
+
+            /* -----------------------------------------
+               RESET STATUS
             ----------------------------------------- */
 
             setValidStatus(
@@ -1413,9 +3347,24 @@ if (clearBtn) {
                 false
             );
 
+            setValidStatus(
+                cellIdStatus,
+                false
+            );
+
+            setValidStatus(
+                nodebIdStatus,
+                false
+            );
+
+            setValidStatus(
+                localCellIdStatus,
+                false
+            );
+
 
             /* -----------------------------------------
-               HIDE NODEB HINT
+               RESET HINT
             ----------------------------------------- */
 
             if (nodebHint) {
@@ -1424,6 +3373,15 @@ if (clearBtn) {
                     "hidden"
                 );
             }
+
+
+            /* -----------------------------------------
+               HIDE 3G2100 FIELDS
+            ----------------------------------------- */
+
+            update3G2100Fields(
+                ""
+            );
 
 
             /* -----------------------------------------
@@ -1439,7 +3397,7 @@ if (clearBtn) {
 
 
             /* -----------------------------------------
-               CLOSE SYSTEM
+               CLOSE DROPDOWNS
             ----------------------------------------- */
 
             if (dropdown) {
@@ -1450,17 +3408,34 @@ if (clearBtn) {
             }
 
 
-            /* -----------------------------------------
-               CLOSE TYPE
-            ----------------------------------------- */
-
             if (typeDropdown) {
 
                 typeDropdown.classList.remove(
                     "active"
                 );
             }
+
+
+            if (towerTypeDropdown) {
+
+                towerTypeDropdown.classList.remove(
+                    "active"
+                );
+            }
         }
     );
 }
+
+
+/* =========================================================
+   INITIAL STATE
+========================================================= */
+
+update3G2100Fields(
+    selectedSystem
+);
+
+updateValidation();
+
+update3G2100Validation();
 
