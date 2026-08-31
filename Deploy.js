@@ -1558,36 +1558,34 @@ async function autoGenerate(
    GLOBAL API
 ========================================================= */
 
-window.AutoGenDeploy = {
+(function () {
 
-    generate:
-        autoGenerate,
+    window.AutoGenDeploy = {
 
-    getDatasetFile:
-        getDatasetFile,
+        generate: autoGenerate,
 
-    readDataset:
-        readDataset,
+        getDatasetFile: getDatasetFile,
 
-    RNC_OPTIONS:
-        RNC_3G2100_OPTIONS,
+        readDataset: readDataset,
 
-    BW_OPTIONS:
-        BW_5G2600_OPTIONS,
+        RNC_OPTIONS: RNC_3G2100_OPTIONS,
 
-    CELL_COUNT_MIN:
-        CELL_COUNT_MIN,
+        BW_OPTIONS: BW_5G2600_OPTIONS,
 
-    CELL_COUNT_MAX:
-        CELL_COUNT_MAX
+        CELL_COUNT_MIN: CELL_COUNT_MIN,
 
-};
+        CELL_COUNT_MAX: CELL_COUNT_MAX
+
+    };
 
 
-/* =========================================================
-   BACKWARD COMPATIBILITY
-========================================================= */
+    /* =====================================================
+       BACKWARD COMPATIBILITY
+    ===================================================== */
 
-window.autogen =
-    autoGenerate;
+    window.autogen =
+        autoGenerate;
+
+
+})();
 
