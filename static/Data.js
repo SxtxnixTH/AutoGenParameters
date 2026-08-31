@@ -453,43 +453,11 @@ function ensureDeployReady() {
         return Promise.resolve();
     }
 
-    if (deployReadyPromise) {
-        return deployReadyPromise;
-    }
-
-    deployReadyPromise =
-        (async () => {
-
-            /* SheetJS */
-            if (typeof XLSX === "undefined") {
-
-                await loadExternalScript(
-                    "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"
-                );
-            }
-
-            /* Deploy.js */
-            if (
-                !window.AutoGenDeploy ||
-                typeof window.AutoGenDeploy.generate !== "function"
-            ) {
-
-                await loadExternalScript(
-                    "./Deploy.js"
-                );
-            }
-
-            if (
-                !window.AutoGenDeploy ||
-                typeof window.AutoGenDeploy.generate !== "function"
-            ) {
-                throw new Error(
-                    "Deploy.js did not initialize AutoGenDeploy."
-                );
-            }
-        })();
-
-    return deployReadyPromise;
+    return Promise.reject(
+        new Error(
+            "Deploy.js is not loaded."
+        )
+    );
 }
 
 
