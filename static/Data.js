@@ -475,8 +475,7 @@ function ensureDeployReady() {
             ) {
 
                 await loadExternalScript(
-                    "Deploy.js",
-                    "module"
+                    "Deploy.js"
                 );
             }
 
