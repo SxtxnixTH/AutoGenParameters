@@ -41,6 +41,7 @@
         );
 
     --text-main: #fff;
+
     --text-secondary: #a8a8a8;
 
     --glass-bg:
@@ -228,9 +229,11 @@ body {
         );
 
     background-clip: text;
+
     -webkit-background-clip: text;
 
     color: transparent;
+
     -webkit-text-fill-color: transparent;
 
     text-shadow:
@@ -351,7 +354,6 @@ body {
 
     display: flex;
     flex-direction: column;
-
     justify-content: center;
     align-items: center;
 
@@ -384,12 +386,14 @@ body {
 
 .type-dropdown {
     width: 100%;
+
     position: relative;
     z-index: 2000;
 }
 
 .tower-type-dropdown {
     width: 100%;
+
     position: relative;
     z-index: 1900;
 }
@@ -410,7 +414,6 @@ body {
     height: 50px;
 
     display: flex;
-
     justify-content: space-between;
     align-items: center;
 
@@ -426,6 +429,7 @@ body {
         rgba(255, 255, 255, 0.35);
 
     backdrop-filter: none;
+
     -webkit-backdrop-filter: none;
 
     cursor: pointer;
@@ -460,7 +464,6 @@ body {
         calc(100% + 6px);
 
     left: 0;
-
     width: 100%;
 
     z-index: 9999999;
@@ -471,7 +474,6 @@ body {
     padding: 0;
 
     border-radius: 20px;
-
     overflow: hidden;
 
     background:
@@ -491,6 +493,7 @@ body {
         rgba(0, 0, 0, 0.70);
 
     backdrop-filter: none !important;
+
     -webkit-backdrop-filter: none !important;
 
     isolation: isolate;
@@ -504,7 +507,6 @@ body {
     padding: 16px;
 
     text-align: center;
-
     cursor: pointer;
 
     font-weight: 700;
@@ -597,6 +599,7 @@ body {
 
 .input-wrapper {
     position: relative;
+
     width: 100%;
 }
 
@@ -717,7 +720,6 @@ body {
 .nodeb-wrapper {
     display: flex;
     flex-direction: column;
-
     align-items: stretch;
 }
 
@@ -838,7 +840,6 @@ body {
     height: 44px;
 
     display: flex;
-
     justify-content: center;
     align-items: center;
 
@@ -1161,8 +1162,6 @@ body {
 
 /* =========================================================
    PARAMETER TABLE COLUMN ALIGNMENT
-   Parameter = left
-   Generated Value = right
 ========================================================= */
 
 .autogen-table th:first-child,
@@ -1349,20 +1348,31 @@ body {
 
 .parameter-list-toggle {
     display: flex;
+
     flex-direction: column;
+
     align-items: center;
     justify-content: center;
 
     width: 100%;
 
-    margin: 8px 0 0;
-    padding: 16px 0 14px;
+    margin:
+        8px 0 0;
 
-    gap: 8px;
-    text-align: center;
+    padding:
+        16px 0 14px;
 
-    position: relative;
-    left: 16px;
+    gap:
+        8px;
+
+    text-align:
+        center;
+
+    position:
+        relative;
+
+    left:
+        16px;
 }
 
 
@@ -1427,11 +1437,6 @@ body {
         transform 0.2s ease;
 }
 
-
-/* =========================================================
-   HOVER
-========================================================= */
-
 .parameter-list-toggle-btn:hover {
     background:
         rgba(255, 255, 255, 0.14);
@@ -1439,11 +1444,6 @@ body {
     border-color:
         rgba(255, 255, 255, 0.35);
 }
-
-
-/* =========================================================
-   ACTIVE
-========================================================= */
 
 .parameter-list-toggle-btn:active {
     transform:
@@ -1515,26 +1515,37 @@ body {
 .developer-credit {
     position:
         relative;
+
     z-index:
         1;
+
     width:
         100%;
+
     margin-top:
         25px;
+
     text-align:
         center;
+
     font-size:
         0.9rem;
+
     font-weight:
         600;
+
     letter-spacing:
         0.5px;
+
     color:
         var(--text-secondary);
+
     opacity:
         0.75;
+
     pointer-events:
         auto;
+
     transition:
         color 0.3s ease,
         opacity 0.3s ease;
@@ -1780,53 +1791,58 @@ body {
 
 /* =========================================================
    LIGHT THEME
+   ปรับเฉพาะธีมขาว
+   Dark Theme ด้านบนคงเดิม
 ========================================================= */
 
 body.light-theme {
     --bg-gradient:
         radial-gradient(
             circle at top left,
-            rgba(0, 0, 0, 0.025) 0%,
-            transparent 35%
+            rgba(255, 255, 255, 0.45) 0%,
+            transparent 34%
         ),
         radial-gradient(
             circle at bottom right,
-            rgba(0, 0, 0, 0.025) 0%,
-            transparent 40%
+            rgba(0, 0, 0, 0.07) 0%,
+            transparent 42%
         ),
         linear-gradient(
             135deg,
-            #eeeeee 0%,
-            #e5e5e5 45%,
-            #dcdcdc 100%
+            #d9d9d9 0%,
+            #cfcfcf 45%,
+            #c4c4c4 100%
         );
 
     --text-main:
         #111111;
 
     --text-secondary:
-        #555555;
+        #4b4b4b;
 
     --glass-bg:
-        rgba(255, 255, 255, 0.72);
+        rgba(225, 225, 225, 0.82);
+
+    --glass-bg-light:
+        rgba(238, 238, 238, 0.78);
 
     --border-glass:
-        rgba(0, 0, 0, 0.16);
+        rgba(0, 0, 0, 0.20);
 
     --shadow-main:
-        0 10px 30px
-        rgba(0, 0, 0, 0.16),
+        0 12px 32px
+        rgba(0, 0, 0, 0.18),
         inset 0 0 20px
-        rgba(255, 255, 255, 0.35);
+        rgba(255, 255, 255, 0.20);
 
     --scroll-track:
         transparent;
 
     --scroll-thumb:
-        rgba(0, 0, 0, 0.40);
+        rgba(60, 60, 60, 0.48);
 
     --dropdown-bg:
-        #ffffff;
+        #dedede;
 
     background:
         var(--bg-gradient);
@@ -1842,16 +1858,20 @@ body.light-theme {
 
 body.light-theme .container {
     background:
-        var(--glass-bg);
+        rgba(218, 218, 218, 0.88);
 
     color:
-        #000;
+        #111;
 
-    border-color:
-        var(--border-glass);
+    border:
+        1px solid
+        rgba(0, 0, 0, 0.22);
 
     box-shadow:
-        var(--shadow-main);
+        0 14px 34px
+        rgba(0, 0, 0, 0.18),
+        inset 0 0 24px
+        rgba(255, 255, 255, 0.18);
 }
 
 
@@ -1864,14 +1884,14 @@ body.light-theme .container h1 {
         none;
 
     color:
-        #000;
+        #111;
 
     -webkit-text-fill-color:
-        #000;
+        #111;
 
     text-shadow:
-        0 0 8px
-        rgba(0, 0, 0, 0.08);
+        0 1px 2px
+        rgba(255, 255, 255, 0.45);
 }
 
 
@@ -1881,7 +1901,7 @@ body.light-theme .container h1 {
 
 body.light-theme .container p {
     color:
-        #555;
+        #4a4a4a;
 }
 
 
@@ -1891,17 +1911,18 @@ body.light-theme .container p {
 
 body.light-theme #datetime-display {
     background:
-        rgba(255, 255, 255, 0.55);
+        rgba(205, 205, 205, 0.88);
 
     color:
-        rgba(0, 0, 0, 0.75);
+        #222;
 
-    border-color:
-        rgba(0, 0, 0, 0.12);
+    border:
+        1px solid
+        rgba(0, 0, 0, 0.20);
 
     box-shadow:
         0 6px 20px
-        rgba(0, 0, 0, 0.10);
+        rgba(0, 0, 0, 0.14);
 }
 
 
@@ -1911,15 +1932,23 @@ body.light-theme #datetime-display {
 
 body.light-theme #theme-toggle {
     background:
-        rgba(0, 0, 0, 0.1);
+        rgba(190, 190, 190, 0.88);
 
     color:
-        #000;
+        #111;
+
+    border:
+        1px solid
+        rgba(0, 0, 0, 0.16);
+
+    box-shadow:
+        0 4px 12px
+        rgba(0, 0, 0, 0.10);
 }
 
 body.light-theme #theme-toggle:hover {
     background:
-        rgba(0, 0, 0, 0.2);
+        rgba(175, 175, 175, 0.95);
 }
 
 
@@ -1929,14 +1958,14 @@ body.light-theme #theme-toggle:hover {
 
 body.light-theme .glass-layer {
     background:
-        rgba(255, 255, 255, 0.55);
+        rgba(218, 218, 218, 0.52);
 
     border-color:
-        rgba(0, 0, 0, 0.08);
+        rgba(0, 0, 0, 0.14);
 
     box-shadow:
         0 10px 30px
-        rgba(0, 0, 0, 0.15);
+        rgba(0, 0, 0, 0.13);
 }
 
 body.light-theme .glass-layer::before {
@@ -1944,9 +1973,9 @@ body.light-theme .glass-layer::before {
         linear-gradient(
             90deg,
             transparent 0%,
-            rgba(0, 0, 0, 0.03) 20%,
-            rgba(0, 0, 0, 0.10) 50%,
-            rgba(0, 0, 0, 0.03) 80%,
+            rgba(255, 255, 255, 0.03) 20%,
+            rgba(255, 255, 255, 0.16) 50%,
+            rgba(255, 255, 255, 0.03) 80%,
             transparent 100%
         );
 }
@@ -1960,8 +1989,8 @@ body.light-theme .cursor-glow {
     background:
         radial-gradient(
             circle,
-            rgba(0, 0, 0, 0.22) 0%,
-            rgba(0, 0, 0, 0.10) 35%,
+            rgba(255, 255, 255, 0.25) 0%,
+            rgba(255, 255, 255, 0.10) 35%,
             transparent 70%
         );
 }
@@ -1973,13 +2002,18 @@ body.light-theme .cursor-glow {
 
 body.light-theme .dropdown-selected {
     background:
-        #f2f2f2;
+        #d7d7d7;
 
     color:
-        #000;
+        #111;
 
-    border-color:
-        rgba(0, 0, 0, 0.35);
+    border:
+        2px solid
+        rgba(0, 0, 0, 0.24);
+
+    box-shadow:
+        inset 0 1px 0
+        rgba(255, 255, 255, 0.25);
 
     backdrop-filter:
         none;
@@ -1990,22 +2024,23 @@ body.light-theme .dropdown-selected {
 
 body.light-theme .dropdown-selected:hover {
     border-color:
-        #000;
+        rgba(0, 0, 0, 0.48);
 }
 
 body.light-theme .dropdown-list {
     background:
-        #ffffff !important;
+        #dcdcdc !important;
 
     color:
-        #000;
+        #111;
 
-    border-color:
-        rgba(0, 0, 0, 0.12);
+    border:
+        2px solid
+        rgba(0, 0, 0, 0.20);
 
     box-shadow:
         0 20px 40px
-        rgba(0, 0, 0, 0.20);
+        rgba(0, 0, 0, 0.22);
 
     backdrop-filter:
         none !important;
@@ -2019,29 +2054,41 @@ body.light-theme .dropdown-list {
 
 body.light-theme .dropdown-list li {
     background:
-        #ffffff;
+        #dcdcdc;
 
     color:
-        #000;
+        #111;
+
+    border-bottom:
+        1px solid
+        rgba(0, 0, 0, 0.10);
+}
+
+body.light-theme .dropdown-list li:last-child {
+    border-bottom:
+        none;
 }
 
 body.light-theme .dropdown-list li:hover {
     background:
-        #eeeeee;
+        #c9c9c9;
 }
 
 body.light-theme .dropdown-list li.selected {
     background:
-        #e5e5e5;
+        #c2c2c2;
+
+    font-weight:
+        700;
 }
 
 body.light-theme .dropdown.active .dropdown-selected {
     border-color:
-        #000;
+        #111;
 
     box-shadow:
         0 0 12px
-        rgba(0, 0, 0, 0.12);
+        rgba(0, 0, 0, 0.15);
 }
 
 
@@ -2051,27 +2098,38 @@ body.light-theme .dropdown.active .dropdown-selected {
 
 body.light-theme .input-wrapper input {
     background:
-        rgba(0, 0, 0, 0.035);
+        #d8d8d8;
 
     color:
-        #000;
+        #111;
 
-    border-color:
-        rgba(0, 0, 0, 0.18);
+    border:
+        1px solid
+        rgba(0, 0, 0, 0.22);
+
+    box-shadow:
+        inset 0 1px 2px
+        rgba(0, 0, 0, 0.04);
 }
 
 body.light-theme .input-wrapper input::placeholder {
     color:
-        #666;
+        #555;
+
+    opacity:
+        0.85;
 }
 
 body.light-theme .input-wrapper input:focus {
+    background:
+        #dddddd;
+
     border-color:
-        rgba(0, 0, 0, 0.45);
+        rgba(0, 0, 0, 0.48);
 
     box-shadow:
         0 0 12px
-        rgba(0, 0, 0, 0.08);
+        rgba(0, 0, 0, 0.10);
 }
 
 
@@ -2081,7 +2139,7 @@ body.light-theme .input-wrapper input:focus {
 
 body.light-theme .nodeb-hint {
     color:
-        #666;
+        #555;
 }
 
 
@@ -2091,31 +2149,43 @@ body.light-theme .nodeb-hint {
 
 body.light-theme #autogen-btn {
     background:
-        rgba(0, 0, 0, 0.08);
+        #cfcfcf;
 
     color:
-        #000;
+        #111;
 
-    border-color:
-        rgba(0, 0, 0, 0.1);
+    border:
+        1px solid
+        rgba(0, 0, 0, 0.20);
+
+    box-shadow:
+        0 4px 12px
+        rgba(0, 0, 0, 0.10);
 }
 
 body.light-theme #autogen-btn:hover {
     background:
-        rgba(0, 0, 0, 0.15);
+        #bfbfbf;
+
+    border-color:
+        rgba(0, 0, 0, 0.30);
 }
 
 body.light-theme #clear-btn {
     background:
-        rgba(180, 0, 0, 0.08);
+        rgba(180, 0, 0, 0.10);
 
     color:
-        #b91c1c;
+        #a61b1b;
+
+    border:
+        1px solid
+        rgba(180, 0, 0, 0.12);
 }
 
 body.light-theme #clear-btn:hover {
     background:
-        rgba(180, 0, 0, 0.15);
+        rgba(180, 0, 0, 0.17);
 }
 
 
@@ -2125,15 +2195,17 @@ body.light-theme #clear-btn:hover {
 
 body.light-theme .result-panel {
     background:
-        rgba(0, 0, 0, 0.035);
+        #d1d1d1;
 
     border:
         1px solid
-        rgba(0, 0, 0, 0.12);
+        rgba(0, 0, 0, 0.20);
 
     box-shadow:
-        inset 0 1px 2px
-        rgba(255, 255, 255, 0.5);
+        0 8px 24px
+        rgba(0, 0, 0, 0.10),
+        inset 0 0 20px
+        rgba(255, 255, 255, 0.16);
 }
 
 
@@ -2143,7 +2215,38 @@ body.light-theme .result-panel {
 
 body.light-theme .autogen-summary {
     background:
-        rgba(0, 0, 0, 0.035);
+        #d4d4d4;
+
+    border:
+        1px solid
+        rgba(0, 0, 0, 0.20);
+
+    box-shadow:
+        0 4px 12px
+        rgba(0, 0, 0, 0.07);
+}
+
+body.light-theme .autogen-summary p {
+    color:
+        #222;
+}
+
+
+/* =========================================================
+   LIGHT RESULT TABLE WRAPPER
+========================================================= */
+
+body.light-theme .result-table-wrapper {
+    border:
+        1px solid
+        rgba(0, 0, 0, 0.22);
+
+    background:
+        #cfcfcf;
+
+    box-shadow:
+        0 5px 16px
+        rgba(0, 0, 0, 0.08);
 }
 
 
@@ -2151,22 +2254,129 @@ body.light-theme .autogen-summary {
    LIGHT TABLE
 ========================================================= */
 
+body.light-theme .autogen-table {
+    background:
+        #d2d2d2;
+}
+
+body.light-theme .autogen-table th,
+body.light-theme .autogen-table td {
+    border-bottom:
+        1px solid
+        rgba(0, 0, 0, 0.18);
+
+    border-right:
+        1px solid
+        rgba(0, 0, 0, 0.13);
+}
+
+body.light-theme .autogen-table th:last-child,
+body.light-theme .autogen-table td:last-child {
+    border-right:
+        none;
+}
+
+
+/* =========================================================
+   LIGHT TABLE HEADER
+========================================================= */
+
 body.light-theme .autogen-table thead th {
     background:
-        #f2f2f2;
+        #bdbdbd;
 
     color:
-        #000;
+        #111;
+
+    border-top:
+        1px solid
+        rgba(0, 0, 0, 0.24);
+
+    border-bottom:
+        1px solid
+        rgba(0, 0, 0, 0.28);
+
+    border-right:
+        1px solid
+        rgba(0, 0, 0, 0.20);
 }
+
+
+/* =========================================================
+   LIGHT TABLE BODY
+========================================================= */
 
 body.light-theme .autogen-table tbody th {
     color:
-        #111;
+        #1c1c1c;
+
+    background:
+        #d0d0d0;
+
+    border-bottom:
+        1px solid
+        rgba(0, 0, 0, 0.16);
+
+    border-right:
+        1px solid
+        rgba(0, 0, 0, 0.13);
 }
 
 body.light-theme .autogen-table tbody td {
     color:
         #444;
+
+    background:
+        #d6d6d6;
+
+    border-bottom:
+        1px solid
+        rgba(0, 0, 0, 0.16);
+
+    border-right:
+        1px solid
+        rgba(0, 0, 0, 0.13);
+}
+
+
+/* =========================================================
+   LIGHT TABLE ROW
+========================================================= */
+
+body.light-theme .autogen-table tbody tr {
+    background:
+        #d6d6d6;
+}
+
+body.light-theme .autogen-table tbody tr:nth-child(even) th,
+body.light-theme .autogen-table tbody tr:nth-child(even) td {
+    background:
+        #cdcdcd;
+}
+
+body.light-theme .autogen-table tbody tr:hover th,
+body.light-theme .autogen-table tbody tr:hover td {
+    background:
+        #c5c5c5;
+}
+
+
+/* =========================================================
+   LIGHT TABLE COLUMN DIVIDER
+========================================================= */
+
+body.light-theme .autogen-table th:first-child,
+body.light-theme .autogen-table td:first-child {
+    border-right:
+        1px solid
+        rgba(0, 0, 0, 0.22);
+}
+
+body.light-theme .autogen-table th:last-child,
+body.light-theme .autogen-table td:last-child {
+    border-left:
+        1px solid
+        rgba(0, 0, 0, 0.10);
 }
 
 
@@ -2176,13 +2386,13 @@ body.light-theme .autogen-table tbody td {
 
 body.light-theme .parameter-value-truncated {
     border-bottom-color:
-        rgba(0, 0, 0, 0.28);
+        rgba(0, 0, 0, 0.32);
 }
 
 body.light-theme .parameter-value-truncated:hover,
 body.light-theme .parameter-value-truncated:focus-visible {
     border-bottom-color:
-        rgba(0, 0, 0, 0.55);
+        rgba(0, 0, 0, 0.65);
 }
 
 
@@ -2192,17 +2402,18 @@ body.light-theme .parameter-value-truncated:focus-visible {
 
 body.light-theme .value-hover-tooltip {
     background:
-        #ffffff;
+        #dcdcdc;
 
     color:
         #111;
 
-    border-color:
-        rgba(0, 0, 0, 0.12);
+    border:
+        1px solid
+        rgba(0, 0, 0, 0.20);
 
     box-shadow:
         0 16px 34px
-        rgba(0, 0, 0, 0.18);
+        rgba(0, 0, 0, 0.20);
 }
 
 
@@ -2211,19 +2422,27 @@ body.light-theme .value-hover-tooltip {
 ========================================================= */
 
 body.light-theme .parameter-list-toggle-btn {
-    border-color:
-        rgba(0, 0, 0, 0.16);
+    border:
+        1px solid
+        rgba(0, 0, 0, 0.22);
 
     background:
-        rgba(0, 0, 0, 0.045);
+        #cfcfcf;
+
+    color:
+        #111;
+
+    box-shadow:
+        0 3px 10px
+        rgba(0, 0, 0, 0.08);
 }
 
 body.light-theme .parameter-list-toggle-btn:hover {
     background:
-        rgba(0, 0, 0, 0.10);
+        #c1c1c1;
 
     border-color:
-        rgba(0, 0, 0, 0.28);
+        rgba(0, 0, 0, 0.35);
 }
 
 
@@ -2235,7 +2454,7 @@ body.light-theme .container,
 body.light-theme .result-table-wrapper,
 body.light-theme .result-panel {
     scrollbar-color:
-        rgba(0, 0, 0, 0.40)
+        rgba(55, 55, 55, 0.55)
         transparent;
 }
 
@@ -2253,7 +2472,7 @@ body.light-theme .container::-webkit-scrollbar-thumb,
 body.light-theme .result-table-wrapper::-webkit-scrollbar-thumb,
 body.light-theme .result-panel::-webkit-scrollbar-thumb {
     background:
-        rgba(70, 70, 70, 0.65);
+        rgba(55, 55, 55, 0.55);
 
     border:
         0;
@@ -2269,7 +2488,7 @@ body.light-theme .container::-webkit-scrollbar-thumb:hover,
 body.light-theme .result-table-wrapper::-webkit-scrollbar-thumb:hover,
 body.light-theme .result-panel::-webkit-scrollbar-thumb:hover {
     background:
-        rgba(0, 0, 0, 0.75);
+        rgba(25, 25, 25, 0.72);
 
     border:
         0;
@@ -2288,12 +2507,12 @@ body.light-theme .result-panel::-webkit-scrollbar-thumb:hover {
 
 body.light-theme .status-message.warning {
     color:
-        #b45309;
+        #a45a00;
 }
 
 body.light-theme .status-message.error {
     color:
-        #b91c1c;
+        #a71919;
 }
 
 
@@ -2360,9 +2579,9 @@ body.light-theme .status-message.error {
         background:
             linear-gradient(
                 180deg,
-                #eeeeee,
-                #e5e5e5,
-                #dcdcdc
+                #dcdcdc,
+                #cecece,
+                #c2c2c2
             );
     }
 
@@ -2464,10 +2683,868 @@ body.light-theme .status-message.error {
         background:
             linear-gradient(
                 135deg,
-                #fff,
-                #f5f5f5,
-                #dcdcdc
+                #d7d7d7,
+                #cccccc,
+                #c0c0c0
             );
+    }
+}
+
+
+/* =========================================================
+   CELL COUNT CONTROL
+========================================================= */
+
+.cell-count-control {
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    gap:
+        12px;
+}
+
+.cell-count-btn {
+    width:
+        36px;
+
+    height:
+        36px;
+
+    border-radius:
+        50%;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+}
+
+#cell-count {
+    width:
+        70px;
+
+    text-align:
+        center;
+}
+
+
+/* =========================================================
+   CELL COUNT WRAPPER
+========================================================= */
+
+#cellCountWrapper {
+    width:
+        100%;
+
+    margin-top:
+        0;
+
+    padding:
+        18px 22px;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.14);
+
+    border-radius:
+        18px;
+
+    background:
+        rgba(255, 255, 255, 0.035);
+
+    box-sizing:
+        border-box;
+}
+
+
+/* =========================================================
+   CELL COUNT LABEL
+========================================================= */
+
+#cellCountWrapper label {
+    display:
+        block;
+
+    width:
+        100%;
+
+    margin:
+        0 0 12px;
+
+    color:
+        var(--text-main);
+
+    font-size:
+        0.95rem;
+
+    font-weight:
+        700;
+
+    text-align:
+        left;
+}
+
+
+/* =========================================================
+   CELL COUNT CONTROL
+========================================================= */
+
+.cell-count-control {
+    width:
+        100%;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    gap:
+        20px;
+}
+
+
+/* =========================================================
+   CELL COUNT BUTTON
+========================================================= */
+
+.cell-count-btn {
+    width:
+        42px;
+
+    height:
+        42px;
+
+    min-width:
+        42px;
+
+    min-height:
+        42px;
+
+    padding:
+        0;
+
+    margin:
+        0;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.20);
+
+    border-radius:
+        50%;
+
+    background:
+        rgba(255, 255, 255, 0.08);
+
+    color:
+        var(--text-main);
+
+    font-family:
+        Arial,
+        sans-serif;
+
+    font-size:
+        25px;
+
+    font-weight:
+        700;
+
+    line-height:
+        1;
+
+    cursor:
+        pointer;
+
+    box-sizing:
+        border-box;
+
+    backdrop-filter:
+        blur(10px);
+
+    -webkit-backdrop-filter:
+        blur(10px);
+
+    box-shadow:
+        0 4px 12px
+        rgba(0, 0, 0, 0.25),
+        inset 0 0 8px
+        rgba(255, 255, 255, 0.03);
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.15s ease,
+        box-shadow 0.2s ease;
+}
+
+.cell-count-btn:hover {
+    background:
+        rgba(255, 255, 255, 0.16);
+
+    border-color:
+        rgba(255, 255, 255, 0.38);
+
+    box-shadow:
+        0 6px 16px
+        rgba(0, 0, 0, 0.30),
+        0 0 10px
+        rgba(255, 255, 255, 0.08);
+}
+
+.cell-count-btn:active {
+    transform:
+        scale(0.92);
+}
+
+
+/* =========================================================
+   CELL COUNT INPUT
+========================================================= */
+
+#cell-count {
+    width:
+        108px;
+
+    height:
+        58px;
+
+    padding:
+        0;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.20);
+
+    border-radius:
+        18px;
+
+    background:
+        rgba(255, 255, 255, 0.07);
+
+    color:
+        var(--text-main);
+
+    font-family:
+        "Arial Rounded MT Bold",
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+    font-size:
+        24px;
+
+    font-weight:
+        700;
+
+    text-align:
+        center;
+
+    line-height:
+        58px;
+
+    outline:
+        none;
+
+    box-sizing:
+        border-box;
+
+    appearance:
+        textfield;
+
+    -moz-appearance:
+        textfield;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+/* =========================================================
+   REMOVE NUMBER INPUT ARROWS
+========================================================= */
+
+#cell-count::-webkit-inner-spin-button,
+#cell-count::-webkit-outer-spin-button {
+    -webkit-appearance:
+        none;
+
+    margin:
+        0;
+}
+
+
+/* =========================================================
+   FOCUS
+========================================================= */
+
+#cell-count:focus {
+    border-color:
+        rgba(255, 255, 255, 0.42);
+
+    background:
+        rgba(255, 255, 255, 0.10);
+
+    box-shadow:
+        0 0 12px
+        rgba(255, 255, 255, 0.08);
+}
+
+
+/* =========================================================
+   LIGHT THEME - CELL COUNT
+========================================================= */
+
+body.light-theme #cellCountWrapper {
+    background:
+        #d1d1d1;
+
+    border:
+        1px solid
+        rgba(0, 0, 0, 0.20);
+
+    box-shadow:
+        0 4px 12px
+        rgba(0, 0, 0, 0.06);
+}
+
+body.light-theme #cellCountWrapper label {
+    color:
+        #111;
+}
+
+body.light-theme .cell-count-btn {
+    background:
+        #c4c4c4;
+
+    color:
+        #111;
+
+    border:
+        1px solid
+        rgba(0, 0, 0, 0.22);
+
+    box-shadow:
+        0 4px 12px
+        rgba(0, 0, 0, 0.10);
+}
+
+body.light-theme .cell-count-btn:hover {
+    background:
+        #b7b7b7;
+
+    border-color:
+        rgba(0, 0, 0, 0.34);
+}
+
+body.light-theme #cell-count {
+    background:
+        #d9d9d9;
+
+    color:
+        #111;
+
+    border:
+        1px solid
+        rgba(0, 0, 0, 0.22);
+
+    box-shadow:
+        inset 0 1px 2px
+        rgba(0, 0, 0, 0.05);
+}
+
+body.light-theme #cell-count:focus {
+    background:
+        #dedede;
+
+    border-color:
+        rgba(0, 0, 0, 0.45);
+
+    box-shadow:
+        0 0 12px
+        rgba(0, 0, 0, 0.08);
+}
+
+
+/* =========================================================
+   MOBILE - CELL COUNT
+========================================================= */
+
+@media (max-width: 767px) {
+
+    #cellCountWrapper {
+        padding:
+            16px 18px;
+    }
+
+    .cell-count-control {
+        gap:
+            16px;
+    }
+
+    .cell-count-btn {
+        width:
+            40px;
+
+        height:
+            40px;
+
+        min-width:
+            40px;
+
+        min-height:
+            40px;
+
+        font-size:
+            23px;
+    }
+
+    #cell-count {
+        width:
+            90px;
+
+        height:
+            52px;
+
+        font-size:
+            22px;
+
+        line-height:
+            52px;
+    }
+}
+
+
+/* =========================================================
+   CELL COUNT CONTROL
+========================================================= */
+
+.cell-count-control {
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    gap:
+        8px;
+
+    width:
+        100%;
+}
+
+
+/* =========================================================
+   CELL COUNT BUTTON
+========================================================= */
+
+#cellCountMinus,
+#cellCountPlus {
+    width:
+        42px;
+
+    height:
+        42px;
+
+    flex:
+        0 0 42px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    padding:
+        0;
+
+    margin:
+        0;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.20);
+
+    border-radius:
+        10px;
+
+    background:
+        rgba(255, 255, 255, 0.08);
+
+    color:
+        inherit;
+
+    font-size:
+        22px;
+
+    font-weight:
+        600;
+
+    line-height:
+        1;
+
+    cursor:
+        pointer;
+
+    pointer-events:
+        auto;
+
+    user-select:
+        none;
+
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease,
+        transform 0.15s ease;
+}
+
+
+/* =========================================================
+   BUTTON HOVER
+========================================================= */
+
+#cellCountMinus:hover,
+#cellCountPlus:hover {
+    background:
+        rgba(255, 255, 255, 0.16);
+
+    border-color:
+        rgba(255, 255, 255, 0.35);
+}
+
+
+/* =========================================================
+   BUTTON ACTIVE
+========================================================= */
+
+#cellCountMinus:active,
+#cellCountPlus:active {
+    transform:
+        scale(0.94);
+}
+
+
+/* =========================================================
+   CELL COUNT INPUT
+========================================================= */
+
+#cell-count {
+    width:
+        100px;
+
+    height:
+        55px;
+
+    flex:
+        0 0 100px;
+
+    box-sizing:
+        border-box;
+
+    text-align:
+        center;
+
+    font-size:
+        16px;
+
+    font-weight:
+        600;
+
+    pointer-events:
+        auto;
+}
+
+
+/* =========================================================
+   LIGHT THEME - CELL COUNT BUTTON
+========================================================= */
+
+body.light-theme #cellCountMinus,
+body.light-theme #cellCountPlus {
+    background:
+        #c4c4c4;
+
+    border:
+        1px solid
+        rgba(0, 0, 0, 0.22);
+
+    color:
+        #111;
+
+    box-shadow:
+        0 4px 12px
+        rgba(0, 0, 0, 0.10);
+}
+
+body.light-theme #cellCountMinus:hover,
+body.light-theme #cellCountPlus:hover {
+    background:
+        #b7b7b7;
+
+    border-color:
+        rgba(0, 0, 0, 0.34);
+}
+
+
+/* =========================================================
+   RNC INPUT
+========================================================= */
+
+#rncWrapper {
+    width:
+        100%;
+
+    margin-top:
+        0;
+
+    padding:
+        18px 22px;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.14);
+
+    border-radius:
+        18px;
+
+    background:
+        rgba(255, 255, 255, 0.035);
+
+    box-sizing:
+        border-box;
+}
+
+
+/* =========================================================
+   RNC LABEL
+========================================================= */
+
+#rncWrapper label {
+    display:
+        block;
+
+    width:
+        100%;
+
+    margin:
+        0 0 12px;
+
+    color:
+        var(--text-main);
+
+    font-size:
+        0.95rem;
+
+    font-weight:
+        700;
+
+    text-align:
+        left;
+}
+
+
+/* =========================================================
+   RNC INPUT
+========================================================= */
+
+#rnc {
+    width:
+        100%;
+
+    height:
+        50px;
+
+    padding:
+        0 18px;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.15);
+
+    border-radius:
+        16px;
+
+    outline:
+        none;
+
+    background:
+        rgba(255, 255, 255, 0.06);
+
+    color:
+        var(--text-main);
+
+    font-size:
+        15px;
+
+    font-weight:
+        700;
+
+    font-family:
+        "Arial Rounded MT Bold",
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+    box-sizing:
+        border-box;
+
+    transition:
+        background 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+
+/* =========================================================
+   RNC PLACEHOLDER
+========================================================= */
+
+#rnc::placeholder {
+    color:
+        var(--text-secondary);
+
+    opacity:
+        0.85;
+
+    font-weight:
+        600;
+}
+
+
+/* =========================================================
+   RNC FOCUS
+========================================================= */
+
+#rnc:focus {
+    border-color:
+        rgba(255, 255, 255, 0.45);
+
+    background:
+        rgba(255, 255, 255, 0.09);
+
+    box-shadow:
+        0 0 12px
+        rgba(255, 255, 255, 0.08);
+}
+
+
+/* =========================================================
+   RNC VALID
+========================================================= */
+
+#rnc.valid {
+    border-color:
+        rgba(53, 214, 111, 0.55);
+
+    box-shadow:
+        0 0 10px
+        rgba(53, 214, 111, 0.10);
+}
+
+
+/* =========================================================
+   LIGHT THEME - RNC
+========================================================= */
+
+body.light-theme #rncWrapper {
+    background:
+        #d1d1d1;
+
+    border:
+        1px solid
+        rgba(0, 0, 0, 0.20);
+
+    box-shadow:
+        0 4px 12px
+        rgba(0, 0, 0, 0.06);
+}
+
+body.light-theme #rncWrapper label {
+    color:
+        #111;
+}
+
+body.light-theme #rnc {
+    background:
+        #d9d9d9;
+
+    color:
+        #111;
+
+    border:
+        1px solid
+        rgba(0, 0, 0, 0.22);
+
+    box-shadow:
+        inset 0 1px 2px
+        rgba(0, 0, 0, 0.05);
+}
+
+body.light-theme #rnc::placeholder {
+    color:
+        #555;
+}
+
+body.light-theme #rnc:focus {
+    background:
+        #dedede;
+
+    border-color:
+        rgba(0, 0, 0, 0.45);
+
+    box-shadow:
+        0 0 12px
+        rgba(0, 0, 0, 0.08);
+}
+
+
+/* =========================================================
+   MOBILE - RNC
+========================================================= */
+
+@media (max-width: 767px) {
+
+    #rncWrapper {
+        padding:
+            16px 18px;
+    }
+
+    #rnc {
+        height:
+            48px;
+
+        font-size:
+            15px;
     }
 }
 
