@@ -1,21 +1,20 @@
 /* =========================================================
    AUTOGEN PARAMETERS - DEPLOY.JS
-   ---------------------------------------------------------
-   GitHub Pages / Static Deployment
+   GitHub Pages / Static Deployment Version
 
-   Python Data.py equivalent:
-   - Select dataset by system
-   - Read first worksheet
-   - Read header row
-   - Read first data row
-   - Replace matching columns with user input
-   - Return generated parameter data
+   Replaces:
+   - Flask
+   - pandas
+   - /autogen API
+   - Data.py
 
-   Dataset mapping:
+   Dataset:
+   - 3G2100  -> Template_MP_Cell3G.xlsx
+   - 4G      -> Template_MP_Cell4G.xlsx
+   - 5G2600  -> Template_MP_Cell5G.xlsx
 
-   3G* -> Datasets/Template_MP_Cell3G.xlsx
-   4G* -> Datasets/Template_MP_Cell4G.xlsx
-   5G* -> Datasets/Template_MP_Cell5G.xlsx
+   Requires SheetJS:
+   XLSX
 ========================================================= */
 
 
@@ -23,7 +22,7 @@
    DATASET FILES
 ========================================================= */
 
-const DATASET_FILES = Object.freeze({
+const DATASET_FILES = {
 
     "3G":
         "Datasets/Template_MP_Cell3G.xlsx",
@@ -34,45 +33,74 @@ const DATASET_FILES = Object.freeze({
     "5G":
         "Datasets/Template_MP_Cell5G.xlsx"
 
-});
+};
 
 
 /* =========================================================
-   WORKBOOK CACHE
+   RNC - 3G2100 ONLY
 ========================================================= */
 
-const workbookCache =
-    new Map();
+const RNC_3G2100_OPTIONS = [
+
+    "3RNCAYA1H",
+    "3RNCAYA3H",
+    "3RNCAYA4H",
+    "3RNCNPT1H",
+    "3RNCNPT3H",
+    "3RNCNPT4H"
+
+];
+
+
+/* =========================================================
+   5G2600 BW OPTIONS
+========================================================= */
+
+const BW_5G2600_OPTIONS = [
+
+    "40",
+    "60",
+    "80",
+    "100"
+
+];
+
+
+/* =========================================================
+   CELL COUNT
+========================================================= */
+
+const CELL_COUNT_MIN = 1;
+const CELL_COUNT_MAX = 10;
 
 
 /* =========================================================
    GET DATASET FILE
-   Equivalent to Python get_dataset_file()
 ========================================================= */
 
 function getDatasetFile(system) {
 
-    system =
+    const value =
         String(system || "")
             .trim()
             .toUpperCase();
 
 
-    if (system.startsWith("3G")) {
+    if (value.startsWith("3G")) {
 
         return DATASET_FILES["3G"];
 
     }
 
 
-    if (system.startsWith("4G")) {
+    if (value.startsWith("4G")) {
 
         return DATASET_FILES["4G"];
 
     }
 
 
-    if (system.startsWith("5G")) {
+    if (value.startsWith("5G")) {
 
         return DATASET_FILES["5G"];
 
@@ -80,348 +108,146 @@ function getDatasetFile(system) {
 
 
     throw new Error(
-        `Unsupported system: ${system}`
+        `Unsupported system: ${value}`
     );
+
 }
 
 
 /* =========================================================
-   LOAD EXCEL FILE
+   SYSTEM CHECK
 ========================================================= */
 
-async function loadExcelFile(filePath) {
+function is3G2100DeploySystem(system) {
 
-    /* -----------------------------------------
-       CACHE
-    ----------------------------------------- */
-
-    if (
-        workbookCache.has(
-            filePath
-        )
-    ) {
-
-        return workbookCache.get(
-            filePath
-        );
-
-    }
-
-
-    /* -----------------------------------------
-       CHECK SHEETJS
-    ----------------------------------------- */
-
-    if (
-        typeof XLSX === "undefined"
-    ) {
-
-        throw new Error(
-            "SheetJS failed to load. Check the SheetJS script in index.html."
-        );
-
-    }
-
-
-    /* -----------------------------------------
-       FETCH DATASET
-    ----------------------------------------- */
-
-    let response;
-
-    try {
-
-        response =
-            await fetch(
-                filePath,
-                {
-                    method: "GET",
-                    cache: "no-cache"
-                }
-            );
-
-    } catch (error) {
-
-        throw new Error(
-            `Failed to load dataset: ${filePath}`
-        );
-
-    }
-
-
-    /* -----------------------------------------
-       CHECK RESPONSE
-    ----------------------------------------- */
-
-    if (!response.ok) {
-
-        throw new Error(
-            `Failed to load dataset (${response.status}): ${filePath}`
-        );
-
-    }
-
-
-    /* -----------------------------------------
-       READ ARRAY BUFFER
-    ----------------------------------------- */
-
-    const arrayBuffer =
-        await response.arrayBuffer();
-
-
-    if (
-        !arrayBuffer.byteLength
-    ) {
-
-        throw new Error(
-            `Dataset is empty: ${filePath}`
-        );
-
-    }
-
-
-    /* -----------------------------------------
-       READ WORKBOOK
-    ----------------------------------------- */
-
-    let workbook;
-
-    try {
-
-        workbook =
-            XLSX.read(
-                arrayBuffer,
-                {
-                    type: "array",
-                    cellDates: false
-                }
-            );
-
-    } catch (error) {
-
-        throw new Error(
-            `Failed to read dataset: ${error.message}`
-        );
-
-    }
-
-
-    /* -----------------------------------------
-       CHECK WORKSHEET
-    ----------------------------------------- */
-
-    if (
-        !workbook.SheetNames ||
-        workbook.SheetNames.length === 0
-    ) {
-
-        throw new Error(
-            `Dataset does not contain any worksheet: ${filePath}`
-        );
-
-    }
-
-
-    /* -----------------------------------------
-       CACHE
-    ----------------------------------------- */
-
-    workbookCache.set(
-        filePath,
-        workbook
+    return (
+        String(system || "")
+            .trim()
+            .toUpperCase() ===
+        "3G2100"
     );
 
+}
 
-    return workbook;
+
+function is4GDeploySystem(system) {
+
+    return String(system || "")
+        .trim()
+        .toUpperCase()
+        .startsWith("4G");
+
+}
+
+
+function is5G2600DeploySystem(system) {
+
+    return (
+        String(system || "")
+            .trim()
+            .toUpperCase() ===
+        "5G2600"
+    );
+
+}
+
+
+function hasCellParametersDeploy(system) {
+
+    return (
+        is3G2100DeploySystem(system) ||
+        is4GDeploySystem(system) ||
+        is5G2600DeploySystem(system)
+    );
+
 }
 
 
 /* =========================================================
-   GET FIRST SHEET
-   Equivalent to Python excel.sheet_names[0]
+   GET PARAMETERS FROM URL / OBJECT
 ========================================================= */
 
-function getFirstSheet(workbook) {
-
-    if (
-        !workbook ||
-        !Array.isArray(
-            workbook.SheetNames
-        )
-    ) {
-
-        throw new Error(
-            "Invalid Excel workbook."
-        );
-
-    }
-
-
-    if (
-        workbook.SheetNames.length === 0
-    ) {
-
-        throw new Error(
-            "Dataset does not contain any worksheet."
-        );
-
-    }
-
-
-    const firstSheetName =
-        workbook.SheetNames[0];
-
-
-    const worksheet =
-        workbook.Sheets[
-            firstSheetName
-        ];
-
-
-    if (!worksheet) {
-
-        throw new Error(
-            `Worksheet not found: ${firstSheetName}`
-        );
-
-    }
-
+function normalizeDeployParams(params = {}) {
 
     return {
 
-        name:
-            firstSheetName,
+        system:
+            String(
+                params.system || ""
+            ).trim(),
 
-        worksheet:
-            worksheet
+        site_code:
+            String(
+                params.site_code || ""
+            ).trim(),
+
+        nodeb_name:
+            String(
+                params.nodeb_name || ""
+            ).trim(),
+
+        type:
+            String(
+                params.type || ""
+            ).trim(),
+
+        tower_type:
+            String(
+                params.tower_type || ""
+            ).trim(),
+
+        cell_id:
+            String(
+                params.cell_id || ""
+            ).trim(),
+
+        nodeb_id:
+            String(
+                params.nodeb_id || ""
+            ).trim(),
+
+        gnodeb_id:
+            String(
+                params.gnodeb_id || ""
+            ).trim(),
+
+        local_cellid:
+            String(
+                params.local_cellid || ""
+            ).trim(),
+
+        rnc:
+            String(
+                params.rnc || ""
+            ).trim(),
+
+        bw:
+            String(
+                params.bw || ""
+            ).trim(),
+
+        cell_count:
+            String(
+                params.cell_count || ""
+            ).trim()
 
     };
-}
 
-
-/* =========================================================
-   GET FIRST SHEET DATA
-   Equivalent to pandas.read_excel()
-========================================================= */
-
-function getFirstSheetData(workbook) {
-
-    const {
-        name,
-        worksheet
-    } =
-        getFirstSheet(
-            workbook
-        );
-
-
-    const rows =
-        XLSX.utils.sheet_to_json(
-            worksheet,
-            {
-                header: 1,
-                defval: "",
-                raw: true
-            }
-        );
-
-
-    return {
-
-        name:
-            name,
-
-        rows:
-            rows
-
-    };
-}
-
-
-/* =========================================================
-   GET FIRST SHEET COLUMNS
-========================================================= */
-
-function getFirstSheetColumns(workbook) {
-
-    const {
-        worksheet
-    } =
-        getFirstSheet(
-            workbook
-        );
-
-
-    const range =
-        XLSX.utils.decode_range(
-            worksheet["!ref"] || "A1"
-        );
-
-
-    const columns = [];
-
-
-    for (
-        let columnIndex = range.s.c;
-        columnIndex <= range.e.c;
-        columnIndex++
-    ) {
-
-        const cellAddress =
-            XLSX.utils.encode_cell(
-                {
-                    r: range.s.r,
-                    c: columnIndex
-                }
-            );
-
-
-        const cell =
-            worksheet[
-                cellAddress
-            ];
-
-
-        columns.push(
-
-            cell &&
-            cell.v !== undefined
-
-                ? String(
-                    cell.v
-                ).trim()
-
-                : ""
-
-        );
-
-    }
-
-
-    return columns;
 }
 
 
 /* =========================================================
    FIND HEADER
-   Equivalent to Python find_header()
 ========================================================= */
 
-function findHeaderIndex(
+function findHeader(
     headers,
     ...aliases
 ) {
 
-    /* -----------------------------------------
-       Support array input
-    ----------------------------------------- */
-
     if (
         aliases.length === 1 &&
-        Array.isArray(
-            aliases[0]
-        )
+        Array.isArray(aliases[0])
     ) {
 
         aliases =
@@ -430,25 +256,18 @@ function findHeaderIndex(
     }
 
 
-    /* -----------------------------------------
-       NORMALIZE ALIASES
-    ----------------------------------------- */
-
     const normalizedAliases =
-        aliases.map(
-            (alias) =>
+        new Set(
 
-                String(
-                    alias || ""
-                )
-                    .trim()
-                    .toUpperCase()
+            aliases.map(
+                (alias) =>
+                    String(alias)
+                        .trim()
+                        .toUpperCase()
+            )
+
         );
 
-
-    /* -----------------------------------------
-       FIND HEADER
-    ----------------------------------------- */
 
     for (
         let index = 0;
@@ -457,7 +276,6 @@ function findHeaderIndex(
     ) {
 
         const normalizedHeader =
-
             String(
                 headers[index] || ""
             )
@@ -466,7 +284,7 @@ function findHeaderIndex(
 
 
         if (
-            normalizedAliases.includes(
+            normalizedAliases.has(
                 normalizedHeader
             )
         ) {
@@ -479,161 +297,698 @@ function findHeaderIndex(
 
 
     return -1;
+
 }
 
 
 /* =========================================================
-   BUILD ROW
-   Equivalent to modifying pandas df.iloc[0]
+   HEADER MAPPING
 ========================================================= */
 
-function buildInputRow(
-    headers,
-    {
-        system,
-        siteCode,
-        nodebName,
-        type,
-        towerType,
-        cellId,
-        nodebId,
-        localCellid
-    }
-) {
+const HEADER_MAPPINGS = {
 
-    /* -----------------------------------------
-       Start with blank row
-       Same length as headers
-    ----------------------------------------- */
+    system: [
+
+        "SYSTEM *",
+        "SYSTEM"
+
+    ],
+
+    site_code: [
+
+        "SITE_CODE *",
+        "SITE_CODE"
+
+    ],
+
+    nodeb_name: [
+
+        "NODEB_NAME *",
+        "NODEB_NAME",
+
+        "ENODEB_NAME *",
+        "ENODEB_NAME",
+
+        "GNODEB_NAME *",
+        "GNODEB_NAME"
+
+    ],
+
+    type: [
+
+        "TYPE *",
+        "TYPE"
+
+    ],
+
+    tower_type: [
+
+        "TOWER TYPE *",
+        "TOWER TYPE",
+
+        "TOWER_TYPE *",
+        "TOWER_TYPE"
+
+    ],
+
+    cell_id: [
+
+        "CELL ID **",
+        "CELL ID *",
+        "CELL ID",
+
+        "CELL_ID **",
+        "CELL_ID *",
+        "CELL_ID"
+
+    ],
+
+    nodeb_id: [
+
+        "NODEB_ID **",
+        "NODEB_ID *",
+        "NODEB_ID"
+
+    ],
+
+    gnodeb_id: [
+
+        "GNODEB_ID **",
+        "GNODEB_ID *",
+        "GNODEB_ID"
+
+    ],
+
+    local_cellid: [
+
+        "LOCAL_CELLID **",
+        "LOCAL_CELLID *",
+        "LOCAL_CELLID",
+
+        "LOCAL CELLID **",
+        "LOCAL CELLID *",
+        "LOCAL CELLID"
+
+    ],
+
+    bw: [
+
+        "BW **",
+        "BW *",
+        "BW",
+
+        "BANDWIDTH **",
+        "BANDWIDTH *",
+        "BANDWIDTH"
+
+    ],
+
+    cell_count: [
+
+        "CELL COUNT **",
+        "CELL COUNT *",
+        "CELL COUNT",
+
+        "CELL_COUNT **",
+        "CELL_COUNT *",
+        "CELL_COUNT"
+
+    ]
+
+};
+
+
+/* =========================================================
+   READ XLSX
+========================================================= */
+
+async function readDataset(filePath) {
+
+    if (
+        typeof XLSX === "undefined"
+    ) {
+
+        throw new Error(
+            "SheetJS XLSX library is not loaded."
+        );
+
+    }
+
+
+    const response =
+        await fetch(
+            filePath
+        );
+
+
+    if (!response.ok) {
+
+        throw new Error(
+            `Dataset not found: ${filePath}`
+        );
+
+    }
+
+
+    const arrayBuffer =
+        await response.arrayBuffer();
+
+
+    const workbook =
+        XLSX.read(
+            arrayBuffer,
+            {
+                type: "array"
+            }
+        );
+
+
+    if (
+        !workbook.SheetNames ||
+        !workbook.SheetNames.length
+    ) {
+
+        throw new Error(
+            "Dataset does not contain any worksheet."
+        );
+
+    }
+
+
+    const sheetName =
+        workbook.SheetNames[0];
+
+
+    const worksheet =
+        workbook.Sheets[
+            sheetName
+        ];
+
+
+    const rows =
+        XLSX.utils.sheet_to_json(
+            worksheet,
+            {
+                header: 1,
+                defval: ""
+            }
+        );
+
+
+    if (!rows.length) {
+
+        return {
+
+            sheetName,
+            headers: [],
+            row: []
+
+        };
+
+    }
+
+
+    const headers =
+        Array.isArray(rows[0])
+            ? rows[0].map(
+                (header) =>
+                    String(
+                        header ?? ""
+                    )
+            )
+            : [];
+
 
     const row =
-        new Array(
-            headers.length
-        ).fill("");
+        rows.length > 1 &&
+        Array.isArray(rows[1])
+            ? [...rows[1]]
+            : Array(
+                headers.length
+            ).fill("");
 
 
-    /* -----------------------------------------
-       SYSTEM
-    ----------------------------------------- */
+    while (
+        row.length <
+        headers.length
+    ) {
 
-    let index =
-        findHeaderIndex(
+        row.push("");
+
+    }
+
+
+    return {
+
+        sheetName,
+        headers,
+        row
+
+    };
+
+}
+
+
+/* =========================================================
+   VALIDATE BASIC PARAMETERS
+========================================================= */
+
+function validateBasicParameters(
+    params
+) {
+
+    const required = {
+
+        system:
+            "System",
+
+        site_code:
+            "Site Code",
+
+        nodeb_name:
+            "NodeB Name",
+
+        type:
+            "Type"
+
+    };
+
+
+    for (
+        const [key, label]
+        of Object.entries(required)
+    ) {
+
+        if (!params[key]) {
+
+            return {
+
+                error:
+                    `${label} is required.`
+
+            };
+
+        }
+
+    }
+
+
+    return null;
+
+}
+
+
+/* =========================================================
+   VALIDATE RNC
+========================================================= */
+
+function validateRNC(
+    params,
+    is3G2100
+) {
+
+    if (!is3G2100) {
+
+        return null;
+
+    }
+
+
+    if (!params.rnc) {
+
+        return {
+
+            error:
+                "RNC is required for 3G2100."
+
+        };
+
+    }
+
+
+    if (
+        !RNC_3G2100_OPTIONS.includes(
+            params.rnc
+        )
+    ) {
+
+        return {
+
+            error:
+                `Invalid RNC: ${params.rnc}. ` +
+                "Please select a valid " +
+                "3G2100 RNC.",
+
+            validRNC:
+                RNC_3G2100_OPTIONS
+
+        };
+
+    }
+
+
+    return null;
+
+}
+
+
+/* =========================================================
+   VALIDATE 5G2600
+========================================================= */
+
+function validate5G2600(
+    params
+) {
+
+    /* GNODEB ID */
+
+    if (!params.gnodeb_id) {
+
+        return {
+
+            error:
+                "GNODEB ID is required for 5G2600."
+
+        };
+
+    }
+
+
+    if (
+        !/^\d{6}$/.test(
+            params.gnodeb_id
+        )
+    ) {
+
+        return {
+
+            error:
+                "GNODEB ID must be 6 digits."
+
+        };
+
+    }
+
+
+    /* CELL ID */
+
+    if (!params.cell_id) {
+
+        return {
+
+            error:
+                "CELL ID is required for 5G2600."
+
+        };
+
+    }
+
+
+    if (
+        !/^\d{5}$/.test(
+            params.cell_id
+        )
+    ) {
+
+        return {
+
+            error:
+                "CELL ID must be 5 digits."
+
+        };
+
+    }
+
+
+    /* LOCAL CELLID */
+
+    params.local_cellid =
+        params.cell_id;
+
+
+    /* BW */
+
+    if (!params.bw) {
+
+        return {
+
+            error:
+                "BW is required for 5G2600."
+
+        };
+
+    }
+
+
+    if (
+        !BW_5G2600_OPTIONS.includes(
+            params.bw
+        )
+    ) {
+
+        return {
+
+            error:
+                `Invalid BW: ${params.bw}. ` +
+                "Please select " +
+                "40, 60, 80, or 100.",
+
+            validBW:
+                BW_5G2600_OPTIONS
+
+        };
+
+    }
+
+
+    /* CELL COUNT */
+
+    if (!params.cell_count) {
+
+        return {
+
+            error:
+                "CELL COUNT is required for 5G2600."
+
+        };
+
+    }
+
+
+    const cellCount =
+        Number(
+            params.cell_count
+        );
+
+
+    if (
+        !Number.isInteger(
+            cellCount
+        )
+    ) {
+
+        return {
+
+            error:
+                "CELL COUNT must be a number."
+
+        };
+
+    }
+
+
+    if (
+        cellCount <
+            CELL_COUNT_MIN ||
+        cellCount >
+            CELL_COUNT_MAX
+    ) {
+
+        return {
+
+            error:
+                "CELL COUNT must be between 1 and 10."
+
+        };
+
+    }
+
+
+    params.cell_count =
+        String(cellCount);
+
+
+    return null;
+
+}
+
+
+/* =========================================================
+   WRITE STANDARD PARAMETERS
+========================================================= */
+
+function writeStandardParameters(
+    params,
+    headers,
+    row,
+    systemInfo
+) {
+
+    const {
+
+        is3G2100,
+        is5G2600,
+        hasCellParameters
+
+    } = systemInfo;
+
+
+    for (
+        const [key, aliases]
+        of Object.entries(
+            HEADER_MAPPINGS
+        )
+    ) {
+
+        /* 5G uses GNODEB ID */
+
+        if (
+            key === "nodeb_id" &&
+            is5G2600
+        ) {
+
+            continue;
+
+        }
+
+
+        /* GNODEB ID only for 5G2600 */
+
+        if (
+            key === "gnodeb_id" &&
+            !is5G2600
+        ) {
+
+            continue;
+
+        }
+
+
+        /* BW only for 5G2600 */
+
+        if (
+            key === "bw" &&
+            !is5G2600
+        ) {
+
+            continue;
+
+        }
+
+
+        /* CELL COUNT only when supported */
+
+        if (
+            key === "cell_count" &&
+            !hasCellParameters
+        ) {
+
+            continue;
+
+        }
+
+
+        const index =
+            findHeader(
+                headers,
+                aliases
+            );
+
+
+        if (
+            index === -1
+        ) {
+
+            continue;
+
+        }
+
+
+        if (
+            key === "cell_count"
+        ) {
+
+            if (
+                params.cell_count
+            ) {
+
+                row[index] =
+                    params.cell_count;
+
+            }
+
+            continue;
+
+        }
+
+
+        row[index] =
+            params[key];
+
+    }
+
+}
+
+
+/* =========================================================
+   5G2600 - GNODEB ID
+========================================================= */
+
+function write5GGNodeBId(
+    params,
+    headers,
+    row
+) {
+
+    const index =
+        findHeader(
+
             headers,
 
-            "SYSTEM *",
-            "SYSTEM"
+            "GNODEB_ID **",
+            "GNODEB_ID *",
+            "GNODEB_ID",
+
+            "GNODEB ID **",
+            "GNODEB ID *",
+            "GNODEB ID"
+
         );
 
 
     if (index !== -1) {
 
         row[index] =
-            system;
+            params.gnodeb_id;
 
     }
 
-
-    /* -----------------------------------------
-       SITE CODE
-    ----------------------------------------- */
-
-    index =
-        findHeaderIndex(
-            headers,
-
-            "SITE_CODE *",
-            "SITE_CODE"
-        );
+}
 
 
-    if (index !== -1) {
+/* =========================================================
+   5G2600 - CELL ID
+========================================================= */
 
-        row[index] =
-            siteCode;
+function write5GCellId(
+    params,
+    headers,
+    row
+) {
 
-    }
+    const index =
+        findHeader(
 
-
-    /* -----------------------------------------
-       NODEB / ENODEB / GNODEB NAME
-    ----------------------------------------- */
-
-    index =
-        findHeaderIndex(
-            headers,
-
-            "NODEB_NAME *",
-            "NODEB_NAME",
-
-            "ENODEB_NAME *",
-            "ENODEB_NAME",
-
-            "GNODEB_NAME *",
-            "GNODEB_NAME"
-        );
-
-
-    if (index !== -1) {
-
-        row[index] =
-            nodebName;
-
-    }
-
-
-    /* -----------------------------------------
-       TYPE
-    ----------------------------------------- */
-
-    index =
-        findHeaderIndex(
-            headers,
-
-            "TYPE *",
-            "TYPE"
-        );
-
-
-    if (index !== -1) {
-
-        row[index] =
-            type;
-
-    }
-
-
-    /* -----------------------------------------
-       TOWER TYPE
-    ----------------------------------------- */
-
-    index =
-        findHeaderIndex(
-            headers,
-
-            "TOWER TYPE **",
-            "TOWER TYPE *",
-            "TOWER TYPE",
-
-            "TOWER_TYPE **",
-            "TOWER_TYPE *",
-            "TOWER_TYPE"
-        );
-
-
-    if (index !== -1) {
-
-        row[index] =
-            towerType;
-
-    }
-
-
-    /* -----------------------------------------
-       CELL ID
-    ----------------------------------------- */
-
-    index =
-        findHeaderIndex(
             headers,
 
             "CELL ID **",
@@ -643,45 +998,33 @@ function buildInputRow(
             "CELL_ID **",
             "CELL_ID *",
             "CELL_ID"
+
         );
 
 
     if (index !== -1) {
 
         row[index] =
-            cellId;
+            params.cell_id;
 
     }
 
-
-    /* -----------------------------------------
-       NODEB ID
-    ----------------------------------------- */
-
-    index =
-        findHeaderIndex(
-            headers,
-
-            "NODEB_ID **",
-            "NODEB_ID *",
-            "NODEB_ID"
-        );
+}
 
 
-    if (index !== -1) {
+/* =========================================================
+   5G2600 - LOCAL CELLID
+========================================================= */
 
-        row[index] =
-            nodebId;
+function write5GLocalCellId(
+    params,
+    headers,
+    row
+) {
 
-    }
+    const index =
+        findHeader(
 
-
-    /* -----------------------------------------
-       LOCAL CELLID
-    ----------------------------------------- */
-
-    index =
-        findHeaderIndex(
             headers,
 
             "LOCAL_CELLID **",
@@ -691,27 +1034,144 @@ function buildInputRow(
             "LOCAL CELLID **",
             "LOCAL CELLID *",
             "LOCAL CELLID"
+
         );
 
 
     if (index !== -1) {
 
         row[index] =
-            localCellid;
+            params.local_cellid;
 
     }
 
-
-    return row;
 }
 
 
 /* =========================================================
-   CONVERT VALUES TO JSON-SAFE VALUES
-   Equivalent to Python pd.isna()
+   5G2600 - BW
 ========================================================= */
 
-function convertRowToSafeValues(row) {
+function write5GBW(
+    params,
+    headers,
+    row
+) {
+
+    const index =
+        findHeader(
+
+            headers,
+
+            "BW **",
+            "BW *",
+            "BW",
+
+            "BANDWIDTH **",
+            "BANDWIDTH *",
+            "BANDWIDTH"
+
+        );
+
+
+    if (index !== -1) {
+
+        row[index] =
+            params.bw;
+
+    }
+
+}
+
+
+/* =========================================================
+   5G2600 - CELL COUNT
+========================================================= */
+
+function write5GCellCount(
+    params,
+    headers,
+    row
+) {
+
+    const index =
+        findHeader(
+
+            headers,
+
+            "CELL COUNT **",
+            "CELL COUNT *",
+            "CELL COUNT",
+
+            "CELL_COUNT **",
+            "CELL_COUNT *",
+            "CELL_COUNT"
+
+        );
+
+
+    if (index !== -1) {
+
+        row[index] =
+            params.cell_count;
+
+    }
+
+}
+
+
+/* =========================================================
+   RNC - 3G2100 ONLY
+========================================================= */
+
+function writeRNC(
+    params,
+    headers,
+    row,
+    is3G2100
+) {
+
+    if (!is3G2100) {
+
+        return;
+
+    }
+
+
+    const index =
+        findHeader(
+
+            headers,
+
+            "RNC *",
+            "RNC",
+
+            "RNC_NAME *",
+            "RNC_NAME",
+
+            "RNC NAME *",
+            "RNC NAME"
+
+        );
+
+
+    if (index !== -1) {
+
+        row[index] =
+            params.rnc;
+
+    }
+
+}
+
+
+/* =========================================================
+   SAFE ROW
+========================================================= */
+
+function convertRowToSafeValues(
+    row
+) {
 
     return row.map(
         (value) => {
@@ -726,10 +1186,6 @@ function convertRowToSafeValues(row) {
             }
 
 
-            /* -----------------------------------------
-               Handle Excel date / invalid values
-            ----------------------------------------- */
-
             if (
                 typeof value === "number" &&
                 Number.isNaN(value)
@@ -740,120 +1196,123 @@ function convertRowToSafeValues(row) {
             }
 
 
-            return String(
-                value
-            );
+            return String(value);
 
         }
     );
+
 }
 
 
 /* =========================================================
-   GENERATE FROM DATASET
-   Main replacement for Flask /autogen
+   AUTO GENERATE
 ========================================================= */
 
-async function generateFromDataset(
-    system,
-    siteCode,
-    nodebName,
-    type,
-    towerType = "",
-    cellId = "",
-    nodebId = "",
-    localCellid = ""
+async function autoGenerate(
+    inputParams
 ) {
 
-    /* -----------------------------------------
-       CLEAN INPUT
-    ----------------------------------------- */
-
-    system =
-        String(
-            system || ""
-        ).trim();
-
-
-    siteCode =
-        String(
-            siteCode || ""
-        ).trim();
-
-
-    nodebName =
-        String(
-            nodebName || ""
-        ).trim();
-
-
-    type =
-        String(
-            type || ""
-        ).trim();
-
-
-    towerType =
-        String(
-            towerType || ""
-        ).trim();
-
-
-    cellId =
-        String(
-            cellId || ""
-        ).trim();
-
-
-    nodebId =
-        String(
-            nodebId || ""
-        ).trim();
-
-
-    localCellid =
-        String(
-            localCellid || ""
-        ).trim();
+    const params =
+        normalizeDeployParams(
+            inputParams
+        );
 
 
     /* =====================================================
-       VALIDATION
-       Same required fields as Python
+       SYSTEM
     ===================================================== */
 
-    if (!system) {
+    const normalizedSystem =
+        params.system
+            .trim()
+            .toUpperCase();
 
-        throw new Error(
-            "System is required."
+
+    const is3G2100 =
+        normalizedSystem ===
+        "3G2100";
+
+
+    const is4G =
+        normalizedSystem.startsWith(
+            "4G"
         );
+
+
+    const is5G2600 =
+        normalizedSystem ===
+        "5G2600";
+
+
+    const hasCellParameters =
+        is3G2100 ||
+        is4G ||
+        is5G2600;
+
+
+    const systemInfo = {
+
+        normalizedSystem,
+        is3G2100,
+        is4G,
+        is5G2600,
+        hasCellParameters
+
+    };
+
+
+    /* =====================================================
+       BASIC VALIDATION
+    ===================================================== */
+
+    const basicError =
+        validateBasicParameters(
+            params
+        );
+
+
+    if (basicError) {
+
+        return basicError;
 
     }
 
 
-    if (!siteCode) {
+    /* =====================================================
+       RNC
+    ===================================================== */
 
-        throw new Error(
-            "Site Code is required."
+    const rncError =
+        validateRNC(
+            params,
+            is3G2100
         );
+
+
+    if (rncError) {
+
+        return rncError;
 
     }
 
 
-    if (!nodebName) {
+    /* =====================================================
+       5G2600
+    ===================================================== */
 
-        throw new Error(
-            "NodeB Name is required."
-        );
+    if (is5G2600) {
 
-    }
+        const error =
+            validate5G2600(
+                params
+            );
 
 
-    if (!type) {
+        if (error) {
 
-        throw new Error(
-            "Type is required."
-        );
+            return error;
+
+        }
 
     }
 
@@ -864,230 +1323,132 @@ async function generateFromDataset(
 
     let filePath;
 
+
     try {
 
         filePath =
             getDatasetFile(
-                system
+                params.system
             );
 
     } catch (error) {
 
-        throw new Error(
-            error.message
-        );
+        return {
+
+            error:
+                error.message
+
+        };
 
     }
 
 
     /* =====================================================
-       LOAD EXCEL
+       READ EXCEL
     ===================================================== */
 
-    const workbook =
-        await loadExcelFile(
-            filePath
-        );
+    let dataset;
 
 
-    /* =====================================================
-       READ FIRST SHEET
-    ===================================================== */
+    try {
 
-    const {
-        name: sheetName,
-        rows
-    } =
-        getFirstSheetData(
-            workbook
-        );
+        dataset =
+            await readDataset(
+                filePath
+            );
 
+    } catch (error) {
 
-    /* =====================================================
-       HEADERS
-       Equivalent to df.columns
-    ===================================================== */
+        return {
+
+            error:
+                `Failed to read dataset: ${error.message}`
+
+        };
+
+    }
+
 
     const headers =
-        rows.length > 0
-
-            ? rows[0].map(
-                (value) =>
-                    String(
-                        value ?? ""
-                    ).trim()
-            )
-
-            : [];
+        dataset.headers;
 
 
-    if (
-        headers.length === 0
-    ) {
-
-        throw new Error(
-            `Template has no header row: ${sheetName}`
-        );
-
-    }
+    const row =
+        dataset.row;
 
 
     /* =====================================================
-       READ FIRST DATA ROW
-       Equivalent to df.iloc[0]
+       WRITE STANDARD PARAMETERS
     ===================================================== */
 
-    let row;
+    writeStandardParameters(
 
+        params,
 
-    if (
-        rows.length > 1
-    ) {
+        headers,
 
-        row =
-            rows[1].slice();
+        row,
 
+        systemInfo
 
-        /* -----------------------------------------
-           Ensure row has same number of columns
-        ----------------------------------------- */
-
-        while (
-            row.length <
-            headers.length
-        ) {
-
-            row.push("");
-
-        }
-
-
-        if (
-            row.length >
-            headers.length
-        ) {
-
-            row =
-                row.slice(
-                    0,
-                    headers.length
-                );
-
-        }
-
-    } else {
-
-        row =
-            new Array(
-                headers.length
-            ).fill("");
-
-    }
+    );
 
 
     /* =====================================================
-       REPLACE INPUT VALUES
+       5G2600
     ===================================================== */
 
-    const inputRow =
-        buildInputRow(
+    if (is5G2600) {
+
+        write5GGNodeBId(
+            params,
             headers,
-            {
-                system,
-                siteCode,
-                nodebName,
-                type,
-                towerType,
-                cellId,
-                nodebId,
-                localCellid
-            }
+            row
         );
 
 
+        write5GCellId(
+            params,
+            headers,
+            row
+        );
+
+
+        write5GLocalCellId(
+            params,
+            headers,
+            row
+        );
+
+
+        write5GBW(
+            params,
+            headers,
+            row
+        );
+
+
+        write5GCellCount(
+            params,
+            headers,
+            row
+        );
+
+    }
+
+
     /* =====================================================
-       IMPORTANT
-       Preserve existing Excel values
-
-       Python starts from df.iloc[0], then only replaces
-       matching columns.
-
-       Therefore:
-       - Existing Excel values remain
-       - Matching fields are replaced
+       RNC
     ===================================================== */
 
-    for (
-        let index = 0;
-        index < headers.length;
-        index++
-    ) {
+    if (is3G2100) {
 
-        const header =
-            String(
-                headers[index] || ""
-            )
-                .trim()
-                .toUpperCase();
-
-
-        const isMappedField =
-
-            header === "SYSTEM *" ||
-            header === "SYSTEM" ||
-
-            header === "SITE_CODE *" ||
-            header === "SITE_CODE" ||
-
-            header === "NODEB_NAME *" ||
-            header === "NODEB_NAME" ||
-
-            header === "ENODEB_NAME *" ||
-            header === "ENODEB_NAME" ||
-
-            header === "GNODEB_NAME *" ||
-            header === "GNODEB_NAME" ||
-
-            header === "TYPE *" ||
-            header === "TYPE" ||
-
-            header === "TOWER TYPE **" ||
-            header === "TOWER TYPE *" ||
-            header === "TOWER TYPE" ||
-
-            header === "TOWER_TYPE **" ||
-            header === "TOWER_TYPE *" ||
-            header === "TOWER_TYPE" ||
-
-            header === "CELL ID **" ||
-            header === "CELL ID *" ||
-            header === "CELL ID" ||
-
-            header === "CELL_ID **" ||
-            header === "CELL_ID *" ||
-            header === "CELL_ID" ||
-
-            header === "NODEB_ID **" ||
-            header === "NODEB_ID *" ||
-            header === "NODEB_ID" ||
-
-            header === "LOCAL_CELLID **" ||
-            header === "LOCAL_CELLID *" ||
-            header === "LOCAL_CELLID" ||
-
-            header === "LOCAL CELLID **" ||
-            header === "LOCAL CELLID *" ||
-            header === "LOCAL CELLID";
-
-
-        if (
-            isMappedField
-        ) {
-
-            row[index] =
-                inputRow[index];
-
-        }
+        writeRNC(
+            params,
+            headers,
+            row,
+            is3G2100
+        );
 
     }
 
@@ -1104,18 +1465,24 @@ async function generateFromDataset(
 
     /* =====================================================
        FILE NAME
-       Equivalent to os.path.basename(file_path)
     ===================================================== */
 
+    const cleanSiteCode =
+        params.site_code
+            .trim()
+            .toUpperCase();
+
+
     const fileName =
-        filePath
-            .split("/")
-            .pop();
+        cleanSiteCode
+
+            ? `${normalizedSystem}_${cleanSiteCode}.xlsx`
+
+            : `${normalizedSystem}.xlsx`;
 
 
     /* =====================================================
-       RETURN
-       Equivalent to Flask jsonify()
+       RETURN RESULT
     ===================================================== */
 
     return {
@@ -1124,37 +1491,57 @@ async function generateFromDataset(
             true,
 
         system:
-            system,
+            params.system,
 
         siteCode:
-            siteCode,
+            params.site_code,
 
         nodebName:
-            nodebName,
+            params.nodeb_name,
 
         type:
-            type,
+            params.type,
 
         towerType:
-            towerType,
+            params.tower_type,
 
         cellId:
-            cellId,
+            params.cell_id,
 
         nodebId:
-            nodebId,
+            params.nodeb_id,
+
+        gnodebId:
+            params.gnodeb_id,
 
         localCellid:
-            localCellid,
+            params.local_cellid,
+
+        rnc:
+            params.rnc,
+
+        rncOptions:
+            RNC_3G2100_OPTIONS,
+
+        bw:
+            params.bw,
+
+        bwOptions:
+            BW_5G2600_OPTIONS,
+
+        cellCount:
+            params.cell_count,
 
         filePath:
-            fileName,
+            filePath
+                .split("/")
+                .pop(),
 
         fileName:
             fileName,
 
         sheetName:
-            sheetName,
+            dataset.sheetName,
 
         headers:
             headers,
@@ -1163,117 +1550,44 @@ async function generateFromDataset(
             safeRow
 
     };
+
 }
 
 
 /* =========================================================
-   AUTO GENERATE
-   Backward-compatible diagnostic helper
+   GLOBAL API
 ========================================================= */
 
-async function autoGenerate() {
+window.AutoGenDeploy = {
 
-    const result = {};
+    generate:
+        autoGenerate,
 
+    getDatasetFile:
+        getDatasetFile,
 
-    for (
-        const filePath of
-        Object.values(
-            DATASET_FILES
-        )
-    ) {
+    readDataset:
+        readDataset,
 
-        try {
+    RNC_OPTIONS:
+        RNC_3G2100_OPTIONS,
 
-            const workbook =
-                await loadExcelFile(
-                    filePath
-                );
+    BW_OPTIONS:
+        BW_5G2600_OPTIONS,
 
+    CELL_COUNT_MIN:
+        CELL_COUNT_MIN,
 
-            result[filePath] = {
+    CELL_COUNT_MAX:
+        CELL_COUNT_MAX
 
-                sheetName:
-                    getFirstSheet(
-                        workbook
-                    ).name,
-
-                columns:
-                    getFirstSheetColumns(
-                        workbook
-                    )
-
-            };
-
-        } catch (error) {
-
-            console.error(
-                error
-            );
-
-
-            result[filePath] = {
-
-                sheetName:
-                    "",
-
-                columns:
-                    [],
-
-                error:
-                    error.message
-
-            };
-
-        }
-
-    }
-
-
-    return result;
-}
+};
 
 
 /* =========================================================
-   GLOBAL EXPORT
+   BACKWARD COMPATIBILITY
 ========================================================= */
 
-window.DATASET_FILES =
-    DATASET_FILES;
-
-
-window.loadExcelFile =
-    loadExcelFile;
-
-
-window.getDatasetFile =
-    getDatasetFile;
-
-
-window.getFirstSheet =
-    getFirstSheet;
-
-
-window.getFirstSheetColumns =
-    getFirstSheetColumns;
-
-
-window.getFirstSheetData =
-    getFirstSheetData;
-
-
-window.findHeaderIndex =
-    findHeaderIndex;
-
-
-window.buildInputRow =
-    buildInputRow;
-
-
-window.generateFromDataset =
-    generateFromDataset;
-
-
-window.autoGenerate =
+window.autogen =
     autoGenerate;
 
