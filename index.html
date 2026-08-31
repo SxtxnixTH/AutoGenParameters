@@ -3,9 +3,9 @@
 
 <head>
 
-    <!-- =====================================================
-    META
-    ====================================================== -->
+    <!-- =========================================================
+         META
+    ========================================================== -->
 
     <meta charset="UTF-8">
 
@@ -19,121 +19,106 @@
         content="AutoGenParameters"
     >
 
-
-    <!-- =====================================================
-    PAGE INFO
-    ====================================================== -->
+    <!-- =========================================================
+         PAGE INFO
+    ========================================================== -->
 
     <title>AutoGenParameters</title>
 
-
-    <!-- =====================================================
-    FAVICON
-    ====================================================== -->
+    <!-- =========================================================
+         FAVICON
+    ========================================================== -->
 
     <link
         rel="icon"
         type="image/png"
-        href="static/ICON.png"
+        href="ICON.png"
     >
 
-
-    <!-- =====================================================
-    CSS
-    ====================================================== -->
+    <!-- =========================================================
+         CSS
+    ========================================================== -->
 
     <link
         rel="stylesheet"
-        href="static/Data.css"
+        href="Data.css"
     >
 
 </head>
 
-
 <body>
 
-
-    <!-- =====================================================
-    NOSCRIPT
-    ====================================================== -->
+    <!-- =========================================================
+         NOSCRIPT
+    ========================================================== -->
 
     <noscript>
-
         <div style="padding:20px;text-align:center;">
-
-            JavaScript is required to use
-            AutoGenParameters.
-
+            JavaScript is required to use AutoGenParameters.
         </div>
-
     </noscript>
 
+    <!-- =========================================================
+         DATE / TIME
+    ========================================================== -->
 
-    <!-- =====================================================
-    THEME TOGGLE
-    ====================================================== -->
+    <div id="datetime-display"></div>
+
+    <!-- =========================================================
+         THEME TOGGLE
+    ========================================================== -->
 
     <button
         id="theme-toggle"
         type="button"
         aria-label="Toggle theme"
     >
-
         🌙 Dark
-
     </button>
 
-
-    <!-- =====================================================
-    CURSOR GLOW
-    ====================================================== -->
+    <!-- =========================================================
+         CURSOR GLOW
+    ========================================================== -->
 
     <div
         class="cursor-glow"
         aria-hidden="true"
     ></div>
 
-
-    <!-- =====================================================
-    MAIN CONTAINER
-    ====================================================== -->
+    <!-- =========================================================
+         MAIN CONTAINER
+    ========================================================== -->
 
     <main class="container">
 
-
-        <!-- =================================================
-        GLASS EFFECT LAYER
-        ================================================== -->
+        <!-- =====================================================
+             GLASS EFFECT LAYER
+        ====================================================== -->
 
         <div
             class="glass-layer"
             aria-hidden="true"
         ></div>
 
+        <!-- =====================================================
+             HEADER
+        ====================================================== -->
 
-        <!-- =================================================
-        HEADER
-        ================================================== -->
-
-        <h1>
-            AutoGenParameters
-        </h1>
+        <h1>AutoGenParameters</h1>
 
         <p>
             Select a system and generate parameters automatically.
         </p>
 
-
-        <!-- =================================================
-        ACTION AREA
-        ================================================== -->
+        <!-- =====================================================
+             ACTION AREA
+        ====================================================== -->
 
         <div class="action-area">
 
-
-            <!-- =============================================
-            SYSTEM DROPDOWN
-            ============================================== -->
+            <!-- =================================================
+                 SYSTEM DROPDOWN
+            ================================================== -->
 
             <div class="dropdown system-dropdown">
 
@@ -145,20 +130,14 @@
                     aria-haspopup="listbox"
                     aria-expanded="false"
                 >
-
-                    <span id="selectedText">
-                        SYSTEM
-                    </span>
+                    <span id="selectedText">SYSTEM</span>
 
                     <span
                         class="arrow"
                         aria-hidden="true"
-                    >
-                        ▾
-                    </span>
+                    >▾</span>
 
                 </div>
-
 
                 <ul
                     class="dropdown-list"
@@ -170,7 +149,6 @@
                     <li
                         data-value="3G2100"
                         role="option"
-                        tabindex="-1"
                     >
                         3G2100
                     </li>
@@ -178,7 +156,6 @@
                     <li
                         data-value="4G1800"
                         role="option"
-                        tabindex="-1"
                     >
                         4G1800
                     </li>
@@ -186,7 +163,6 @@
                     <li
                         data-value="4G2100"
                         role="option"
-                        tabindex="-1"
                     >
                         4G2100
                     </li>
@@ -194,7 +170,6 @@
                     <li
                         data-value="4G2600"
                         role="option"
-                        tabindex="-1"
                     >
                         4G2600
                     </li>
@@ -202,7 +177,6 @@
                     <li
                         data-value="5G2600"
                         role="option"
-                        tabindex="-1"
                     >
                         5G2600
                     </li>
@@ -211,20 +185,18 @@
 
             </div>
 
-
-            <!-- =============================================
-            PARAMETER FORM
-            ============================================== -->
+            <!-- =================================================
+                 PARAMETER FORM
+            ================================================== -->
 
             <div
                 id="parameter-form"
                 class="parameter-form hidden"
             >
 
-
-                <!-- =========================================
-                SITE CODE
-                ========================================== -->
+                <!-- =================================================
+                     SITE CODE
+                ================================================== -->
 
                 <div class="input-wrapper">
 
@@ -235,7 +207,6 @@
                         autocomplete="off"
                         spellcheck="false"
                         placeholder="SITE CODE"
-                        aria-label="Site Code"
                     >
 
                     <span
@@ -246,10 +217,9 @@
 
                 </div>
 
-
-                <!-- =========================================
-                NODEB NAME
-                ========================================== -->
+                <!-- =================================================
+                     NODEB NAME
+                ================================================== -->
 
                 <div class="input-wrapper nodeb-wrapper">
 
@@ -260,7 +230,6 @@
                         autocomplete="off"
                         spellcheck="false"
                         placeholder="NODEB NAME"
-                        aria-label="NodeB Name"
                     >
 
                     <span
@@ -268,9 +237,6 @@
                         class="input-status"
                         aria-hidden="true"
                     ></span>
-
-
-                    <!-- NODEB HINT -->
 
                     <div
                         id="nodeb-hint"
@@ -281,10 +247,9 @@
 
                 </div>
 
-
-                <!-- =========================================
-                TYPE DROPDOWN
-                ========================================== -->
+                <!-- =================================================
+                     TYPE DROPDOWN
+                ================================================== -->
 
                 <div
                     class="dropdown type-dropdown"
@@ -307,12 +272,9 @@
                         <span
                             class="arrow"
                             aria-hidden="true"
-                        >
-                            ▾
-                        </span>
+                        >▾</span>
 
                     </div>
-
 
                     <ul
                         class="dropdown-list"
@@ -324,7 +286,6 @@
                         <li
                             data-value="NODE"
                             role="option"
-                            tabindex="-1"
                         >
                             NODE
                         </li>
@@ -332,13 +293,11 @@
                         <li
                             data-value="DISTRIBUTED"
                             role="option"
-                            tabindex="-1"
                         >
                             DISTRIBUTED
                         </li>
 
                     </ul>
-
 
                     <span
                         id="type-status"
@@ -348,11 +307,458 @@
 
                 </div>
 
+                <!-- =================================================
+                     TOWER TYPE - 3G2100 / 5G2600
+                ================================================== -->
+
+                <div
+                    class="dropdown tower-type-dropdown hidden"
+                    id="towerTypeDropdown"
+                >
+
+                    <div
+                        class="dropdown-selected"
+                        id="towerTypeDropdownSelected"
+                        role="button"
+                        tabindex="0"
+                        aria-haspopup="listbox"
+                        aria-expanded="false"
+                    >
+
+                        <span id="towerTypeSelectedText">
+                            TOWER TYPE
+                        </span>
+
+                        <span
+                            class="arrow"
+                            aria-hidden="true"
+                        >▾</span>
+
+                    </div>
+
+                    <ul
+                        class="dropdown-list"
+                        id="towerTypeDropdownList"
+                        role="listbox"
+                        aria-label="Select tower type"
+                    >
+
+                        <li
+                            data-value="MICRO"
+                            role="option"
+                        >
+                            MICRO
+                        </li>
+
+                        <li
+                            data-value="MACRO"
+                            role="option"
+                        >
+                            MACRO
+                        </li>
+
+                    </ul>
+
+                </div>
+
+                <!-- =================================================
+                     4G CELL ID / LOCAL CELLID
+                ================================================== -->
+
+                <div
+                    class="input-wrapper system-4g-field hidden"
+                    id="cellId4GWrapper"
+                >
+
+                    <input
+                        id="cell-id-4g"
+                        type="text"
+                        inputmode="numeric"
+                        maxlength="3"
+                        autocomplete="off"
+                        spellcheck="false"
+                        placeholder="CELL ID / LOCAL CELLID"
+                    >
+
+                    <span
+                        id="cell-id-4g-status"
+                        class="input-status"
+                        aria-hidden="true"
+                    ></span>
+
+                </div>
+
+                <!-- =================================================
+                     ENODEB ID - 4G ONLY
+                ================================================== -->
+
+                <div
+                    class="input-wrapper system-4g-field hidden"
+                    id="enodebIdWrapper"
+                >
+
+                    <input
+                        id="enodeb-id"
+                        type="text"
+                        inputmode="numeric"
+                        maxlength="6"
+                        autocomplete="off"
+                        spellcheck="false"
+                        placeholder="ENODEB ID"
+                    >
+
+                    <span
+                        id="enodeb-id-status"
+                        class="input-status"
+                        aria-hidden="true"
+                    ></span>
+
+                </div>
+
+                <!-- =================================================
+                     CELL ID - 3G2100 ONLY
+                ================================================== -->
+
+                <div
+                    class="input-wrapper system-3g2100-field hidden"
+                    id="cellIdWrapper"
+                >
+
+                    <input
+                        id="cell-id"
+                        type="text"
+                        inputmode="numeric"
+                        maxlength="5"
+                        autocomplete="off"
+                        spellcheck="false"
+                        placeholder="CELL ID"
+                    >
+
+                    <span
+                        id="cell-id-status"
+                        class="input-status"
+                        aria-hidden="true"
+                    ></span>
+
+                </div>
+
+                <!-- =================================================
+                     NODEB ID - 3G2100 ONLY
+                ================================================== -->
+
+                <div
+                    class="input-wrapper system-3g2100-field hidden"
+                    id="nodebIdWrapper"
+                >
+
+                    <input
+                        id="nodeb-id"
+                        type="text"
+                        inputmode="numeric"
+                        maxlength="6"
+                        autocomplete="off"
+                        spellcheck="false"
+                        placeholder="NODEB ID"
+                    >
+
+                    <span
+                        id="nodeb-id-status"
+                        class="input-status"
+                        aria-hidden="true"
+                    ></span>
+
+                </div>
+
+                <!-- =================================================
+                     RNC - 3G2100 ONLY
+                ================================================== -->
+
+                <div
+                    class="dropdown rnc-dropdown system-3g2100-field hidden"
+                    id="rncDropdown"
+                >
+
+                    <div
+                        class="dropdown-selected"
+                        id="rncDropdownSelected"
+                        role="button"
+                        tabindex="0"
+                        aria-haspopup="listbox"
+                        aria-expanded="false"
+                    >
+
+                        <span id="rncSelectedText">
+                            RNC
+                        </span>
+
+                        <span
+                            class="arrow"
+                            aria-hidden="true"
+                        >▾</span>
+
+                    </div>
+
+                    <ul
+                        class="dropdown-list"
+                        id="rncDropdownList"
+                        role="listbox"
+                        aria-label="Select RNC"
+                    >
+
+                        <li
+                            data-value="3RNCAYA1H"
+                            role="option"
+                        >
+                            3RNCAYA1H
+                        </li>
+
+                        <li
+                            data-value="3RNCAYA3H"
+                            role="option"
+                        >
+                            3RNCAYA3H
+                        </li>
+
+                        <li
+                            data-value="3RNCAYA4H"
+                            role="option"
+                        >
+                            3RNCAYA4H
+                        </li>
+
+                        <li
+                            data-value="3RNCNPT1H"
+                            role="option"
+                        >
+                            3RNCNPT1H
+                        </li>
+
+                        <li
+                            data-value="3RNCNPT3H"
+                            role="option"
+                        >
+                            3RNCNPT3H
+                        </li>
+
+                        <li
+                            data-value="3RNCNPT4H"
+                            role="option"
+                        >
+                            3RNCNPT4H
+                        </li>
+
+                    </ul>
+
+                </div>
+
+                <!-- =================================================
+                     LOCAL CELLID - 3G2100 ONLY
+                ================================================== -->
+
+                <div
+                    class="input-wrapper system-3g2100-field hidden"
+                    id="localCellIdWrapper"
+                >
+
+                    <input
+                        id="local-cellid"
+                        type="text"
+                        inputmode="numeric"
+                        maxlength="2"
+                        autocomplete="off"
+                        spellcheck="false"
+                        placeholder="LOCAL CELLID"
+                    >
+
+                    <span
+                        id="local-cellid-status"
+                        class="input-status"
+                        aria-hidden="true"
+                    ></span>
+
+                </div>
+
+                <!-- =================================================
+                     5G2600 CELL ID
+                ================================================== -->
+
+                <div
+                    class="input-wrapper system-5g2600-field hidden"
+                    id="cellId5GWrapper"
+                >
+
+                    <input
+                        id="cell-id-5g"
+                        type="text"
+                        inputmode="numeric"
+                        maxlength="5"
+                        autocomplete="off"
+                        spellcheck="false"
+                        placeholder="CELL ID"
+                    >
+
+                    <span
+                        id="cell-id-5g-status"
+                        class="input-status"
+                        aria-hidden="true"
+                    ></span>
+
+                </div>
+
+                <!-- =================================================
+                     5G2600 LOCAL CELLID - HIDDEN
+                ================================================== -->
+
+                <input
+                    id="local-cellid-5g"
+                    class="system-5g2600-field hidden"
+                    type="hidden"
+                    value=""
+                >
+
+                <!-- =================================================
+                     GNODEB ID - 5G2600 ONLY
+                ================================================== -->
+
+                <div
+                    class="input-wrapper system-5g2600-field hidden"
+                    id="gnodebIdWrapper"
+                >
+
+                    <input
+                        id="gnodeb-id"
+                        type="text"
+                        inputmode="numeric"
+                        maxlength="6"
+                        autocomplete="off"
+                        spellcheck="false"
+                        placeholder="GNODEB ID"
+                    >
+
+                    <span
+                        id="gnodeb-id-status"
+                        class="input-status"
+                        aria-hidden="true"
+                    ></span>
+
+                </div>
+
+                <!-- =================================================
+                     BW - 5G2600 ONLY
+                ================================================== -->
+
+                <div
+                    class="dropdown bw-dropdown system-5g2600-field hidden"
+                    id="bwDropdown"
+                >
+
+                    <div
+                        class="dropdown-selected"
+                        id="bwDropdownSelected"
+                        role="button"
+                        tabindex="0"
+                        aria-haspopup="listbox"
+                        aria-expanded="false"
+                    >
+
+                        <span id="bwSelectedText">
+                            BW
+                        </span>
+
+                        <span
+                            class="arrow"
+                            aria-hidden="true"
+                        >▾</span>
+
+                    </div>
+
+                    <ul
+                        class="dropdown-list"
+                        id="bwDropdownList"
+                        role="listbox"
+                        aria-label="Select bandwidth"
+                    >
+
+                        <li
+                            data-value="40"
+                            role="option"
+                        >
+                            40
+                        </li>
+
+                        <li
+                            data-value="60"
+                            role="option"
+                        >
+                            60
+                        </li>
+
+                        <li
+                            data-value="80"
+                            role="option"
+                        >
+                            80
+                        </li>
+
+                        <li
+                            data-value="100"
+                            role="option"
+                        >
+                            100
+                        </li>
+
+                    </ul>
+
+                </div>
+
+                <!-- =================================================
+                     CELL COUNT
+                ================================================== -->
+
+                <div
+                    class="parameter-group"
+                    id="cellCountWrapper"
+                >
+
+                    <label for="cell-count">
+                        CELL COUNT
+                    </label>
+
+                    <div class="cell-count-control">
+
+                        <button
+                            id="cellCountMinus"
+                            type="button"
+                            aria-label="Decrease Cell Count"
+                        >
+                            −
+                        </button>
+
+                        <input
+                            id="cell-count"
+                            type="text"
+                            inputmode="numeric"
+                            value="1"
+                            autocomplete="off"
+                            aria-label="Cell Count"
+                        >
+
+                        <button
+                            id="cellCountPlus"
+                            type="button"
+                            aria-label="Increase Cell Count"
+                        >
+                            +
+                        </button>
+
+                    </div>
+
+                </div>
+
             </div>
 
-
             <!-- =================================================
-            BUTTON GROUP
+                 BUTTON GROUP
             ================================================== -->
 
             <div class="button-group">
@@ -375,10 +781,9 @@
 
         </div>
 
-
-        <!-- =================================================
-        RESULT PANEL
-        ================================================== -->
+        <!-- =====================================================
+             RESULT PANEL
+        ====================================================== -->
 
         <div
             id="result"
@@ -388,51 +793,19 @@
 
     </main>
 
-
-    <!-- =====================================================
-    DEVELOPER CREDIT
-    ====================================================== -->
+    <!-- =========================================================
+         DEVELOPER CREDIT
+    ========================================================== -->
 
     <footer class="developer-credit">
-
-        Developed by rk_sxtxnix
-
+        Developed by rk_sxtxnix Ver.1 (01.09.2026)
     </footer>
 
+    <!-- =========================================================
+         JAVASCRIPT
+    ========================================================== -->
 
-    <!-- =====================================================
-    JAVASCRIPT
-    ====================================================== -->
-
-
-    <!-- =====================================================
-    SHEETJS
-    ====================================================== -->
-
-    <script
-        src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"
-    ></script>
-
-
-    <!-- =====================================================
-    DEPLOY.JS
-    Must load AFTER SheetJS
-    ====================================================== -->
-
-    <script
-        src="Deploy.js"
-    ></script>
-
-
-    <!-- =====================================================
-    DATA.JS
-    Must load AFTER Deploy.js
-    ====================================================== -->
-
-    <script
-        src="static/Data.js"
-    ></script>
-
+    <script src="Data.js"></script>
 
 </body>
 
