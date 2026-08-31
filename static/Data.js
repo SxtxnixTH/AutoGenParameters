@@ -468,17 +468,6 @@ function ensureDeployReady() {
                 );
             }
 
-            /* Deploy.js */
-            if (
-                !window.AutoGenDeploy ||
-                typeof window.AutoGenDeploy.generate !== "function"
-            ) {
-
-                await loadExternalScript(
-                    "Deploy.js"
-                );
-            }
-
             if (
                 !window.AutoGenDeploy ||
                 typeof window.AutoGenDeploy.generate !== "function"
