@@ -70,8 +70,8 @@ const BW_5G2600_OPTIONS = [
    CELL COUNT
 ========================================================= */
 
-const CELL_COUNT_MIN = 1;
-const CELL_COUNT_MAX = 10;
+const DEPLOY_CELL_COUNT_MIN = 1;
+const DEPLOY_CELL_COUNT_MAX = 10;
 
 
 /* =========================================================
@@ -799,9 +799,9 @@ function validate5G2600(
 
     if (
         cellCount <
-            CELL_COUNT_MIN ||
+            DEPLOY_CELL_COUNT_MIN ||
         cellCount >
-            CELL_COUNT_MAX
+            DEPLOY_CELL_COUNT_MAX
     ) {
 
         return {
@@ -1558,34 +1558,36 @@ async function autoGenerate(
    GLOBAL API
 ========================================================= */
 
-(function () {
+window.AutoGenDeploy = {
 
-    window.AutoGenDeploy = {
+    generate:
+        autoGenerate,
 
-        generate: autoGenerate,
+    getDatasetFile:
+        getDatasetFile,
 
-        getDatasetFile: getDatasetFile,
+    readDataset:
+        readDataset,
 
-        readDataset: readDataset,
+    RNC_OPTIONS:
+        RNC_3G2100_OPTIONS,
 
-        RNC_OPTIONS: RNC_3G2100_OPTIONS,
+    BW_OPTIONS:
+        BW_5G2600_OPTIONS,
 
-        BW_OPTIONS: BW_5G2600_OPTIONS,
+    CELL_COUNT_MIN:
+        DEPLOY_CELL_COUNT_MIN,
 
-        CELL_COUNT_MIN: CELL_COUNT_MIN,
+    CELL_COUNT_MAX:
+        DEPLOY_CELL_COUNT_MAX
 
-        CELL_COUNT_MAX: CELL_COUNT_MAX
-
-    };
-
-
-    /* =====================================================
-       BACKWARD COMPATIBILITY
-    ===================================================== */
-
-    window.autogen =
-        autoGenerate;
+};
 
 
-})();
+/* =========================================================
+   BACKWARD COMPATIBILITY
+========================================================= */
+
+window.autogen =
+    autoGenerate;
 
