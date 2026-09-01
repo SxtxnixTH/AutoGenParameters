@@ -460,50 +460,33 @@ function ensureDeployReady() {
     deployReadyPromise =
         (async () => {
 
-            /* =====================================================
-               SHEETJS
-            ===================================================== */
-
+            /* SheetJS */
             if (typeof XLSX === "undefined") {
 
                 await loadExternalScript(
                     "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"
                 );
-
             }
 
-
-            /* =====================================================
-               DEPLOY.JS
-            ===================================================== */
-
+            /* Deploy.js */
             if (
                 !window.AutoGenDeploy ||
                 typeof window.AutoGenDeploy.generate !== "function"
             ) {
 
                 await loadExternalScript(
-                    "./Deploy.js"
+                    "Deploy.js"
                 );
-
             }
-
-
-            /* =====================================================
-               FINAL CHECK
-            ===================================================== */
 
             if (
                 !window.AutoGenDeploy ||
                 typeof window.AutoGenDeploy.generate !== "function"
             ) {
-
                 throw new Error(
-                    "Deploy.js loaded but AutoGenDeploy.generate is unavailable."
+                    "Deploy.js did not initialize AutoGenDeploy."
                 );
-
             }
-
         })();
 
     return deployReadyPromise;
