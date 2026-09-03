@@ -2415,6 +2415,41 @@ body.light-theme .result-panel::-webkit-scrollbar-thumb:hover {
         none;
 }
 
+body.light-theme .results-modal-list {
+    scrollbar-color:
+        rgba(55, 55, 55, 0.55)
+        transparent;
+}
+
+body.light-theme .results-modal-list::-webkit-scrollbar-track {
+    background:
+        transparent;
+    border-radius:
+        999px;
+}
+
+body.light-theme .results-modal-list::-webkit-scrollbar-thumb {
+    background:
+        rgba(55, 55, 55, 0.55);
+    border:
+        0;
+    border-radius:
+        999px;
+    box-shadow:
+        none;
+}
+
+body.light-theme .results-modal-list::-webkit-scrollbar-thumb:hover {
+    background:
+        rgba(25, 25, 25, 0.72);
+    border:
+        0;
+    border-radius:
+        999px;
+    box-shadow:
+        none;
+}
+
 
 /* =========================================================
    LIGHT STATUS MESSAGE
