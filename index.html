@@ -1,12 +1,10 @@
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
 
-    <!-- =========================================================
-         META
-    ========================================================== -->
-
+    <!-- META -->
     <meta charset="UTF-8">
 
     <meta
@@ -19,26 +17,17 @@
         content="AutoGenParameters"
     >
 
-    <!-- =========================================================
-         PAGE INFO
-    ========================================================== -->
-
+    <!-- PAGE INFO -->
     <title>AutoGenParameters</title>
 
-    <!-- =========================================================
-         FAVICON
-    ========================================================== -->
-
+    <!-- FAVICON -->
     <link
         rel="icon"
         type="image/png"
         href="static/ICON.png"
     >
 
-    <!-- =========================================================
-         CSS
-    ========================================================== -->
-
+    <!-- CSS -->
     <link
         rel="stylesheet"
         href="static/Data.css"
@@ -48,26 +37,17 @@
 
 <body>
 
-    <!-- =========================================================
-         NOSCRIPT
-    ========================================================== -->
-
+    <!-- NOSCRIPT -->
     <noscript>
         <div style="padding:20px;text-align:center;">
             JavaScript is required to use AutoGenParameters.
         </div>
     </noscript>
 
-    <!-- =========================================================
-         DATE / TIME
-    ========================================================== -->
-
+    <!-- DATE / TIME -->
     <div id="datetime-display"></div>
 
-    <!-- =========================================================
-         THEME TOGGLE
-    ========================================================== -->
-
+    <!-- THEME TOGGLE -->
     <button
         id="theme-toggle"
         type="button"
@@ -76,50 +56,32 @@
         🌙 Dark
     </button>
 
-    <!-- =========================================================
-         CURSOR GLOW
-    ========================================================== -->
-
+    <!-- CURSOR GLOW -->
     <div
         class="cursor-glow"
         aria-hidden="true"
     ></div>
 
-    <!-- =========================================================
-         MAIN CONTAINER
-    ========================================================== -->
-
+    <!-- MAIN CONTAINER -->
     <main class="container">
 
-        <!-- =====================================================
-             GLASS EFFECT LAYER
-        ====================================================== -->
-
+        <!-- GLASS EFFECT LAYER -->
         <div
             class="glass-layer"
             aria-hidden="true"
         ></div>
 
-        <!-- =====================================================
-             HEADER
-        ====================================================== -->
-
+        <!-- HEADER -->
         <h1>AutoGenParameters</h1>
 
         <p>
             Select a system and generate parameters automatically.
         </p>
 
-        <!-- =====================================================
-             ACTION AREA
-        ====================================================== -->
-
+        <!-- ACTION AREA -->
         <div class="action-area">
 
-            <!-- =================================================
-                 SYSTEM DROPDOWN
-            ================================================== -->
-
+            <!-- SYSTEM DROPDOWN -->
             <div class="dropdown system-dropdown">
 
                 <div
@@ -136,7 +98,6 @@
                         class="arrow"
                         aria-hidden="true"
                     >▾</span>
-
                 </div>
 
                 <ul
@@ -145,7 +106,6 @@
                     role="listbox"
                     aria-label="Select system"
                 >
-
                     <li
                         data-value="3G2100"
                         role="option"
@@ -180,24 +140,17 @@
                     >
                         5G2600
                     </li>
-
                 </ul>
 
             </div>
 
-            <!-- =================================================
-                 PARAMETER FORM
-            ================================================== -->
-
+            <!-- PARAMETER FORM -->
             <div
                 id="parameter-form"
                 class="parameter-form hidden"
             >
 
-                <!-- =================================================
-                     SITE CODE
-                ================================================== -->
-
+                <!-- SITE CODE -->
                 <div class="input-wrapper">
 
                     <input
@@ -217,10 +170,7 @@
 
                 </div>
 
-                <!-- =================================================
-                     NODEB NAME
-                ================================================== -->
-
+                <!-- NODEB NAME -->
                 <div class="input-wrapper nodeb-wrapper">
 
                     <input
@@ -247,10 +197,7 @@
 
                 </div>
 
-                <!-- =================================================
-                     TYPE DROPDOWN
-                ================================================== -->
-
+                <!-- TYPE DROPDOWN -->
                 <div
                     class="dropdown type-dropdown"
                     id="typeDropdown"
@@ -264,16 +211,12 @@
                         aria-haspopup="listbox"
                         aria-expanded="false"
                     >
-
-                        <span id="typeSelectedText">
-                            TYPE
-                        </span>
+                        <span id="typeSelectedText">TYPE</span>
 
                         <span
                             class="arrow"
                             aria-hidden="true"
                         >▾</span>
-
                     </div>
 
                     <ul
@@ -282,7 +225,6 @@
                         role="listbox"
                         aria-label="Select type"
                     >
-
                         <li
                             data-value="NODE"
                             role="option"
@@ -296,7 +238,6 @@
                         >
                             DISTRIBUTED
                         </li>
-
                     </ul>
 
                     <span
@@ -307,10 +248,9 @@
 
                 </div>
 
-                <!-- =================================================
+                <!-- =====================================================
                      TOWER TYPE - 3G2100 / 5G2600
-                ================================================== -->
-
+                ====================================================== -->
                 <div
                     class="dropdown tower-type-dropdown hidden"
                     id="towerTypeDropdown"
@@ -324,7 +264,6 @@
                         aria-haspopup="listbox"
                         aria-expanded="false"
                     >
-
                         <span id="towerTypeSelectedText">
                             TOWER TYPE
                         </span>
@@ -333,7 +272,6 @@
                             class="arrow"
                             aria-hidden="true"
                         >▾</span>
-
                     </div>
 
                     <ul
@@ -342,7 +280,6 @@
                         role="listbox"
                         aria-label="Select tower type"
                     >
-
                         <li
                             data-value="MICRO"
                             role="option"
@@ -356,15 +293,13 @@
                         >
                             MACRO
                         </li>
-
                     </ul>
 
                 </div>
 
-                <!-- =================================================
+                <!-- =====================================================
                      4G CELL ID / LOCAL CELLID
-                ================================================== -->
-
+                ====================================================== -->
                 <div
                     class="input-wrapper system-4g-field hidden"
                     id="cellId4GWrapper"
@@ -388,10 +323,9 @@
 
                 </div>
 
-                <!-- =================================================
+                <!-- =====================================================
                      ENODEB ID - 4G ONLY
-                ================================================== -->
-
+                ====================================================== -->
                 <div
                     class="input-wrapper system-4g-field hidden"
                     id="enodebIdWrapper"
@@ -415,10 +349,9 @@
 
                 </div>
 
-                <!-- =================================================
+                <!-- =====================================================
                      CELL ID - 3G2100 ONLY
-                ================================================== -->
-
+                ====================================================== -->
                 <div
                     class="input-wrapper system-3g2100-field hidden"
                     id="cellIdWrapper"
@@ -442,10 +375,9 @@
 
                 </div>
 
-                <!-- =================================================
+                <!-- =====================================================
                      NODEB ID - 3G2100 ONLY
-                ================================================== -->
-
+                ====================================================== -->
                 <div
                     class="input-wrapper system-3g2100-field hidden"
                     id="nodebIdWrapper"
@@ -469,10 +401,9 @@
 
                 </div>
 
-                <!-- =================================================
+                <!-- =====================================================
                      RNC - 3G2100 ONLY
-                ================================================== -->
-
+                ====================================================== -->
                 <div
                     class="dropdown rnc-dropdown system-3g2100-field hidden"
                     id="rncDropdown"
@@ -486,16 +417,12 @@
                         aria-haspopup="listbox"
                         aria-expanded="false"
                     >
-
-                        <span id="rncSelectedText">
-                            RNC
-                        </span>
+                        <span id="rncSelectedText">RNC</span>
 
                         <span
                             class="arrow"
                             aria-hidden="true"
                         >▾</span>
-
                     </div>
 
                     <ul
@@ -504,7 +431,6 @@
                         role="listbox"
                         aria-label="Select RNC"
                     >
-
                         <li
                             data-value="3RNCAYA1H"
                             role="option"
@@ -546,15 +472,13 @@
                         >
                             3RNCNPT4H
                         </li>
-
                     </ul>
 
                 </div>
 
-                <!-- =================================================
+                <!-- =====================================================
                      LOCAL CELLID - 3G2100 ONLY
-                ================================================== -->
-
+                ====================================================== -->
                 <div
                     class="input-wrapper system-3g2100-field hidden"
                     id="localCellIdWrapper"
@@ -578,10 +502,9 @@
 
                 </div>
 
-                <!-- =================================================
+                <!-- =====================================================
                      5G2600 CELL ID
-                ================================================== -->
-
+                ====================================================== -->
                 <div
                     class="input-wrapper system-5g2600-field hidden"
                     id="cellId5GWrapper"
@@ -605,10 +528,9 @@
 
                 </div>
 
-                <!-- =================================================
+                <!-- =====================================================
                      5G2600 LOCAL CELLID - HIDDEN
-                ================================================== -->
-
+                ====================================================== -->
                 <input
                     id="local-cellid-5g"
                     class="system-5g2600-field hidden"
@@ -616,10 +538,9 @@
                     value=""
                 >
 
-                <!-- =================================================
+                <!-- =====================================================
                      GNODEB ID - 5G2600 ONLY
-                ================================================== -->
-
+                ====================================================== -->
                 <div
                     class="input-wrapper system-5g2600-field hidden"
                     id="gnodebIdWrapper"
@@ -643,10 +564,9 @@
 
                 </div>
 
-                <!-- =================================================
+                <!-- =====================================================
                      BW - 5G2600 ONLY
-                ================================================== -->
-
+                ====================================================== -->
                 <div
                     class="dropdown bw-dropdown system-5g2600-field hidden"
                     id="bwDropdown"
@@ -660,16 +580,12 @@
                         aria-haspopup="listbox"
                         aria-expanded="false"
                     >
-
-                        <span id="bwSelectedText">
-                            BW
-                        </span>
+                        <span id="bwSelectedText">BW</span>
 
                         <span
                             class="arrow"
                             aria-hidden="true"
                         >▾</span>
-
                     </div>
 
                     <ul
@@ -678,7 +594,6 @@
                         role="listbox"
                         aria-label="Select bandwidth"
                     >
-
                         <li
                             data-value="40"
                             role="option"
@@ -706,15 +621,13 @@
                         >
                             100
                         </li>
-
                     </ul>
 
                 </div>
 
-                <!-- =================================================
+                <!-- =====================================================
                      CELL COUNT
-                ================================================== -->
-
+                ====================================================== -->
                 <div
                     class="parameter-group"
                     id="cellCountWrapper"
@@ -757,10 +670,7 @@
 
             </div>
 
-            <!-- =================================================
-                 BUTTON GROUP
-            ================================================== -->
-
+            <!-- BUTTON GROUP -->
             <div class="button-group">
 
                 <button
@@ -777,14 +687,21 @@
                     🗑 Clear
                 </button>
 
+                <button
+                    type="button"
+                    class="btn-results-shortcut hidden"
+                    id="resultResultsShortcut"
+                    aria-label="Open saved Results"
+                    title="Open saved Results"
+                >
+                    🗃️ Results
+                </button>
+
             </div>
 
         </div>
 
-        <!-- =====================================================
-             RESULT PANEL
-        ====================================================== -->
-
+        <!-- RESULT PANEL -->
         <div
             id="result"
             class="result-panel hidden"
@@ -793,18 +710,19 @@
 
     </main>
 
-    <!-- =========================================================
-         DEVELOPER CREDIT
-    ========================================================== -->
-
+    <!-- DEVELOPER CREDIT -->
     <footer class="developer-credit">
-        Developed by rk_sxtxnix Ver.1 (01.09.2026)
+        Developed by rk_sxtxnix Ver.2 (04.09.2026)
     </footer>
 
-    <!-- =========================================================
-         JAVASCRIPT
-    ========================================================== -->
+    <!-- GITHUB PAGES JAVASCRIPT DEPENDENCIES -->
+    <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 
+    <!-- STATIC DEPLOYMENT ENGINE -->
+    <script src="Deploy.js"></script>
+
+    <!-- UI / APPLICATION LOGIC -->
     <script src="static/Data.js"></script>
 
 </body>

@@ -370,6 +370,12 @@ let selectedTowerType = "";
 let selectedRNC = "";
 let selectedBW = "";
 
+/* ค่า params ล่าสุดที่ generate สำเร็จ (ใช้โดยปุ่ม Download / Order) */
+let lastAutogenParams = null;
+
+/* key ที่ใช้เก็บคิว Order ไว้ใน localStorage (คงอยู่แม้ปิด/เปิดหน้าใหม่) */
+const ORDER_QUEUE_STORAGE_KEY = "autogenOrderQueue";
+
 
 /* =========================================================
    CONSTANTS
@@ -384,113 +390,6 @@ const BW_VALUES = [
     "80",
     "100"
 ];
-
-
-/* =========================================================
-   DEPLOY.JS / SHEETJS LOADER
-   index.html loads Data.js only.
-   Load SheetJS and Deploy.js here so the existing index.html
-   works without Flask / Data.py / /autogen.
-========================================================= */
-
-let deployReadyPromise = null;
-
-function loadExternalScript(
-    src,
-    type = "text/javascript"
-) {
-
-    return new Promise((resolve, reject) => {
-
-        const existing =
-            document.querySelector(
-                `script[src="${src}"]`
-            );
-
-        if (existing) {
-            if (
-                type === "module" ||
-                existing.dataset.loaded === "true"
-            ) {
-                resolve();
-                return;
-            }
-        }
-
-        const script =
-            document.createElement("script");
-
-        script.src = src;
-
-        if (type === "module") {
-            script.type = "module";
-        }
-
-        script.onload = () => {
-            script.dataset.loaded = "true";
-            resolve();
-        };
-
-        script.onerror = () => {
-            reject(
-                new Error(
-                    `Failed to load script: ${src}`
-                )
-            );
-        };
-
-        document.head.appendChild(script);
-    });
-}
-
-
-function ensureDeployReady() {
-
-    if (
-        window.AutoGenDeploy &&
-        typeof window.AutoGenDeploy.generate === "function"
-    ) {
-        return Promise.resolve();
-    }
-
-    if (deployReadyPromise) {
-        return deployReadyPromise;
-    }
-
-    deployReadyPromise =
-        (async () => {
-
-            /* SheetJS */
-            if (typeof XLSX === "undefined") {
-
-                await loadExternalScript(
-                    "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"
-                );
-            }
-
-            /* Deploy.js */
-            if (
-                !window.AutoGenDeploy ||
-                typeof window.AutoGenDeploy.generate !== "function"
-            ) {
-
-                await loadExternalScript(
-                    "Deploy.js"
-                );
-            }
-
-            if (
-                !window.AutoGenDeploy ||
-                typeof window.AutoGenDeploy.generate !== "function"
-            ) {
-                throw new Error(
-                    "Deploy.js did not initialize AutoGenDeploy."
-                );
-            }
-        })();
-
-    return deployReadyPromise;
-}
 
 
 /* =========================================================
@@ -2281,6 +2180,7 @@ function loadSystem(system) {
     updateSystemSpecificValidation();
 
     updateValidation();
+    refreshResultsShortcut();
 }
 
 
@@ -2765,6 +2665,7 @@ items.forEach(
                     selectedSystem
                 );
 
+                refreshResultsShortcut();
 
                 if (dropdown) {
 
@@ -3197,986 +3098,128 @@ function getResultParameterValue(
 
 
 /* =========================================================
-   RENDER GENERATED RESULT
+   RENDER PAIRED RESULT
+   4G2600 -> 1 CELL_COUNT = 1 pair, displayed as CELL 1 (264) / CELL 1 (265)
 ========================================================= */
 
-function renderGeneratedResult(
-    data
-) {
-
-    if (
-        !data ||
-        typeof data !== "object"
-    ) {
-
-        return `
-            <p class="status-message error">
-                Invalid response from server.
-            </p>
-        `;
-    }
-
-
-    if (data.error) {
-
-        return `
-            <p class="status-message error">
-                ${escapeHtml(data.error)}
-            </p>
-        `;
-    }
-
-
-    const headers =
-        Array.isArray(data.headers)
-            ? [...data.headers]
-            : [];
-
-
-    const row =
-        Array.isArray(data.row)
-            ? [...data.row]
-            : [];
-
-
-    const currentSystem =
-        String(
-            data.system ||
-            selectedSystem ||
-            ""
-        )
-            .trim()
-            .toUpperCase();
-
-
-    const is3G =
-        is3G2100System(
-            currentSystem
-        );
-
-    const is4G =
-        is4GSystem(
-            currentSystem
-        );
-
-    const is5G =
-        is5G2600System(
-            currentSystem
-        );
-
-
-    /* =====================================================
-       ENSURE SYSTEM-SPECIFIC PARAMETERS
-    ===================================================== */
-
-    const ensureParameter =
-        (
-            names,
-            fallbackHeader
-        ) => {
-
-            const normalizeHeader =
-                (header) => {
-
-                    return String(
-                        header || ""
-                    )
-                        .trim()
-                        .toUpperCase()
-                        .replace(
-                            /\*/g,
-                            ""
-                        )
-                        .replace(
-                            /[\s-]+/g,
-                            "_"
-                        )
-                        .replace(
-                            /_+/g,
-                            "_"
-                        )
-                        .replace(
-                            /^_|_$/g,
-                            ""
-                        );
-                };
-
-
-            const normalizedNames =
-                names.map(
-                    normalizeHeader
-                );
-
-
-            let index =
-                headers.findIndex(
-                    (header) =>
-                        normalizedNames.includes(
-                            normalizeHeader(
-                                header
-                            )
-                        )
-                );
-
-
-            if (index < 0) {
-
-                headers.push(
-                    fallbackHeader
-                );
-
-                row.push("");
-
-                index =
-                    headers.length - 1;
-            }
-
-
-            return index;
-        };
-
-
-    /* 3G */
-
-    if (is3G) {
-
-        const rncIndex =
-            ensureParameter(
-                [
-                    "RNC",
-                    "RNC_NAME",
-                    "RNCNAME"
-                ],
-                "RNC"
-            );
-
-        row[rncIndex] =
-            getResultParameterValue(
-                data,
-                row,
-                headers,
-                [
-                    "rnc",
-                    "RNC",
-                    "rnc_name",
-                    "rncName",
-                    "RNC_NAME"
-                ]
-            ) ||
-            selectedRNC ||
-            "";
-
-
-        const cellIndex =
-            ensureParameter(
-                [
-                    "CELL_ID",
-                    "CELLID",
-                    "CELL_ID_"
-                ],
-                "CELL_ID"
-            );
-
-        row[cellIndex] =
-            getResultParameterValue(
-                data,
-                row,
-                headers,
-                [
-                    "cell_id",
-                    "cellId",
-                    "CELL_ID",
-                    "cellID"
-                ]
-            ) ||
-            (
-                cellIdInput
-                    ? cellIdInput.value
-                    : ""
-            );
-
-
-        const nodeIndex =
-            ensureParameter(
-                [
-                    "NODEB_ID",
-                    "NODEBID",
-                    "NODEB_ID_"
-                ],
-                "NODEB_ID"
-            );
-
-        row[nodeIndex] =
-            getResultParameterValue(
-                data,
-                row,
-                headers,
-                [
-                    "nodeb_id",
-                    "nodebId",
-                    "NODEB_ID",
-                    "nodeBId"
-                ]
-            ) ||
-            (
-                nodebIdInput
-                    ? nodebIdInput.value
-                    : ""
-            );
-
-
-        const localIndex =
-            ensureParameter(
-                [
-                    "LOCAL_CELLID",
-                    "LOCAL_CELL_ID",
-                    "LOCALCELLID"
-                ],
-                "LOCAL_CELLID"
-            );
-
-        row[localIndex] =
-            getResultParameterValue(
-                data,
-                row,
-                headers,
-                [
-                    "local_cellid",
-                    "local_cell_id",
-                    "localCellId",
-                    "localCellID",
-                    "LOCAL_CELLID"
-                ]
-            ) ||
-            (
-                localCellIdInput
-                    ? localCellIdInput.value
-                    : ""
-            );
-    }
-
-
-    /* 4G */
-
-    if (is4G) {
-
-        const cellIndex =
-            ensureParameter(
-                [
-                    "CELL_ID",
-                    "CELLID",
-                    "CELL_ID_"
-                ],
-                "CELL_ID"
-            );
-
-        row[cellIndex] =
-            getResultParameterValue(
-                data,
-                row,
-                headers,
-                [
-                    "cell_id",
-                    "cellId",
-                    "CELL_ID",
-                    "cellID"
-                ]
-            ) ||
-            (
-                cellId4GInput
-                    ? cellId4GInput.value
-                    : ""
-            );
-
-
-        const nodeIndex =
-            ensureParameter(
-                [
-                    "ENODEB_ID",
-                    "ENODEBID",
-                    "ENODEB_ID_",
-                    "NODEB_ID",
-                    "NODEBID"
-                ],
-                "ENODEB_ID"
-            );
-
-        row[nodeIndex] =
-            getResultParameterValue(
-                data,
-                row,
-                headers,
-                [
-                    "enodeb_id",
-                    "enodebId",
-                    "ENODEB_ID",
-                    "ENODEBID",
-                    "nodeb_id",
-                    "nodebId",
-                    "NODEB_ID"
-                ]
-            ) ||
-            (
-                enodebIdInput
-                    ? enodebIdInput.value
-                    : ""
-            );
-    }
-
-
-    /* 5G */
-
-    if (is5G) {
-
-        const cellIndex =
-            ensureParameter(
-                [
-                    "CELL_ID",
-                    "CELLID",
-                    "CELL_ID_"
-                ],
-                "CELL_ID"
-            );
-
-        row[cellIndex] =
-            getResultParameterValue(
-                data,
-                row,
-                headers,
-                [
-                    "cell_id",
-                    "cellId",
-                    "CELL_ID",
-                    "cellID"
-                ]
-            ) ||
-            (
-                cellId5GInput
-                    ? cellId5GInput.value
-                    : ""
-            );
-
-
-        const nodeIndex =
-            ensureParameter(
-                [
-                    "GNODEB_ID",
-                    "GNODEBID",
-                    "GNODEB_ID_"
-                ],
-                "GNODEB_ID"
-            );
-
-        row[nodeIndex] =
-            getResultParameterValue(
-                data,
-                row,
-                headers,
-                [
-                    "gnodeb_id",
-                    "gnodebId",
-                    "GNODEB_ID",
-                    "GNODEBID"
-                ]
-            ) ||
-            (
-                gnodebIdInput
-                    ? gnodebIdInput.value
-                    : ""
-            );
-
-
-        const bwIndex =
-            ensureParameter(
-                [
-                    "BW",
-                    "BANDWIDTH"
-                ],
-                "BW"
-            );
-
-        row[bwIndex] =
-            getResultParameterValue(
-                data,
-                row,
-                headers,
-                [
-                    "bw",
-                    "BW",
-                    "bandwidth",
-                    "BANDWIDTH"
-                ]
-            ) ||
-            selectedBW ||
-            "";
-
-
-        const localIndex =
-            ensureParameter(
-                [
-                    "LOCAL_CELLID",
-                    "LOCAL_CELL_ID",
-                    "LOCALCELLID"
-                ],
-                "LOCAL_CELLID"
-            );
-
-        row[localIndex] =
-            getResultParameterValue(
-                data,
-                row,
-                headers,
-                [
-                    "local_cellid",
-                    "local_cell_id",
-                    "localCellId",
-                    "LOCAL_CELLID"
-                ]
-            ) ||
-            (
-                cellId5GInput
-                    ? cellId5GInput.value
-                    : ""
-            );
-
-
-        if (localIndex >= 0) {
-
-            row[localIndex] =
-                getResultParameterValue(
-                    data,
-                    row,
-                    headers,
-                    [
-                        "local_cellid",
-                        "local_cell_id",
-                        "localCellId",
-                        "LOCAL_CELLID"
-                    ]
-                ) ||
-                (
-                    cellId5GInput
-                        ? cellId5GInput.value
-                        : ""
-                );
-        }
-    }
-
-
-    /* =====================================================
-       EMPTY RESULT
-    ===================================================== */
-
-    if (!headers.length) {
-
-        return `
-            <p class="status-message warning">
-                No generated parameters found.
-            </p>
-        `;
-    }
-
-
-    /* =====================================================
-       SETTINGS
-    ===================================================== */
-
-    const MAX_VISIBLE_LENGTH =
-        80;
-
-    const INITIAL_PARAMETER_COUNT =
-        5;
-
-
-    /* =====================================================
-       GENERATE PARAMETER ROW
-    ===================================================== */
-
-    const generateParameterRow =
-        (
-            header,
-            index
-        ) => {
-
-            let value =
-                String(
-                    row[index] ?? ""
-                ).trim();
-
-
-            const normalizedHeader =
-                String(
-                    header || ""
-                )
-                    .trim()
-                    .toUpperCase();
-
-
-            if (
-                (
-                    is3G &&
-                    (
-                        normalizedHeader.startsWith(
-                            "CELL_ID"
-                        ) ||
-                        normalizedHeader.startsWith(
-                            "NODEB_ID"
-                        ) ||
-                        normalizedHeader.startsWith(
-                            "LOCAL_CELLID"
-                        )
-                    )
-                ) ||
-                (
-                    is4G &&
-                    (
-                        normalizedHeader.startsWith(
-                            "CELL_ID"
-                        ) ||
-                        normalizedHeader.startsWith(
-                            "ENODEB_ID"
-                        ) ||
-                        normalizedHeader.startsWith(
-                            "LOCAL_CELLID"
-                        )
-                    )
-                ) ||
-                (
-                    is5G &&
-                    (
-                        normalizedHeader.startsWith(
-                            "CELL_ID"
-                        ) ||
-                        normalizedHeader.startsWith(
-                            "GNODEB_ID"
-                        ) ||
-                        normalizedHeader.startsWith(
-                            "LOCAL_CELLID"
-                        )
-                    )
-                )
-            ) {
-
-                value =
-                    value.replace(
-                        /^0+(?=\d)/,
-                        ""
-                    );
-            }
-
-
-            const isLong =
-                value.length >
-                MAX_VISIBLE_LENGTH;
-
-
-            if (!isLong) {
-
-                return `
-                    <tr class="generated-parameter-row">
-
-                        <th>
-                            ${escapeHtml(
-                                header
-                            )}
-                        </th>
-
-                        <td>
-                            ${escapeHtml(
-                                value
-                            )}
-                        </td>
-
-                    </tr>
-                `;
-            }
-
-
-            const shortValue =
-                value.slice(
-                    0,
-                    MAX_VISIBLE_LENGTH
-                ) + "...";
-
-
-            return `
-                <tr class="generated-parameter-row parameter-long-row">
-
-                    <th>
-                        ${escapeHtml(
-                            header
-                        )}
-                    </th>
-
-                    <td>
-
-                        <div class="parameter-value-container">
-
-                            <span class="parameter-value-short">
-                                ${escapeHtml(
-                                    shortValue
-                                )}
-                            </span>
-
-                            <span class="parameter-value-full hidden">
-                                ${escapeHtml(
-                                    value
-                                )}
-                            </span>
-
-                            <button
-                                type="button"
-                                class="parameter-expand-btn"
-                                aria-expanded="false"
-                                aria-label="Show full value"
-                                title="Show full value"
-                            >
-                                <span class="parameter-expand-icon"></span>
-                            </button>
-
-                        </div>
-
-                    </td>
-
-                </tr>
-            `;
-        };
-
-
-    /* =====================================================
-       GENERATE ALL ROWS
-    ===================================================== */
-
-    const rows =
-        headers
-            .map(
-                (header, index) => {
-
-                    const rowHtml =
-                        generateParameterRow(
-                            header,
-                            index
-                        );
-
-
-                    if (
-                        index >=
-                        INITIAL_PARAMETER_COUNT
-                    ) {
-
-                        return rowHtml.replace(
-                            "generated-parameter-row",
-                            "generated-parameter-row parameter-hidden-row hidden"
-                        );
-                    }
-
-
-                    return rowHtml;
-                }
-            )
-            .join("");
-
-
-    /* =====================================================
-       SHOW ALL BUTTON
-    ===================================================== */
-
-    const hasMoreParameters =
-        headers.length >
-        INITIAL_PARAMETER_COUNT;
-
-
-    const showAllButton =
-        hasMoreParameters
-            ? `
-                <div class="parameter-list-toggle">
-
-                    <button
-                        type="button"
-                        class="parameter-list-toggle-btn"
-                        aria-expanded="false"
-                        aria-label="Show All Parameters"
-                    >
-
-                        <span class="parameter-list-toggle-circle">
-
-                            <span class="parameter-list-toggle-arrow"></span>
-
-                        </span>
-
-                    </button>
-
-                    <span class="parameter-list-toggle-label">
-                        Show All Parameters
-                    </span>
-
-                </div>
-            `
-            : "";
-
-
-    /* =====================================================
-       FILE NAME
-    ===================================================== */
-
-    const system =
-        data.system ||
-        selectedSystem ||
-        "";
-
-
-    const siteCode =
-        data.siteCode ||
-        (
-            siteCodeInput
-                ? siteCodeInput.value
-                : ""
-        );
-
-
-    const fileName =
-        data.fileName ||
-        getSystemFileName(
-            system,
-            siteCode
-        );
-
-
-    /* =====================================================
-       NODE NAME
-    ===================================================== */
-
-    const nodeName =
-        data.nodebName ||
-        (
-            nodebNameInput
-                ? nodebNameInput.value
-                : ""
-        );
-
-
-    /* =====================================================
-       TYPE
-    ===================================================== */
-
-    const displayType =
-        data.type ||
-        selectedType ||
-        "";
-
-
-    /* =====================================================
-       TOWER TYPE
-    ===================================================== */
-
-    const displayTowerType =
-        data.towerType ||
-        selectedTowerType ||
-        "";
-
-
-    /* =====================================================
-       RNC
-    ===================================================== */
-
-    const displayRNC =
-        data.rnc ||
-        data.RNC ||
-        selectedRNC ||
-        "";
-
-
-    /* =====================================================
-       BW
-    ===================================================== */
-
-    const displayBW =
-        data.bw ||
-        data.BW ||
-        selectedBW ||
-        "";
-
-
-    /* =====================================================
-       CELL COUNT
-    ===================================================== */
-
-    const displayCellCount =
-        data.cellCount ||
-        (
-            cellCountInput
-                ? cellCountInput.value
-                : CELL_COUNT_MIN
-        );
-
-
-    /* =====================================================
-    RESULT
-    ===================================================== */
+function getResultRows(data) {
+    if (Array.isArray(data?.rows) && data.rows.length) return data.rows;
+    return Array.isArray(data?.row) ? [data.row] : [];
+}
+
+function renderParameterTable(headers, row, title = "") {
+    const rows = headers.map((header, index) => `
+        <tr class="generated-parameter-row">
+            <th>${escapeHtml(header)}</th>
+            <td>${escapeHtml(String(row?.[index] ?? "").trim())}</td>
+        </tr>
+    `).join("");
+    return `
+        <div class="result-cell-block">
+            ${title ? `<div class="result-cell-title">${escapeHtml(title)}</div>` : ""}
+            <div class="result-table-wrapper">
+                <table class="autogen-table">
+                    <thead><tr><th>Parameter</th><th>Generated Value</th></tr></thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            </div>
+        </div>
+    `;
+}
+
+function renderResultActions() {
+    return `
+        <div class="result-actions">
+            <button type="button" class="btn-download-single">⬇️ Download</button>
+            <button type="button" class="btn-order-add">📦 Order</button>
+        </div>
+    `;
+}
+
+function refreshResultsShortcut() {
+    const shortcut = document.getElementById("resultResultsShortcut");
+    if (!shortcut) return;
+
+    /* V4: Results is persistent across page refresh.
+       Show the shortcut whenever saved Orders exist, even when
+       SYSTEM has not been selected yet. */
+    const hasOrders = getOrderQueue().length > 0;
+    shortcut.classList.toggle("hidden", !hasOrders);
+}
+
+function renderPairedResult(data) {
+    const system = data.system || selectedSystem || "";
+    const siteCode = data.siteCode || (siteCodeInput ? siteCodeInput.value : "");
+    const nodeName = data.nodebName || (nodebNameInput ? nodebNameInput.value : "");
+    const displayType = data.type || selectedType || "";
+    const displayTowerType = data.towerType || selectedTowerType || "";
+    const fileName = data.fileName || getSystemFileName(system, siteCode);
+    const pairCount = Number(data.pairCount || data.cellCount || 0);
+    const pairs = Array.isArray(data.pairs) ? data.pairs : [];
+    const pairBlocks = pairs.map(pair => `
+        <div class="pair-block">
+            ${renderParameterTable(pair.cell264.headers, pair.cell264.row, `CELL ${pair.pairIndex} (264)`)}
+            ${renderParameterTable(pair.cell265.headers, pair.cell265.row, `CELL ${pair.pairIndex} (265)`)}
+        </div>
+    `).join("");
+    return `
+        <div class="autogen-summary">
+            <p><strong>SYSTEM:</strong> ${escapeHtml(system)}</p>
+            <p><strong>SITE CODE:</strong> ${escapeHtml(siteCode)}</p>
+            <p><strong>${escapeHtml(getNodeNameLabel(system))}:</strong> ${escapeHtml(nodeName)}</p>
+            <p><strong>ENODEB ID:</strong> ${escapeHtml(enodebIdInput ? enodebIdInput.value : "")}</p>
+            <p><strong>TYPE:</strong> ${escapeHtml(displayType)}</p>
+            <p><strong>TOWER TYPE:</strong> ${escapeHtml(displayTowerType)}</p>
+            <p><strong>CELL COUNT:</strong> ${escapeHtml(String(pairCount))}</p>
+            <p><strong>FILE:</strong> ${escapeHtml(fileName)}</p>
+        </div>
+        ${renderResultActions()}
+        <div class="pair-list">${pairBlocks}</div>
+    `;
+}
+
+function renderGeneratedResult(data) {
+    if (!data || typeof data !== "object") return `<p class="status-message error">Invalid response from server.</p>`;
+    if (data.error) return `<p class="status-message error">${escapeHtml(data.error)}</p>`;
+    if (data.isPaired && Array.isArray(data.pairs) && data.pairs.length) return renderPairedResult(data);
+
+    const headers = Array.isArray(data.headers) ? data.headers : [];
+    const rows = getResultRows(data);
+    if (!headers.length || !rows.length) return `<p class="status-message warning">No generated parameters found.</p>`;
+
+    const system = data.system || selectedSystem || "";
+    const siteCode = data.siteCode || (siteCodeInput ? siteCodeInput.value : "");
+    const nodeName = data.nodebName || (nodebNameInput ? nodebNameInput.value : "");
+    const displayType = data.type || selectedType || "";
+    const displayTowerType = data.towerType || selectedTowerType || "";
+    const displayRNC = data.rnc || data.RNC || selectedRNC || "";
+    const displayBW = data.bw || data.BW || selectedBW || "";
+    const displayCellCount = data.cellCount || rows.length;
+    const fileName = data.fileName || getSystemFileName(system, siteCode);
+    const currentSystem = String(system).trim().toUpperCase();
+    const is3G = is3G2100System(currentSystem);
+    const is4G = is4GSystem(currentSystem);
+    const is5G = is5G2600System(currentSystem);
+
+    const cellBlocks = rows.map((row, index) => renderParameterTable(headers, row, `CELL ${index + 1}`)).join("");
 
     return `
-
         <div class="autogen-summary">
-
-            <p>
-                <strong>SYSTEM:</strong>
-                ${escapeHtml(system)}
-            </p>
-
-
-            ${
-                is3G
-                    ? `
-                        <p>
-                            <strong>RNC:</strong>
-                            ${escapeHtml(
-                                displayRNC
-                            )}
-                        </p>
-                    `
-                    : ""
-            }
-
-
-            <p>
-                <strong>SITE CODE:</strong>
-                ${escapeHtml(siteCode)}
-            </p>
-
-
-            <p>
-                <strong>
-                    ${escapeHtml(
-                        getNodeNameLabel(
-                            system
-                        )
-                    )}:
-                </strong>
-
-                ${escapeHtml(nodeName)}
-            </p>
-
-
-            ${
-                is3G
-                    ? `
-                        <p>
-                            <strong>NODEB ID:</strong>
-                            ${escapeHtml(
-                                nodebIdInput
-                                    ? nodebIdInput.value
-                                    : ""
-                            )}
-                        </p>
-                    `
-                    : ""
-            }
-
-
-            ${
-                is4G
-                    ? `
-                        <p>
-                            <strong>ENODEB ID:</strong>
-                            ${escapeHtml(
-                                enodebIdInput
-                                    ? enodebIdInput.value
-                                    : ""
-                            )}
-                        </p>
-                    `
-                    : ""
-            }
-
-
-            ${
-                is5G
-                    ? `
-                        <p>
-                            <strong>GNODEB ID:</strong>
-                            ${escapeHtml(
-                                gnodebIdInput
-                                    ? gnodebIdInput.value
-                                    : ""
-                            )}
-                        </p>
-                    `
-                    : ""
-            }
-
-
-            ${
-                is5G
-                    ? `
-                        <p>
-                            <strong>BW:</strong>
-                            ${escapeHtml(
-                                displayBW
-                            )}
-                        </p>
-                    `
-                    : ""
-            }
-
-
-            <p>
-                <strong>TYPE:</strong>
-                ${escapeHtml(displayType)}
-            </p>
-
-
-            ${
-                is3G || is4G || is5G
-                    ? `
-                        <p>
-                            <strong>TOWER TYPE:</strong>
-                            ${escapeHtml(
-                                displayTowerType
-                            )}
-                        </p>
-
-                        <p>
-                            <strong>CELL COUNT:</strong>
-                            ${escapeHtml(
-                                displayCellCount
-                            )}
-                        </p>
-                    `
-                    : ""
-            }
-
-
-            <p>
-                <strong>FILE:</strong>
-                ${escapeHtml(fileName)}
-            </p>
-
+            <p><strong>SYSTEM:</strong> ${escapeHtml(system)}</p>
+            ${is3G ? `<p><strong>RNC:</strong> ${escapeHtml(displayRNC)}</p>` : ""}
+            <p><strong>SITE CODE:</strong> ${escapeHtml(siteCode)}</p>
+            <p><strong>${escapeHtml(getNodeNameLabel(system))}:</strong> ${escapeHtml(nodeName)}</p>
+            ${is3G ? `<p><strong>NODEB ID:</strong> ${escapeHtml(nodebIdInput ? nodebIdInput.value : "")}</p>` : ""}
+            ${is4G ? `<p><strong>ENODEB ID:</strong> ${escapeHtml(enodebIdInput ? enodebIdInput.value : "")}</p>` : ""}
+            ${is5G ? `<p><strong>GNODEB ID:</strong> ${escapeHtml(gnodebIdInput ? gnodebIdInput.value : "")}</p>` : ""}
+            ${is5G ? `<p><strong>BW:</strong> ${escapeHtml(displayBW)}</p>` : ""}
+            <p><strong>TYPE:</strong> ${escapeHtml(displayType)}</p>
+            ${(is3G || is4G || is5G) ? `<p><strong>TOWER TYPE:</strong> ${escapeHtml(displayTowerType)}</p>` : ""}
+            ${(is3G || is4G || is5G) ? `<p><strong>CELL COUNT:</strong> ${escapeHtml(String(displayCellCount))}</p>` : ""}
+            <p><strong>FILE:</strong> ${escapeHtml(fileName)}</p>
         </div>
-
-
-        <div class="result-table-wrapper">
-
-            <table class="autogen-table">
-
-                <thead>
-
-                    <tr>
-                        <th>Parameter</th>
-                        <th>Generated Value</th>
-                    </tr>
-
-                </thead>
-
-                <tbody>
-                    ${rows}
-                </tbody>
-
-            </table>
-
-
-            ${showAllButton}
-
-        </div>
+        ${renderResultActions()}
+        <div class="result-cell-list">${cellBlocks}</div>
     `;
 }
 
@@ -4185,7 +3228,7 @@ function renderGeneratedResult(
    PARAMETER EXPAND / COLLAPSE
 ========================================================= */
 
-function setupParameterExpandButtons() {
+function setupParameterValueExpandButtons() {
 
     if (!result) {
         return;
@@ -4315,153 +3358,621 @@ function setupParameterExpandButtons() {
             }
 
 
-            /* PARAMETER LIST */
 
-            const listButton =
-                e.target.closest(
-                    ".parameter-list-toggle-btn"
-                );
-
-
-            if (
-                !listButton ||
-                !result.contains(
-                    listButton
-                )
-            ) {
-                return;
-            }
-
-
-            const tableWrapper =
-                listButton.closest(
-                    ".result-table-wrapper"
-                );
-
-
-            if (!tableWrapper) {
-                return;
-            }
-
-
-            const hiddenRows =
-                tableWrapper.querySelectorAll(
-                    ".parameter-hidden-row"
-                );
-
-
-            const label =
-                tableWrapper.querySelector(
-                    ".parameter-list-toggle-label"
-                );
-
-
-            const arrow =
-                tableWrapper.querySelector(
-                    ".parameter-list-toggle-arrow"
-                );
-
-
-            const expanded =
-                listButton.getAttribute(
-                    "aria-expanded"
-                ) === "true";
-
-
-            if (!expanded) {
-
-                hiddenRows.forEach(
-                    (row) => {
-
-                        row.classList.remove(
-                            "hidden"
-                        );
-                    }
-                );
-
-
-                listButton.setAttribute(
-                    "aria-expanded",
-                    "true"
-                );
-
-
-                listButton.setAttribute(
-                    "aria-label",
-                    "Show Less"
-                );
-
-
-                if (label) {
-
-                    label.textContent =
-                        "Show Less";
-                }
-
-
-                if (arrow) {
-
-                    arrow.classList.add(
-                        "up"
-                    );
-                }
-
-
-                return;
-            }
-
-
-            hiddenRows.forEach(
-                (row) => {
-
-                    row.classList.add(
-                        "hidden"
-                    );
-                }
-            );
-
-
-            listButton.setAttribute(
-                "aria-expanded",
-                "false"
-            );
-
-
-            listButton.setAttribute(
-                "aria-label",
-                "Show All Parameters"
-            );
-
-
-            if (label) {
-
-                label.textContent =
-                    "Show All Parameters";
-            }
-
-
-            if (arrow) {
-
-                arrow.classList.remove(
-                    "up"
-                );
-            }
-
-
-            tableWrapper.scrollIntoView({
-                behavior: "smooth",
-                block: "nearest"
-            });
         }
     );
 }
 
 
 /* =========================================================
-   INITIALIZE PARAMETER EXPAND BUTTONS
+   INITIALIZE PARAMETER VALUE EXPAND BUTTONS
 ========================================================= */
 
-setupParameterExpandButtons();
+setupParameterValueExpandButtons();
+
+
+/* =========================================================
+   SYSTEM FAMILY (3G / 4G / 5G)
+   ใช้จัดกลุ่มไฟล์ตอนรวมไฟล์ใน popup Results
+========================================================= */
+
+function getSystemFamily(system) {
+
+    return String(system || "")
+        .trim()
+        .toUpperCase()
+        .slice(0, 2);
+}
+
+
+/* =========================================================
+   ORDER QUEUE (localStorage)
+   เก็บรายการที่กด Order ไว้ จนกว่าจะกด Download หรือ Clear
+   ใน popup Results (ยืนยันแล้ว) - อยู่ได้แม้ปิด/เปิดหน้าใหม่
+========================================================= */
+
+function getOrderQueue() {
+
+    try {
+
+        const raw =
+            localStorage.getItem(
+                ORDER_QUEUE_STORAGE_KEY
+            );
+
+        const parsed =
+            raw ? JSON.parse(raw) : [];
+
+        return Array.isArray(parsed)
+            ? parsed
+            : [];
+
+    } catch (error) {
+
+        console.error(
+            "Order queue read error:",
+            error
+        );
+
+        return [];
+    }
+}
+
+function saveOrderQueue(queue) {
+
+    try {
+
+        localStorage.setItem(
+            ORDER_QUEUE_STORAGE_KEY,
+            JSON.stringify(queue)
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Order queue save error:",
+            error
+        );
+    }
+}
+
+function clearOrderQueue() {
+
+    try {
+
+        localStorage.removeItem(
+            ORDER_QUEUE_STORAGE_KEY
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Order queue clear error:",
+            error
+        );
+    }
+}
+
+
+/* =========================================================
+   CONFIRM MODAL (reusable)
+   ใช้กับปุ่ม Download เดี่ยว / Download ใน popup / Clear
+   ทุกปุ่มที่ "กดแล้วต้องยืนยันก่อนกันกดผิด"
+========================================================= */
+
+function ensureConfirmModal() {
+
+    let modal =
+        document.getElementById(
+            "confirmActionModal"
+        );
+
+    if (modal) {
+        return modal;
+    }
+
+    document.body.insertAdjacentHTML(
+        "beforeend",
+        `
+            <div
+                id="confirmActionModal"
+                class="modal-overlay hidden"
+            >
+                <div class="modal-card confirm-modal-card">
+
+                    <h3 class="modal-title" id="confirmActionTitle">
+                        Confirm
+                    </h3>
+
+                    <p class="confirm-modal-message" id="confirmActionMessage">
+                    </p>
+
+                    <div class="confirm-modal-actions">
+
+                        <button
+                            type="button"
+                            class="btn-primary"
+                            id="confirmActionOk"
+                        >
+                            Confirm
+                        </button>
+
+                        <button
+                            type="button"
+                            class="btn-secondary"
+                            id="confirmActionCancel"
+                        >
+                            Cancel
+                        </button>
+
+                    </div>
+
+                </div>
+            </div>
+        `
+    );
+
+    return document.getElementById(
+        "confirmActionModal"
+    );
+}
+
+function showConfirmModal(
+    title,
+    message
+) {
+
+    const modal =
+        ensureConfirmModal();
+
+    const titleEl =
+        document.getElementById(
+            "confirmActionTitle"
+        );
+
+    const messageEl =
+        document.getElementById(
+            "confirmActionMessage"
+        );
+
+    const okBtn =
+        document.getElementById(
+            "confirmActionOk"
+        );
+
+    const cancelBtn =
+        document.getElementById(
+            "confirmActionCancel"
+        );
+
+    if (titleEl) {
+        titleEl.textContent = title || "Confirm";
+    }
+
+    if (messageEl) {
+        messageEl.textContent = message || "";
+    }
+
+    modal.classList.remove("hidden");
+
+    return new Promise((resolve) => {
+
+        const cleanup = (value) => {
+
+            modal.classList.add("hidden");
+
+            okBtn.removeEventListener("click", onOk);
+            cancelBtn.removeEventListener("click", onCancel);
+            modal.removeEventListener("click", onOverlay);
+
+            resolve(value);
+        };
+
+        const onOk = () => cleanup(true);
+        const onCancel = () => cleanup(false);
+
+        const onOverlay = (e) => {
+
+            if (e.target === modal) {
+                cleanup(false);
+            }
+        };
+
+        okBtn.addEventListener("click", onOk);
+        cancelBtn.addEventListener("click", onCancel);
+        modal.addEventListener("click", onOverlay);
+    });
+}
+
+
+/* =========================================================
+   DOWNLOAD HELPER
+   ยิง endpoint ที่คืนไฟล์กลับมา แล้วสั่งดาวน์โหลดใน browser
+========================================================= */
+
+/* =========================================================
+   SINGLE DOWNLOAD (ปุ่ม Download ใต้ผลลัพธ์)
+========================================================= */
+
+async function handleSingleDownload() {
+
+    if (!lastAutogenParams) {
+        return;
+    }
+
+    const confirmed =
+        await showConfirmModal(
+            "Download File",
+            `ยืนยันดาวน์โหลดไฟล์ระบบ ${lastAutogenParams.system || ""} ` +
+            `(Site: ${lastAutogenParams.site_code || ""}) หรือไม่?`
+        );
+
+    if (!confirmed) {
+        return;
+    }
+
+    const params =
+        new URLSearchParams(
+            lastAutogenParams
+        );
+
+    try {
+
+        const downloadResult =
+            await window.AutoGenDeploy.exportSingle(
+                lastAutogenParams
+            );
+
+        window.AutoGenDeploy.downloadBlob(
+            downloadResult.blob,
+            downloadResult.filename
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Download error:",
+            error
+        );
+
+        alert(
+            error && error.message
+                ? error.message
+                : "Failed to download file."
+        );
+    }
+}
+
+
+/* =========================================================
+   ADD TO ORDER (ปุ่ม Order ใต้ผลลัพธ์)
+   เพิ่มผลลัพธ์ปัจจุบันเข้าคิว แล้วเปิด popup Results ทันที
+========================================================= */
+
+function handleAddToOrder() {
+    if (!lastAutogenParams) return;
+    const queue = getOrderQueue();
+    queue.push({
+        id: `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+        addedAt: new Date().toISOString(),
+        params: lastAutogenParams,
+        fileName: getSystemFileName(lastAutogenParams.system, lastAutogenParams.site_code)
+    });
+    saveOrderQueue(queue);
+    refreshResultsShortcut();
+    openResultsPopup();
+}
+
+
+/* =========================================================
+   RESULTS POPUP
+========================================================= */
+
+function ensureResultsModal() {
+
+    let modal =
+        document.getElementById(
+            "resultsPopupModal"
+        );
+
+    if (modal) {
+        return modal;
+    }
+
+    document.body.insertAdjacentHTML(
+        "beforeend",
+        `
+            <div
+                id="resultsPopupModal"
+                class="modal-overlay hidden"
+            >
+                <div class="modal-card results-modal-card">
+
+                    <div class="results-modal-header">
+
+                        <button
+                            type="button"
+                            class="results-back-btn"
+                            id="resultsPopupBackBtn"
+                            aria-label="ย้อนกลับ"
+                        >
+                            ↩ Back
+                        </button>
+
+                        <h3 class="modal-title">
+                            Results
+                        </h3>
+
+                    </div>
+
+                    <div
+                        class="results-modal-list"
+                        id="resultsPopupList"
+                    >
+                    </div>
+
+                    <div class="results-modal-actions">
+
+                        <button
+                            type="button"
+                            class="btn-primary"
+                            id="resultsPopupDownloadBtn"
+                        >
+                            ⬇️ Download
+                        </button>
+
+                        <button
+                            type="button"
+                            class="btn-secondary"
+                            id="resultsPopupClearBtn"
+                        >
+                            🗑️ Clear
+                        </button>
+
+                    </div>
+
+                </div>
+            </div>
+        `
+    );
+
+    modal =
+        document.getElementById(
+            "resultsPopupModal"
+        );
+
+    const backBtn =
+        document.getElementById(
+            "resultsPopupBackBtn"
+        );
+
+    const clearBtn =
+        document.getElementById(
+            "resultsPopupClearBtn"
+        );
+
+    const downloadBtn =
+        document.getElementById(
+            "resultsPopupDownloadBtn"
+        );
+
+    if (backBtn) {
+
+        backBtn.addEventListener(
+            "click",
+            closeResultsPopup
+        );
+    }
+
+    if (modal) {
+
+        modal.addEventListener(
+            "click",
+            (e) => {
+
+                if (e.target === modal) {
+                    closeResultsPopup();
+                }
+            }
+        );
+    }
+
+    if (clearBtn) {
+
+        clearBtn.addEventListener(
+            "click",
+            async () => {
+
+                const confirmed =
+                    await showConfirmModal(
+                        "Clear Results",
+                        "ยืนยันล้างรายการที่เก็บไว้ทั้งหมดหรือไม่? " +
+                        "การกระทำนี้ไม่สามารถย้อนกลับได้"
+                    );
+
+                if (!confirmed) {
+                    return;
+                }
+
+                clearOrderQueue();
+                renderResultsPopupList();
+                refreshResultsShortcut();
+            }
+        );
+    }
+
+    if (downloadBtn) {
+
+        downloadBtn.addEventListener(
+            "click",
+            async () => {
+
+                const queue =
+                    getOrderQueue();
+
+                if (!queue.length) {
+                    return;
+                }
+
+                const confirmed =
+                    await showConfirmModal(
+                        "Download All",
+                        `ยืนยันดาวน์โหลดไฟล์ทั้งหมด ${queue.length} รายการ ` +
+                        "(ระบบตระกูลเดียวกันจะถูกรวมเป็นไฟล์เดียว) หรือไม่?"
+                    );
+
+                if (!confirmed) {
+                    return;
+                }
+
+                try {
+
+                    const batchResult =
+                        await window.AutoGenDeploy.exportBatch(
+                            queue.map(
+                                (item) => item.params
+                            )
+                        );
+
+                    window.AutoGenDeploy.downloadBlob(
+                        batchResult.blob,
+                        batchResult.filename
+                    );
+
+                    clearOrderQueue();
+                    renderResultsPopupList();
+                    refreshResultsShortcut();
+
+                } catch (error) {
+
+                    console.error(
+                        "Batch download error:",
+                        error
+                    );
+
+                    alert(
+                        error && error.message
+                            ? error.message
+                            : "Failed to download files."
+                    );
+                }
+            }
+        );
+    }
+
+    if (modal) {
+        modal.addEventListener("click", (e) => {
+            const deleteBtn = e.target.closest(".results-modal-delete-btn");
+            if (!deleteBtn) return;
+            e.preventDefault();
+            e.stopPropagation();
+            deleteOrderById(deleteBtn.dataset.orderId || "");
+        });
+    }
+
+    return modal;
+}
+
+function renderResultsPopupList() {
+    const listEl = document.getElementById("resultsPopupList");
+    if (!listEl) return;
+    const queue = getOrderQueue();
+    if (!queue.length) {
+        listEl.innerHTML = `<p class="results-modal-empty">No items yet. Use the "Order" button below a generated result to add it here.</p>`;
+        return;
+    }
+    listEl.innerHTML = queue.map((item, index) => `
+        <div class="results-modal-item">
+            <span class="results-modal-item-index">${index + 1}</span>
+            <div class="results-modal-item-info">
+                <strong>${escapeHtml(item.params?.system || "")}</strong>
+                <span>Site: ${escapeHtml(item.params?.site_code || "")}</span>
+            </div>
+            <span class="results-modal-item-file">${escapeHtml(item.fileName || "")}</span>
+            <button type="button" class="results-modal-delete-btn" data-order-id="${escapeHtml(item.id || "")}" aria-label="Delete order ${index + 1}" title="Delete">🗑️</button>
+        </div>
+    `).join("");
+}
+
+function deleteOrderById(orderId) {
+    if (!orderId) return;
+    saveOrderQueue(getOrderQueue().filter(item => String(item.id) !== String(orderId)));
+    renderResultsPopupList();
+    refreshResultsShortcut();
+}
+
+function openResultsPopup() {
+
+    const modal =
+        ensureResultsModal();
+
+    renderResultsPopupList();
+
+    modal.classList.remove("hidden");
+}
+
+function closeResultsPopup() {
+
+    const modal =
+        document.getElementById(
+            "resultsPopupModal"
+        );
+
+    if (modal) {
+        modal.classList.add("hidden");
+    }
+}
+
+
+/* =========================================================
+   RESULT ACTION BUTTONS (Download / Order)
+   ผูก event แบบ delegated กับ #result เหมือนปุ่ม expand เดิม
+========================================================= */
+
+if (result) {
+
+    result.addEventListener(
+        "click",
+        (e) => {
+
+            const downloadBtn =
+                e.target.closest(
+                    ".btn-download-single"
+                );
+
+            if (downloadBtn && result.contains(downloadBtn)) {
+
+                handleSingleDownload();
+
+                return;
+            }
+
+            const orderBtn = e.target.closest(".btn-order-add");
+            if (orderBtn && result.contains(orderBtn)) {
+                handleAddToOrder();
+                return;
+            }
+
+            const resultsShortcut = e.target.closest(".btn-results-shortcut");
+            if (resultsShortcut && result.contains(resultsShortcut)) {
+                openResultsPopup();
+            }
+        }
+    );
+}
+
+
+
+/* =========================================================
+   RESULTS SHORTCUT (persistent saved Orders)
+========================================================= */
+
+const resultsShortcutButton =
+    document.getElementById("resultResultsShortcut");
+
+if (resultsShortcutButton) {
+    resultsShortcutButton.addEventListener("click", openResultsPopup);
+}
 
 
 /* =========================================================
@@ -4941,29 +4452,25 @@ if (autoBtn) {
 
 
             /* =================================================
-               DEPLOY.JS
+               REQUEST
             ================================================= */
 
             try {
-
-                await ensureDeployReady();
 
                 const activeCellInput =
                     getActiveCellInput(
                         selectedSystem
                     );
 
+
                 const activeNodeInput =
                     getActiveNodeIdInput(
                         selectedSystem
                     );
 
-                /* =================================================
-                   GENERATE PARAMETERS
-                ================================================= */
 
-                const data =
-                    await window.AutoGenDeploy.generate({
+                const params =
+                    new URLSearchParams({
 
                         system:
                             selectedSystem,
@@ -5002,12 +4509,9 @@ if (autoBtn) {
                                 : "",
 
                         nodeb_id:
-                            is3G || is4G
-                                ? (
-                                    activeNodeInput
-                                        ? activeNodeInput.value
-                                        : ""
-                                )
+                            hasCell &&
+                            activeNodeInput
+                                ? activeNodeInput.value
                                 : "",
 
                         gnodeb_id:
@@ -5032,7 +4536,7 @@ if (autoBtn) {
                                             ? localCellId5GInput.value
                                             : ""
                                     )
-                                    : is4G
+                                    : hasCell
                                         ? (
                                             activeCellInput
                                                 ? activeCellInput.value
@@ -5054,15 +4558,39 @@ if (autoBtn) {
                                 : "1"
                     });
 
+
+                /* =================================================
+                   SAVE LAST PARAMS
+                   (ใช้โดยปุ่ม Download / Order ในผลลัพธ์)
+                ================================================= */
+
+                lastAutogenParams =
+                    Object.fromEntries(
+                        params.entries()
+                    );
+
+
+                /* =================================================
+                   STATIC DEPLOY GENERATOR
+                ================================================= */
+
+                if (
+                    !window.AutoGenDeploy ||
+                    typeof window.AutoGenDeploy.generate !== "function"
+                ) {
+                    throw new Error("Deploy.js is not ready.");
+                }
+
+                const data =
+                    await window.AutoGenDeploy.generate(
+                        Object.fromEntries(
+                            params.entries()
+                        )
+                    );
+
                 /* =================================================
                    RENDER
                 ================================================= */
-
-                if (data && data.error) {
-                    throw new Error(
-                        data.error
-                    );
-                }
 
                 if (result) {
 
@@ -5077,7 +4605,6 @@ if (autoBtn) {
                 }
 
             } catch (error) {
-
 
                 console.error(
                     "AutoGen Error:",
@@ -5118,7 +4645,7 @@ if (clearBtn) {
         "click",
         () => {
 
-            /* RESULT */
+            /* RESULT - keep saved Results queue */
 
             if (result) {
 
@@ -5128,6 +4655,8 @@ if (clearBtn) {
                     "hidden"
                 );
             }
+
+            refreshResultsShortcut();
 
 
             /* SYSTEM */
@@ -5400,4 +4929,5 @@ updateSystemSpecificFields(
 
 updateValidation();
 updateSystemSpecificValidation();
+refreshResultsShortcut();
 

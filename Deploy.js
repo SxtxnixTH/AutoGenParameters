@@ -2,1592 +2,851 @@
    AUTOGEN PARAMETERS - DEPLOY.JS
    GitHub Pages / Static Deployment Version
 
-   Replaces:
-   - Flask
-   - pandas
-   - /autogen API
-   - Data.py
+   Source of Truth:
+   - Generation logic is ported 1:1 from RunLocal/Data.py
+   - Excel templates are loaded client-side
+   - No Flask / pandas / Python server is required
 
-   Dataset:
-   - 3G2100  -> Template_MP_Cell3G.xlsx
-   - 4G      -> Template_MP_Cell4G.xlsx
-   - 5G2600  -> Template_MP_Cell5G.xlsx
-
-   Requires SheetJS:
-   XLSX
+   Browser dependencies loaded by index.html:
+   - ExcelJS
+   - JSZip
 ========================================================= */
 
-
-/* =========================================================
-   DATASET FILES
-========================================================= */
-
-const DATASET_FILES = {
-
-    "3G":
-        "Datasets/Template_MP_Cell3G.xlsx",
-
-    "4G":
-        "Datasets/Template_MP_Cell4G.xlsx",
-
-    "5G":
-        "Datasets/Template_MP_Cell5G.xlsx"
-
-};
-
-
-/* =========================================================
-   RNC - 3G2100 ONLY
-========================================================= */
-
-const RNC_3G2100_OPTIONS = [
-
-    "3RNCAYA1H",
-    "3RNCAYA3H",
-    "3RNCAYA4H",
-    "3RNCNPT1H",
-    "3RNCNPT3H",
-    "3RNCNPT4H"
-
-];
-
-
-/* =========================================================
-   5G2600 BW OPTIONS
-========================================================= */
-
-const BW_5G2600_OPTIONS = [
-
-    "40",
-    "60",
-    "80",
-    "100"
-
-];
-
-
-/* =========================================================
-   CELL COUNT
-========================================================= */
-
-const DEPLOY_CELL_COUNT_MIN = 1;
-const DEPLOY_CELL_COUNT_MAX = 10;
-
-
-/* =========================================================
-   GET DATASET FILE
-========================================================= */
-
-function getDatasetFile(system) {
-
-    const value =
-        String(system || "")
-            .trim()
-            .toUpperCase();
-
-
-    if (value.startsWith("3G")) {
-
-        return DATASET_FILES["3G"];
-
-    }
-
-
-    if (value.startsWith("4G")) {
-
-        return DATASET_FILES["4G"];
-
-    }
-
-
-    if (value.startsWith("5G")) {
-
-        return DATASET_FILES["5G"];
-
-    }
-
-
-    throw new Error(
-        `Unsupported system: ${value}`
-    );
-
-}
-
-
-/* =========================================================
-   SYSTEM CHECK
-========================================================= */
-
-function is3G2100DeploySystem(system) {
-
-    return (
-        String(system || "")
-            .trim()
-            .toUpperCase() ===
-        "3G2100"
-    );
-
-}
-
-
-function is4GDeploySystem(system) {
-
-    return String(system || "")
-        .trim()
-        .toUpperCase()
-        .startsWith("4G");
-
-}
-
-
-function is5G2600DeploySystem(system) {
-
-    return (
-        String(system || "")
-            .trim()
-            .toUpperCase() ===
-        "5G2600"
-    );
-
-}
-
-
-function hasCellParametersDeploy(system) {
-
-    return (
-        is3G2100DeploySystem(system) ||
-        is4GDeploySystem(system) ||
-        is5G2600DeploySystem(system)
-    );
-
-}
-
-
-/* =========================================================
-   GET PARAMETERS FROM URL / OBJECT
-========================================================= */
-
-function normalizeDeployParams(params = {}) {
-
-    return {
-
-        system:
-            String(
-                params.system || ""
-            ).trim(),
-
-        site_code:
-            String(
-                params.site_code || ""
-            ).trim(),
-
-        nodeb_name:
-            String(
-                params.nodeb_name || ""
-            ).trim(),
-
-        type:
-            String(
-                params.type || ""
-            ).trim(),
-
-        tower_type:
-            String(
-                params.tower_type || ""
-            ).trim(),
-
-        cell_id:
-            String(
-                params.cell_id || ""
-            ).trim(),
-
-        nodeb_id:
-            String(
-                params.nodeb_id || ""
-            ).trim(),
-
-        gnodeb_id:
-            String(
-                params.gnodeb_id || ""
-            ).trim(),
-
-        local_cellid:
-            String(
-                params.local_cellid || ""
-            ).trim(),
-
-        rnc:
-            String(
-                params.rnc || ""
-            ).trim(),
-
-        bw:
-            String(
-                params.bw || ""
-            ).trim(),
-
-        cell_count:
-            String(
-                params.cell_count || ""
-            ).trim()
-
+(() => {
+    "use strict";
+
+    const DATASET_FILES = {
+        "3G": "Datasets/Template_MP_Cell3G.xlsx",
+        "4G": "Datasets/Template_MP_Cell4G.xlsx",
+        "5G": "Datasets/Template_MP_Cell5G.xlsx"
     };
 
-}
+    const RNC_3G2100_OPTIONS = [
+        "3RNCAYA1H",
+        "3RNCAYA3H",
+        "3RNCAYA4H",
+        "3RNCNPT1H",
+        "3RNCNPT3H",
+        "3RNCNPT4H"
+    ];
 
+    const BW_5G2600_OPTIONS = ["40", "60", "80", "100"];
 
-/* =========================================================
-   FIND HEADER
-========================================================= */
+    const CELL_COUNT_MIN = 1;
+    const CELL_COUNT_MAX = 10;
 
-function findHeader(
-    headers,
-    ...aliases
-) {
+    const TYPE_CODE_MAP = {
+        "3G2100": { NODE: "W", DISTRIBUTED: "D" },
+        "4G1800": { NODE: "L", DISTRIBUTED: "S" },
+        "4G2100": { NODE: "L", DISTRIBUTED: "S" },
+        "4G2600": { NODE: "L", DISTRIBUTED: "S" },
+        "5G2600": { NODE: "N", DISTRIBUTED: "U" }
+    };
 
-    if (
-        aliases.length === 1 &&
-        Array.isArray(aliases[0])
-    ) {
+    const TOWER_CODE_MICRO = {
+        "1": "A", "2": "B", "3": "C", "4": "D", "5": "E",
+        "6": "F", "7": "G", "8": "H", "9": "I", "10": "J"
+    };
 
-        aliases =
-            aliases[0];
+    const TOWER_CODE_MACRO = {
+        "1": "1", "2": "2", "3": "3", "4": "4", "5": "5",
+        "6": "6", "7": "7", "8": "8", "9": "9", "10": "0"
+    };
 
+    const CELL_NAME_MIDDLE = {
+        "3G2100": "213",
+        "4G1800": "181",
+        "4G2100": "211",
+        "5G2600": "261"
+    };
+
+    const TIME_OFFSET_BY_CELL_COUNT = {
+        "1": "CHIP0", "2": "CHIP256", "3": "CHIP512", "4": "CHIP768",
+        "5": "CHIP1024", "6": "CHIP1280", "7": "CHIP1536", "8": "CHIP1792",
+        "9": "CHIP2048", "10": "CHIP2304"
+    };
+
+    const BW_5G2600_MAP = {
+        "40": {
+            FREQ_BAND: "41", DUPLEX: "TDD",
+            UL_NARFCN: "504000", DL_NARFCN: "504000",
+            UL_CENTERFREQUENCY: "2520", DL_CENTERFREQUENCY: "2520",
+            SSBFREQPOS: "6333", "SSBARFCN(FOR 4G)": "506670",
+            SSB_FREQUENCY: "2533.35"
+        },
+        "60": {
+            FREQ_BAND: "41", DUPLEX: "TDD",
+            UL_NARFCN: "506004", DL_NARFCN: "506004",
+            UL_CENTERFREQUENCY: "2530.02", DL_CENTERFREQUENCY: "2530.02",
+            SSBFREQPOS: "6333", "SSBARFCN(FOR 4G)": "506670",
+            SSB_FREQUENCY: "2533.35"
+        },
+        "80": {
+            FREQ_BAND: "41", DUPLEX: "TDD",
+            UL_NARFCN: "508002", DL_NARFCN: "508002",
+            UL_CENTERFREQUENCY: "2540.01", DL_CENTERFREQUENCY: "2540.01",
+            SSBFREQPOS: "6333", "SSBARFCN(FOR 4G)": "506670",
+            SSB_FREQUENCY: "2533.35"
+        },
+        "100": {
+            FREQ_BAND: "41", DUPLEX: "TDD",
+            UL_NARFCN: "510000", DL_NARFCN: "510000",
+            UL_CENTERFREQUENCY: "2550", DL_CENTERFREQUENCY: "2550",
+            SSBFREQPOS: "6333", "SSBARFCN(FOR 4G)": "506670",
+            SSB_FREQUENCY: "2533.35"
+        }
+    };
+
+    const CELL_264_FIX = {
+        DL_EARFCN: "40392",
+        UL_EARFCN: "40392"
+    };
+
+    const CELL_265_FIX = {
+        DL_EARFCN: "40590",
+        UL_EARFCN: "40590"
+    };
+
+    const COLUMN_ORDER = {
+        "3G2100": [
+            "SYSTEM", "CELL_NAME", "SITE_CODE", "NODEB_NAME", "TYPE",
+            "TOWER_TYPE", "CELL_ID", "NODEB_ID", "LOCAL_CELLID", "RNC",
+            "CELL_COUNT", "MCC", "MNC", "SAC", "PSC", "CPICHPWR",
+            "MAX_TX_PWR", "BW", "FREQ_BAND", "DL_UARFCN", "UL_UARFCN",
+            "CELL_TXRX", "CELL_RADIUS", "CARRIER_INDICATOR",
+            "CN_OPERATOR_GROUP_INDEX", "LOCAL_AREA_ID",
+            "SERVICE_PRIORITY_GROUP_INDEX", "TIME_OFFSET", "DUPLEX",
+            "MULTI_TYPE", "CELL_STATUS", "ONSERVICE", "CELL_BARRED",
+            "CELL_RESERVE", "REF_CODE_PHASE", "RRU_MODEL_1", "RRU_NUM_1"
+        ],
+        "4G1800": [
+            "SYSTEM", "CELL_NAME", "SITE_CODE", "ENODEB_NAME", "TYPE",
+            "TOWER_TYPE", "ENODEB_ID", "CELL_ID", "LOCAL_CELLID",
+            "CELL_COUNT", "MCC", "MNC", "CN_OPERATOR_GROUP_INDEX",
+            "LOCAL_AREA_ID", "BW", "DL_EARFCN", "UL_EARFCN", "FREQ_BAND",
+            "DUPLEX", "RSI", "PCI", "RSPWR", "CELL_TXRX",
+            "COVERAGE_SCENARIO", "PA", "PB", "CELL_RADIUS", "EMTC_FLAG",
+            "MULTI_TYPE", "CELL_STATUS", "ONSERVICE", "CELL_BARRED",
+            "CELL_RESERVE", "REF_CODE_PHASE", "RRU_MODEL_1", "RRU_NUM_1"
+        ],
+        "4G2100": [
+            "SYSTEM", "CELL_NAME", "SITE_CODE", "ENODEB_NAME", "TYPE",
+            "TOWER_TYPE", "ENODEB_ID", "CELL_ID", "LOCAL_CELLID",
+            "CELL_COUNT", "MCC", "MNC", "CN_OPERATOR_GROUP_INDEX",
+            "LOCAL_AREA_ID", "BW", "DL_EARFCN", "UL_EARFCN", "FREQ_BAND",
+            "DUPLEX", "RSI", "PCI", "RSPWR", "CELL_TXRX",
+            "COVERAGE_SCENARIO", "PA", "PB", "CELL_RADIUS", "EMTC_FLAG",
+            "MULTI_TYPE", "CELL_STATUS", "ONSERVICE", "CELL_BARRED",
+            "CELL_RESERVE", "REF_CODE_PHASE", "RRU_MODEL_1", "RRU_NUM_1"
+        ],
+        "4G2600": [
+            "SYSTEM", "CELL_NAME", "SITE_CODE", "ENODEB_NAME", "TYPE",
+            "TOWER_TYPE", "ENODEB_ID", "CELL_ID", "LOCAL_CELLID",
+            "CELL_COUNT", "MCC", "MNC", "CN_OPERATOR_GROUP_INDEX",
+            "LOCAL_AREA_ID", "BW", "DL_EARFCN", "UL_EARFCN", "FREQ_BAND",
+            "DUPLEX", "RSI", "PCI", "RSPWR", "CELL_TXRX",
+            "COVERAGE_SCENARIO", "PA", "PB", "CELL_RADIUS", "EMTC_FLAG",
+            "MULTI_TYPE", "CELL_STATUS", "ONSERVICE", "CELL_BARRED",
+            "CELL_RESERVE", "REF_CODE_PHASE", "RRU_MODEL_1", "RRU_NUM_1"
+        ],
+        "5G2600": [
+            "SYSTEM", "CELL_NAME", "SITE_CODE", "GNODEB_NAME", "MCC",
+            "MNC", "GNODEB_ID", "CELL_ID", "LOCAL_CELLID", "BW", "PRB",
+            "UL_NARFCN", "UL_CENTERFREQUENCY", "DL_NARFCN",
+            "DL_CENTERFREQUENCY", "SSBDESCMETHOD", "SSBFREQPOS",
+            "SSBARFCN(FOR 4G)", "SSB_FREQUENCY", "FREQ_BAND",
+            "SUBCARRIERSPACING", "SLOT_ASSIGNMENT", "SLOT_STRUCTURE",
+            "STRUCTURE_TYPE", "SPECIAL_SUB_FRAME_RATIO", "DUPLEX", "RSI",
+            "PCI", "RE_POWER", "MAX_TRANSMIT_POWER", "CELL_TXRX",
+            "COVERAGE_SCENARIO", "SSB_BEAM_NUMBER", "NR_MODE_5G",
+            "CELL_RADIUS", "MULTI_TYPE", "CELL_STATUS", "ONSERVICE",
+            "CELL_BARRED", "CELL_RESERVE", "REF_CODE_PHASE",
+            "RRU_MODEL_1", "RRU_NUM_1"
+        ]
+    };
+
+    const FIX_3G2100 = {
+        MCC: "520", MNC: "03", PSC: "0", CPICHPWR: "330",
+        MAX_TX_PWR: "411", BW: "5", FREQ_BAND: "1",
+        DL_UARFCN: "10713", UL_UARFCN: "9763", CELL_TXRX: "1T2R",
+        CELL_RADIUS: "29000", CARRIER_INDICATOR: "3",
+        CN_OPERATOR_GROUP_INDEX: "0", LOCAL_AREA_ID: "0",
+        SERVICE_PRIORITY_GROUP_INDEX: "1", DUPLEX: "FDD",
+        MULTI_TYPE: "NORMAL_CELL", CELL_STATUS: "NO", ONSERVICE: "NO",
+        CELL_BARRED: "NO", CELL_RESERVE: "NO", RRU_NUM_1: "1"
+    };
+
+    const FIX_4G1800 = {
+        MCC: "520", MNC: "03", CN_OPERATOR_GROUP_INDEX: "0", LOCAL_AREA_ID: "0",
+        BW: "20", DL_EARFCN: "1450", UL_EARFCN: "19450", FREQ_BAND: "3",
+        DUPLEX: "FDD", RSI: "-1", PCI: "-1", RSPWR: "164", CELL_TXRX: "2T2R",
+        COVERAGE_SCENARIO: "NONE", PA: "-3", PB: "1", CELL_RADIUS: "9770",
+        EMTC_FLAG: "FALSE", MULTI_TYPE: "NORMAL", CELL_STATUS: "NO",
+        ONSERVICE: "NO", CELL_BARRED: "NO", CELL_RESERVE: "NO", RRU_NUM_1: "1"
+    };
+
+    const FIX_4G2100 = {
+        MCC: "520", MNC: "03", CN_OPERATOR_GROUP_INDEX: "0", LOCAL_AREA_ID: "0",
+        BW: "20", DL_EARFCN: "499", UL_EARFCN: "18499", FREQ_BAND: "1",
+        DUPLEX: "FDD", RSI: "-1", PCI: "-1", RSPWR: "152", CELL_TXRX: "2T2R",
+        COVERAGE_SCENARIO: "NONE", PA: "0", PB: "0", CELL_RADIUS: "9770",
+        EMTC_FLAG: "FALSE", MULTI_TYPE: "NORMAL", CELL_STATUS: "NO",
+        ONSERVICE: "NO", CELL_BARRED: "NO", CELL_RESERVE: "NO", RRU_NUM_1: "1"
+    };
+
+    const FIX_4G2600_COMMON = {
+        MCC: "520", MNC: "03", CN_OPERATOR_GROUP_INDEX: "0", LOCAL_AREA_ID: "0",
+        BW: "20", FREQ_BAND: "41", DUPLEX: "TDD", RSI: "-1", PCI: "-1",
+        RSPWR: "9", CELL_TXRX: "64T64R", COVERAGE_SCENARIO: "NONE",
+        PA: "-3", PB: "1", CELL_RADIUS: "9770", EMTC_FLAG: "FALSE",
+        MULTI_TYPE: "NORMAL", CELL_STATUS: "NO", ONSERVICE: "NO",
+        CELL_BARRED: "NO", CELL_RESERVE: "NO", REF_CODE_PHASE: "",
+        RRU_MODEL_1: "AAU5639w", RRU_NUM_1: "1"
+    };
+
+    const FIX_5G2600_COMMON = {
+        MCC: "520", MNC: "03", PRB: "162",
+        SsbDescMethod: "SSB_DESC_TYPE_GSCN", SubcarrierSpacing: "30KHz",
+        SLOT_ASSIGNMENT: "8_2_DDDDDDDSUU", SLOT_STRUCTURE: "SS54",
+        STRUCTURE_TYPE: "Short_Structure", SPECIAL_SUB_FRAME_RATIO: "6:04:04",
+        RSI: "-1", PCI: "-1", RE_POWER: "0", MAX_TRANSMIT_POWER: "335",
+        CELL_TXRX: "64T64R", COVERAGE_SCENARIO: "NONE", SSB_BEAM_NUMBER: "8",
+        NR_MODE_5G: "SA/NSA", CELL_RADIUS: "9000", MULTI_TYPE: "NORMAL",
+        CELL_STATUS: "NO", ONSERVICE: "NO", CELL_BARRED: "NO",
+        CELL_RESERVE: "NO", RRU_MODEL_1: "AAU5639w", RRU_NUM_1: "1"
+    };
+
+    function assertLibraries() {
+        if (typeof window.ExcelJS === "undefined") {
+            throw new Error("ExcelJS library is not loaded.");
+        }
+        if (typeof window.JSZip === "undefined") {
+            throw new Error("JSZip library is not loaded.");
+        }
     }
 
+    function getDatasetFile(system) {
+        const value = String(system || "").trim().toUpperCase();
+        if (value.startsWith("3G")) return DATASET_FILES["3G"];
+        if (value.startsWith("4G")) return DATASET_FILES["4G"];
+        if (value.startsWith("5G")) return DATASET_FILES["5G"];
+        throw new Error(`Unsupported system: ${value}`);
+    }
 
-    const normalizedAliases =
-        new Set(
+    function normalizeColumnName(value) {
+        let text = String(value ?? "").trim().toUpperCase();
+        text = text.replace(/\*/g, "");
+        text = text.replace(/[\s\-]+/g, "_");
+        text = text.replace(/_+/g, "_");
+        return text.replace(/^_+|_+$/g, "");
+    }
 
-            aliases.map(
-                (alias) =>
-                    String(alias)
-                        .trim()
-                        .toUpperCase()
-            )
+    function safeCellCount(value, defaultValue = "1") {
+        const text = String(value ?? "").trim();
+        if (!/^[+-]?\d+$/.test(text)) return defaultValue;
+        const number = Number(text);
+        if (!Number.isFinite(number)) return defaultValue;
+        if (number < CELL_COUNT_MIN || number > CELL_COUNT_MAX) return defaultValue;
+        return String(number);
+    }
 
+    function getTypeCode(system, typeValue) {
+        const codes = TYPE_CODE_MAP[system] || {};
+        const key = String(typeValue || "").trim().toUpperCase();
+        if (key.startsWith("NODE")) return codes.NODE || "";
+        if (key.startsWith("DIST")) return codes.DISTRIBUTED || "";
+        return "";
+    }
+
+    function getTowerCode(towerType, cellCount) {
+        const key = String(towerType || "").trim().toUpperCase();
+        const count = safeCellCount(cellCount);
+        if (key.startsWith("MICRO")) return TOWER_CODE_MICRO[count] || "";
+        if (key.startsWith("MACRO")) return TOWER_CODE_MACRO[count] || "";
+        return "";
+    }
+
+    function sequenceNumericValue(baseValue, position, length) {
+        const baseText = String(baseValue ?? "").trim();
+        const posText = String(position ?? "").trim();
+        if (!/^[+-]?\d+$/.test(baseText) || !/^\d+$/.test(posText)) return "";
+        const base = Number(baseText);
+        const pos = Number(posText);
+        if (!Number.isFinite(base) || !Number.isFinite(pos)) return "";
+        const value = pos === CELL_COUNT_MAX ? base - 1 : base + (pos - 1);
+        return String(value).padStart(length, "0");
+    }
+
+    function rruModelForPosition(position, total) {
+        const p = Number.parseInt(String(position), 10);
+        const t = Number.parseInt(String(total), 10);
+        if (!Number.isFinite(p) || !Number.isFinite(t)) return "";
+        if (p < t) return "RRU5502";
+        return t % 2 === 1 ? "RRU3962" : "RRU5502";
+    }
+
+    function getExportFilename(system, siteCode) {
+        const cleanSystem = String(system || "").trim();
+        const cleanSite = String(siteCode || "").trim().toUpperCase();
+        if (!cleanSystem) return "export.xlsx";
+        if (!cleanSite) return `${cleanSystem}.xlsx`;
+        return `${cleanSystem}_${cleanSite}.xlsx`;
+    }
+
+    function findHeader(headers, ...aliases) {
+        if (aliases.length === 1 && Array.isArray(aliases[0])) aliases = aliases[0];
+        const normalizedAliases = new Set(
+            aliases.map(alias => String(alias).trim().toUpperCase())
         );
+        for (let i = 0; i < headers.length; i++) {
+            const normalizedHeader = String(headers[i] ?? "").trim().toUpperCase();
+            if (normalizedAliases.has(normalizedHeader)) return i;
+        }
+        return -1;
+    }
 
+    const HEADER_MAPPINGS = {
+        system: ["SYSTEM *", "SYSTEM"],
+        site_code: ["SITE_CODE *", "SITE_CODE"],
+        nodeb_name: [
+            "NODEB_NAME *", "NODEB_NAME", "ENODEB_NAME *", "ENODEB_NAME",
+            "GNODEB_NAME *", "GNODEB_NAME"
+        ],
+        type: ["TYPE *", "TYPE"],
+        tower_type: ["TOWER TYPE *", "TOWER TYPE", "TOWER_TYPE *", "TOWER_TYPE"],
+        cell_id: [
+            "CELL ID **", "CELL ID *", "CELL ID",
+            "CELL_ID **", "CELL_ID *", "CELL_ID"
+        ],
+        nodeb_id: ["NODEB_ID **", "NODEB_ID *", "NODEB_ID"],
+        gnodeb_id: ["GNODEB_ID **", "GNODEB_ID *", "GNODEB_ID"],
+        local_cellid: [
+            "LOCAL_CELLID **", "LOCAL_CELLID *", "LOCAL_CELLID",
+            "LOCAL CELLID **", "LOCAL CELLID *", "LOCAL CELLID"
+        ],
+        bw: [
+            "BW **", "BW *", "BW",
+            "BANDWIDTH **", "BANDWIDTH *", "BANDWIDTH"
+        ],
+        cell_count: [
+            "CELL COUNT **", "CELL COUNT *", "CELL COUNT",
+            "CELL_COUNT **", "CELL_COUNT *", "CELL_COUNT"
+        ]
+    };
 
-    for (
-        let index = 0;
-        index < headers.length;
-        index++
-    ) {
+    function cellValueToString(value) {
+        if (value === null || value === undefined) return "";
+        if (typeof value === "object") {
+            if (value.text !== undefined) return String(value.text);
+            if (value.result !== undefined) return String(value.result);
+            if (value.richText) {
+                return value.richText.map(x => x.text || "").join("");
+            }
+        }
+        return String(value);
+    }
 
-        const normalizedHeader =
-            String(
-                headers[index] || ""
-            )
-                .trim()
-                .toUpperCase();
+    async function readDataset(filePath) {
+        assertLibraries();
 
+        const response = await fetch(filePath, { cache: "no-store" });
+        if (!response.ok) throw new Error(`Dataset not found: ${filePath}`);
 
-        if (
-            normalizedAliases.has(
-                normalizedHeader
-            )
-        ) {
+        const arrayBuffer = await response.arrayBuffer();
+        const workbook = new window.ExcelJS.Workbook();
+        await workbook.xlsx.load(arrayBuffer);
 
-            return index;
-
+        if (!workbook.worksheets.length) {
+            throw new Error("Dataset does not contain any worksheet.");
         }
 
+        const worksheet = workbook.worksheets[0];
+        const headers = [];
+        const row = [];
+
+        for (let column = 1; column <= worksheet.columnCount; column++) {
+            headers.push(cellValueToString(worksheet.getCell(1, column).value));
+            row.push(cellValueToString(
+                worksheet.getRow(2).getCell(column).value
+            ));
+        }
+
+        return { workbook, worksheet, sheetName: worksheet.name, headers, row };
     }
 
-
-    return -1;
-
-}
-
-
-/* =========================================================
-   HEADER MAPPING
-========================================================= */
-
-const HEADER_MAPPINGS = {
-
-    system: [
-
-        "SYSTEM *",
-        "SYSTEM"
-
-    ],
-
-    site_code: [
-
-        "SITE_CODE *",
-        "SITE_CODE"
-
-    ],
-
-    nodeb_name: [
-
-        "NODEB_NAME *",
-        "NODEB_NAME",
-
-        "ENODEB_NAME *",
-        "ENODEB_NAME",
-
-        "GNODEB_NAME *",
-        "GNODEB_NAME"
-
-    ],
-
-    type: [
-
-        "TYPE *",
-        "TYPE"
-
-    ],
-
-    tower_type: [
-
-        "TOWER TYPE *",
-        "TOWER TYPE",
-
-        "TOWER_TYPE *",
-        "TOWER_TYPE"
-
-    ],
-
-    cell_id: [
-
-        "CELL ID **",
-        "CELL ID *",
-        "CELL ID",
-
-        "CELL_ID **",
-        "CELL_ID *",
-        "CELL_ID"
-
-    ],
-
-    nodeb_id: [
-
-        "NODEB_ID **",
-        "NODEB_ID *",
-        "NODEB_ID"
-
-    ],
-
-    gnodeb_id: [
-
-        "GNODEB_ID **",
-        "GNODEB_ID *",
-        "GNODEB_ID"
-
-    ],
-
-    local_cellid: [
-
-        "LOCAL_CELLID **",
-        "LOCAL_CELLID *",
-        "LOCAL_CELLID",
-
-        "LOCAL CELLID **",
-        "LOCAL CELLID *",
-        "LOCAL CELLID"
-
-    ],
-
-    bw: [
-
-        "BW **",
-        "BW *",
-        "BW",
-
-        "BANDWIDTH **",
-        "BANDWIDTH *",
-        "BANDWIDTH"
-
-    ],
-
-    cell_count: [
-
-        "CELL COUNT **",
-        "CELL COUNT *",
-        "CELL COUNT",
-
-        "CELL_COUNT **",
-        "CELL_COUNT *",
-        "CELL_COUNT"
-
-    ]
-
-};
-
-
-/* =========================================================
-   READ XLSX
-========================================================= */
-
-async function readDataset(filePath) {
-
-    if (
-        typeof XLSX === "undefined"
-    ) {
-
-        throw new Error(
-            "SheetJS XLSX library is not loaded."
-        );
-
-    }
-
-
-    const response =
-        await fetch(
-            filePath
-        );
-
-
-    if (!response.ok) {
-
-        throw new Error(
-            `Dataset not found: ${filePath}`
-        );
-
-    }
-
-
-    const arrayBuffer =
-        await response.arrayBuffer();
-
-
-    const workbook =
-        XLSX.read(
-            arrayBuffer,
-            {
-                type: "array"
-            }
-        );
-
-
-    if (
-        !workbook.SheetNames ||
-        !workbook.SheetNames.length
-    ) {
-
-        throw new Error(
-            "Dataset does not contain any worksheet."
-        );
-
-    }
-
-
-    const sheetName =
-        workbook.SheetNames[0];
-
-
-    const worksheet =
-        workbook.Sheets[
-            sheetName
-        ];
-
-
-    const rows =
-        XLSX.utils.sheet_to_json(
-            worksheet,
-            {
-                header: 1,
-                defval: ""
-            }
-        );
-
-
-    if (!rows.length) {
-
-        return {
-
-            sheetName,
-            headers: [],
-            row: []
-
+    function validateBasicParameters(params) {
+        const required = {
+            system: "System",
+            site_code: "Site Code",
+            nodeb_name: "NodeB Name",
+            type: "Type"
         };
-
-    }
-
-
-    const headers =
-        Array.isArray(rows[0])
-            ? rows[0].map(
-                (header) =>
-                    String(
-                        header ?? ""
-                    )
-            )
-            : [];
-
-
-    const row =
-        rows.length > 1 &&
-        Array.isArray(rows[1])
-            ? [...rows[1]]
-            : Array(
-                headers.length
-            ).fill("");
-
-
-    while (
-        row.length <
-        headers.length
-    ) {
-
-        row.push("");
-
-    }
-
-
-    return {
-
-        sheetName,
-        headers,
-        row
-
-    };
-
-}
-
-
-/* =========================================================
-   VALIDATE BASIC PARAMETERS
-========================================================= */
-
-function validateBasicParameters(
-    params
-) {
-
-    const required = {
-
-        system:
-            "System",
-
-        site_code:
-            "Site Code",
-
-        nodeb_name:
-            "NodeB Name",
-
-        type:
-            "Type"
-
-    };
-
-
-    for (
-        const [key, label]
-        of Object.entries(required)
-    ) {
-
-        if (!params[key]) {
-
-            return {
-
-                error:
-                    `${label} is required.`
-
-            };
-
+        for (const [key, label] of Object.entries(required)) {
+            if (!params[key]) return { error: `${label} is required.` };
         }
-
-    }
-
-
-    return null;
-
-}
-
-
-/* =========================================================
-   VALIDATE RNC
-========================================================= */
-
-function validateRNC(
-    params,
-    is3G2100
-) {
-
-    if (!is3G2100) {
-
         return null;
-
     }
 
-
-    if (!params.rnc) {
-
-        return {
-
-            error:
-                "RNC is required for 3G2100."
-
-        };
-
+    function validateRNC(params, is3G2100) {
+        if (!is3G2100) return null;
+        if (!params.rnc) return { error: "RNC is required for 3G2100." };
+        if (!RNC_3G2100_OPTIONS.includes(params.rnc)) {
+            return {
+                error:
+                    `Invalid RNC: ${params.rnc}. Please select a valid 3G2100 RNC.`,
+                validRNC: RNC_3G2100_OPTIONS
+            };
+        }
+        return null;
     }
 
-
-    if (
-        !RNC_3G2100_OPTIONS.includes(
-            params.rnc
-        )
-    ) {
-
-        return {
-
-            error:
-                `Invalid RNC: ${params.rnc}. ` +
-                "Please select a valid " +
-                "3G2100 RNC.",
-
-            validRNC:
-                RNC_3G2100_OPTIONS
-
-        };
-
-    }
-
-
-    return null;
-
-}
-
-
-/* =========================================================
-   VALIDATE 5G2600
-========================================================= */
-
-function validate5G2600(
-    params
-) {
-
-    /* GNODEB ID */
-
-    if (!params.gnodeb_id) {
-
-        return {
-
-            error:
-                "GNODEB ID is required for 5G2600."
-
-        };
-
-    }
-
-
-    if (
-        !/^\d{6}$/.test(
-            params.gnodeb_id
-        )
-    ) {
-
-        return {
-
-            error:
-                "GNODEB ID must be 6 digits."
-
-        };
-
-    }
-
-
-    /* CELL ID */
-
-    if (!params.cell_id) {
-
-        return {
-
-            error:
-                "CELL ID is required for 5G2600."
-
-        };
-
-    }
-
-
-    if (
-        !/^\d{5}$/.test(
-            params.cell_id
-        )
-    ) {
-
-        return {
-
-            error:
-                "CELL ID must be 5 digits."
-
-        };
-
-    }
-
-
-    /* LOCAL CELLID */
-
-    params.local_cellid =
-        params.cell_id;
-
-
-    /* BW */
-
-    if (!params.bw) {
-
-        return {
-
-            error:
-                "BW is required for 5G2600."
-
-        };
-
-    }
-
-
-    if (
-        !BW_5G2600_OPTIONS.includes(
-            params.bw
-        )
-    ) {
-
-        return {
-
-            error:
-                `Invalid BW: ${params.bw}. ` +
-                "Please select " +
-                "40, 60, 80, or 100.",
-
-            validBW:
-                BW_5G2600_OPTIONS
-
-        };
-
-    }
-
-
-    /* CELL COUNT */
-
-    if (!params.cell_count) {
-
-        return {
-
-            error:
-                "CELL COUNT is required for 5G2600."
-
-        };
-
-    }
-
-
-    const cellCount =
-        Number(
-            params.cell_count
-        );
-
-
-    if (
-        !Number.isInteger(
-            cellCount
-        )
-    ) {
-
-        return {
-
-            error:
-                "CELL COUNT must be a number."
-
-        };
-
-    }
-
-
-    if (
-        cellCount <
-            DEPLOY_CELL_COUNT_MIN ||
-        cellCount >
-            DEPLOY_CELL_COUNT_MAX
-    ) {
-
-        return {
-
-            error:
-                "CELL COUNT must be between 1 and 10."
-
-        };
-
-    }
-
-
-    params.cell_count =
-        String(cellCount);
-
-
-    return null;
-
-}
-
-
-/* =========================================================
-   WRITE STANDARD PARAMETERS
-========================================================= */
-
-function writeStandardParameters(
-    params,
-    headers,
-    row,
-    systemInfo
-) {
-
-    const {
-
-        is3G2100,
-        is5G2600,
-        hasCellParameters
-
-    } = systemInfo;
-
-
-    for (
-        const [key, aliases]
-        of Object.entries(
-            HEADER_MAPPINGS
-        )
-    ) {
-
-        /* 5G uses GNODEB ID */
-
-        if (
-            key === "nodeb_id" &&
-            is5G2600
-        ) {
-
-            continue;
-
+    function validate5G2600(params) {
+        if (!params.gnodeb_id) return { error: "GNODEB ID is required for 5G2600." };
+        if (!/^\d{6}$/.test(params.gnodeb_id)) return { error: "GNODEB ID must be 6 digits." };
+
+        if (!params.cell_id) return { error: "CELL ID is required for 5G2600." };
+        if (!/^\d{5}$/.test(params.cell_id)) return { error: "CELL ID must be 5 digits." };
+
+        params.local_cellid = params.cell_id;
+
+        if (!params.bw) return { error: "BW is required for 5G2600." };
+        if (!BW_5G2600_OPTIONS.includes(params.bw)) {
+            return {
+                error: `Invalid BW: ${params.bw}. Please select 40, 60, 80, or 100.`,
+                validBW: BW_5G2600_OPTIONS
+            };
         }
 
+        if (!params.cell_count) return { error: "CELL COUNT is required for 5G2600." };
+        const cellCountValue = Number.parseInt(params.cell_count, 10);
+        if (!Number.isFinite(cellCountValue)) return { error: "CELL COUNT must be a number." };
+        if (cellCountValue < CELL_COUNT_MIN || cellCountValue > CELL_COUNT_MAX) {
+            return { error: "CELL COUNT must be between 1 and 10." };
+        }
+        params.cell_count = String(cellCountValue);
+        return null;
+    }
 
-        /* GNODEB ID only for 5G2600 */
+    function validateAllCellCount(params, hasCellParameters) {
+        if (!hasCellParameters) return null;
+        if (!params.cell_count) return { error: "CELL COUNT is required." };
+        const cellCountValue = Number.parseInt(params.cell_count, 10);
+        if (!Number.isFinite(cellCountValue)) return { error: "CELL COUNT must be a number." };
+        if (cellCountValue < CELL_COUNT_MIN || cellCountValue > CELL_COUNT_MAX) {
+            return { error: "CELL COUNT must be between 1 and 10." };
+        }
+        params.cell_count = String(cellCountValue);
+        return null;
+    }
 
-        if (
-            key === "gnodeb_id" &&
-            !is5G2600
-        ) {
-
-            continue;
-
+    function prepareContext(input) {
+        const params = {};
+        for (const key of [
+            "system", "site_code", "nodeb_name", "type", "tower_type",
+            "cell_id", "nodeb_id", "gnodeb_id", "local_cellid", "rnc",
+            "bw", "cell_count"
+        ]) {
+            params[key] = String(input?.[key] ?? "").trim();
         }
 
+        const system = params.system;
+        const normalizedSystem = system.trim().toUpperCase();
+        const is3G2100 = normalizedSystem === "3G2100";
+        const is4G = normalizedSystem.startsWith("4G");
+        const is5G2600 = normalizedSystem === "5G2600";
+        const hasCellParameters = is3G2100 || is4G || is5G2600;
 
-        /* BW only for 5G2600 */
+        const basicError = validateBasicParameters(params);
+        if (basicError) throw new Error(basicError.error);
 
-        if (
-            key === "bw" &&
-            !is5G2600
-        ) {
+        const rncError = validateRNC(params, is3G2100);
+        if (rncError) throw new Error(rncError.error);
 
-            continue;
-
+        if (is5G2600) {
+            const fiveGError = validate5G2600(params);
+            if (fiveGError) throw new Error(fiveGError.error);
         }
 
+        const countError = validateAllCellCount(params, hasCellParameters);
+        if (countError) throw new Error(countError.error);
 
-        /* CELL COUNT only when supported */
+        const filePath = getDatasetFile(system);
+        const typeCode = getTypeCode(normalizedSystem, params.type);
+        const safeCC = safeCellCount(params.cell_count);
 
-        if (
-            key === "cell_count" &&
-            !hasCellParameters
-        ) {
+        return {
+            ...params,
+            normalized_system: normalizedSystem,
+            is_3g2100: is3G2100,
+            is_4g: is4G,
+            is_5g2600: is5G2600,
+            is_4g2600: normalizedSystem === "4G2600",
+            has_cell_parameters: hasCellParameters,
+            file_path: filePath,
+            type_code: typeCode,
+            safe_cc: safeCC
+        };
+    }
 
-            continue;
-
+    function buildTemplateRow(excelHeaders, baseRow, computedValues) {
+        const normalized = {};
+        for (const [key, value] of Object.entries(computedValues)) {
+            normalized[normalizeColumnName(key)] = value;
         }
 
+        return excelHeaders.map((header, index) => {
+            const key = normalizeColumnName(header);
+            if (Object.prototype.hasOwnProperty.call(normalized, key)) {
+                return String(normalized[key] ?? "");
+            }
+            return index < baseRow.length ? String(baseRow[index] ?? "") : "";
+        });
+    }
 
-        const index =
-            findHeader(
-                headers,
-                aliases
+    function computeGeneratedValues(
+        normalizedSystem, position, total, siteCode, typeCode,
+        towerType, cellId, bw, localCellid = ""
+    ) {
+        const towerCode = getTowerCode(towerType, position);
+        const values = {};
+
+        if (Object.prototype.hasOwnProperty.call(CELL_NAME_MIDDLE, normalizedSystem)) {
+            values.CELL_NAME =
+                `${siteCode}${typeCode}${CELL_NAME_MIDDLE[normalizedSystem]}${towerCode}`;
+        }
+
+        values.SYSTEM = normalizedSystem;
+        values.SITE_CODE = siteCode;
+        values.TYPE = "";
+        values.TOWER_TYPE = towerType;
+        values.REF_CODE_PHASE = siteCode;
+
+        if (normalizedSystem === "3G2100") {
+            Object.assign(values, FIX_3G2100);
+            values.CELL_ID = sequenceNumericValue(cellId, position, 5);
+            values.LOCAL_CELLID = sequenceNumericValue(localCellid, position, 2);
+            values.SAC = values.CELL_ID;
+            values.TIME_OFFSET = TIME_OFFSET_BY_CELL_COUNT[String(position)] || "";
+            values.RRU_MODEL_1 = rruModelForPosition(position, total);
+        } else if (normalizedSystem === "4G1800") {
+            Object.assign(values, FIX_4G1800);
+            values.CELL_ID = sequenceNumericValue(cellId, position, 3);
+            values.LOCAL_CELLID = values.CELL_ID;
+            values.RRU_MODEL_1 = rruModelForPosition(position, total);
+        } else if (normalizedSystem === "4G2100") {
+            Object.assign(values, FIX_4G2100);
+            values.CELL_ID = sequenceNumericValue(cellId, position, 3);
+            values.LOCAL_CELLID = values.CELL_ID;
+            values.RRU_MODEL_1 = rruModelForPosition(position, total);
+        } else if (normalizedSystem === "5G2600") {
+            Object.assign(values, FIX_5G2600_COMMON);
+            Object.assign(values, BW_5G2600_MAP[String(bw)] || {});
+            values.CELL_ID = sequenceNumericValue(cellId, position, 5);
+            values.LOCAL_CELLID = values.CELL_ID;
+        }
+
+        return { values, towerCode };
+    }
+
+    function computePairValues(siteCode, typeCode, towerType, position, cellId) {
+        const towerCode = getTowerCode(towerType, position);
+        let base264 = Number.parseInt(String(cellId ?? "").trim(), 10);
+        if (!Number.isFinite(base264)) base264 = 0;
+
+        const cell264Id = sequenceNumericValue(String(base264), position, 3);
+        const cell265Id = sequenceNumericValue(String(base264 + 10), position, 3);
+
+        const cell264Values = {
+            ...FIX_4G2600_COMMON,
+            ...CELL_264_FIX,
+            CELL_NAME: `${siteCode}${typeCode}264${towerCode}`,
+            CELL_ID: cell264Id,
+            LOCAL_CELLID: cell264Id,
+            REF_CODE_PHASE: siteCode
+        };
+
+        const cell265Values = {
+            ...FIX_4G2600_COMMON,
+            ...CELL_265_FIX,
+            CELL_NAME: `${siteCode}${typeCode}265${towerCode}`,
+            CELL_ID: cell265Id,
+            LOCAL_CELLID: cell265Id,
+            REF_CODE_PHASE: siteCode
+        };
+
+        return { cell264Values, cell265Values };
+    }
+
+    function buildPreviewResponse(ctx, dataset) {
+        const { headers, row: safeRow } = dataset;
+        const total = Number.parseInt(ctx.safe_cc, 10);
+        const rows = [];
+        const pairs = [];
+
+        if (ctx.normalized_system === "4G2600") {
+            for (let position = 1; position <= total; position++) {
+                const { cell264Values, cell265Values } =
+                    computePairValues(
+                        ctx.site_code, ctx.type_code, ctx.tower_type,
+                        position, ctx.cell_id
+                    );
+
+                for (const values of [cell264Values, cell265Values]) {
+                    values.SYSTEM = ctx.normalized_system;
+                    values.SITE_CODE = ctx.site_code;
+                    values.ENODEB_NAME = ctx.nodeb_name;
+                    values.TYPE = ctx.type;
+                    values.TOWER_TYPE = ctx.tower_type;
+                    values.ENODEB_ID = ctx.nodeb_id;
+                    values.CELL_COUNT = String(total);
+                }
+
+                const row264 = buildTemplateRow(headers, safeRow, cell264Values);
+                const row265 = buildTemplateRow(headers, safeRow, cell265Values);
+                rows.push(row264, row265);
+
+                pairs.push({
+                    pairIndex: position,
+                    cell264: { headers, row: row264 },
+                    cell265: { headers, row: row265 }
+                });
+            }
+        } else {
+            for (let position = 1; position <= total; position++) {
+                const { values } = computeGeneratedValues(
+                    ctx.normalized_system, position, total,
+                    ctx.site_code, ctx.type_code, ctx.tower_type,
+                    ctx.cell_id, ctx.bw, ctx.local_cellid
+                );
+
+                values.TYPE = ctx.type;
+                values.TOWER_TYPE = ctx.tower_type;
+                values.CELL_COUNT = String(total);
+
+                if (ctx.normalized_system === "3G2100") {
+                    values.NODEB_NAME = ctx.nodeb_name;
+                    values.NODEB_ID = ctx.nodeb_id;
+                    values.RNC = ctx.rnc;
+                } else if (
+                    ctx.normalized_system === "4G1800" ||
+                    ctx.normalized_system === "4G2100"
+                ) {
+                    values.ENODEB_NAME = ctx.nodeb_name;
+                    values.ENODEB_ID = ctx.nodeb_id;
+                } else if (ctx.normalized_system === "5G2600") {
+                    values.GNODEB_NAME = ctx.nodeb_name;
+                    values.GNODEB_ID = ctx.gnodeb_id;
+                    values.BW = ctx.bw;
+                }
+
+                rows.push(buildTemplateRow(headers, safeRow, values));
+            }
+        }
+
+        return {
+            success: true,
+            system: ctx.system,
+            siteCode: ctx.site_code,
+            nodebName: ctx.nodeb_name,
+            type: ctx.type,
+            towerType: ctx.tower_type,
+            cellId: ctx.cell_id,
+            nodebId: ctx.nodeb_id,
+            gnodebId: ctx.gnodeb_id,
+            localCellid: ctx.local_cellid,
+            rnc: ctx.rnc,
+            rncOptions: RNC_3G2100_OPTIONS,
+            bw: ctx.bw,
+            bwOptions: BW_5G2600_OPTIONS,
+            cellCount: total,
+            filePath: ctx.file_path.split("/").pop(),
+            sheetName: dataset.sheetName,
+            headers,
+            row: rows.length ? rows[0] : [],
+            rows,
+            isPaired: ctx.normalized_system === "4G2600",
+            pairCount: ctx.normalized_system === "4G2600" ? total : null,
+            pairs: ctx.normalized_system === "4G2600" ? pairs : null,
+            fileName: getExportFilename(ctx.system, ctx.site_code)
+        };
+    }
+
+    async function generate(params) {
+        const ctx = prepareContext(params);
+        const dataset = await readDataset(ctx.file_path);
+        return buildPreviewResponse(ctx, dataset);
+    }
+
+    function setWorksheetRowFromValues(worksheet, rowNumber, headers, sourceRow, templateHeaders) {
+        const sourceValues = {};
+        for (let i = 0; i < headers.length; i++) {
+            const key = normalizeColumnName(headers[i]);
+            if (key) sourceValues[key] = i < sourceRow.length ? String(sourceRow[i] ?? "") : "";
+        }
+
+        for (let column = 1; column <= templateHeaders.length; column++) {
+            const templateKey = normalizeColumnName(templateHeaders[column - 1]);
+            const cell = worksheet.getCell(rowNumber, column);
+            cell.value =
+                templateKey && Object.prototype.hasOwnProperty.call(sourceValues, templateKey)
+                    ? sourceValues[templateKey]
+                    : "";
+        }
+    }
+
+    async function createWorkbookForOrder(order) {
+        const ctx = prepareContext(order);
+        const dataset = await readDataset(ctx.file_path);
+        const response = buildPreviewResponse(ctx, dataset);
+
+        const workbook = dataset.workbook;
+        const worksheet = dataset.worksheet;
+
+        const templateHeaders = [];
+        for (let column = 1; column <= worksheet.columnCount; column++) {
+            templateHeaders.push(cellValueToString(worksheet.getCell(1, column).value));
+        }
+
+        if (worksheet.rowCount > 1) {
+            worksheet.spliceRows(2, worksheet.rowCount - 1);
+        }
+
+        response.rows.forEach((sourceRow, index) => {
+            setWorksheetRowFromValues(
+                worksheet,
+                index + 2,
+                response.headers,
+                sourceRow,
+                templateHeaders
             );
+        });
 
+        const buffer = await workbook.xlsx.writeBuffer();
+        return { buffer, filename: getExportFilename(ctx.system, ctx.site_code), family: ctx.normalized_system.slice(0, 2) };
+    }
 
-        if (
-            index === -1
-        ) {
+    async function exportSingle(params) {
+        const result = await createWorkbookForOrder(params);
+        return {
+            blob: new Blob([result.buffer], {
+                type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            }),
+            filename: result.filename
+        };
+    }
 
-            continue;
-
+    async function exportBatch(orders) {
+        if (!Array.isArray(orders) || !orders.length) {
+            throw new Error("No orders to export.");
         }
 
+        const families = new Map();
+        const errors = [];
 
-        if (
-            key === "cell_count"
-        ) {
+        for (const order of orders) {
+            if (!order || typeof order !== "object" || Array.isArray(order)) continue;
 
-            if (
-                params.cell_count
-            ) {
+            try {
+                const ctx = prepareContext(order);
+                const dataset = await readDataset(ctx.file_path);
+                const response = buildPreviewResponse(ctx, dataset);
+                const family = ctx.normalized_system.slice(0, 2);
 
-                row[index] =
-                    params.cell_count;
+                if (!families.has(family)) {
+                    families.set(family, {
+                        templatePath: ctx.file_path,
+                        sheetName: dataset.sheetName,
+                        orders: [],
+                        filename: `${family}_Orders.xlsx`
+                    });
+                }
 
+                families.get(family).orders.push({
+                    ctx,
+                    dataset,
+                    response
+                });
+            } catch (error) {
+                errors.push({
+                    system: String(order.system || ""),
+                    error: error && error.message
+                        ? error.message
+                        : "Invalid order."
+                });
+            }
+        }
+
+        if (!families.size) {
+            throw new Error("No valid orders to export.");
+        }
+
+        const zip = new window.JSZip();
+
+        for (const [family, familyData] of families.entries()) {
+            // Data.py uses the first order in a family to select that family's
+            // template, then appends all generated rows from the family.
+            const firstDataset = await readDataset(familyData.templatePath);
+            const workbook = firstDataset.workbook;
+            const worksheet = firstDataset.worksheet;
+
+            const templateHeaders = [];
+            for (let column = 1; column <= worksheet.columnCount; column++) {
+                templateHeaders.push(
+                    cellValueToString(worksheet.getCell(1, column).value)
+                );
             }
 
-            continue;
-
-        }
-
-
-        row[index] =
-            params[key];
-
-    }
-
-}
-
-
-/* =========================================================
-   5G2600 - GNODEB ID
-========================================================= */
-
-function write5GGNodeBId(
-    params,
-    headers,
-    row
-) {
-
-    const index =
-        findHeader(
-
-            headers,
-
-            "GNODEB_ID **",
-            "GNODEB_ID *",
-            "GNODEB_ID",
-
-            "GNODEB ID **",
-            "GNODEB ID *",
-            "GNODEB ID"
-
-        );
-
-
-    if (index !== -1) {
-
-        row[index] =
-            params.gnodeb_id;
-
-    }
-
-}
-
-
-/* =========================================================
-   5G2600 - CELL ID
-========================================================= */
-
-function write5GCellId(
-    params,
-    headers,
-    row
-) {
-
-    const index =
-        findHeader(
-
-            headers,
-
-            "CELL ID **",
-            "CELL ID *",
-            "CELL ID",
-
-            "CELL_ID **",
-            "CELL_ID *",
-            "CELL_ID"
-
-        );
-
-
-    if (index !== -1) {
-
-        row[index] =
-            params.cell_id;
-
-    }
-
-}
-
-
-/* =========================================================
-   5G2600 - LOCAL CELLID
-========================================================= */
-
-function write5GLocalCellId(
-    params,
-    headers,
-    row
-) {
-
-    const index =
-        findHeader(
-
-            headers,
-
-            "LOCAL_CELLID **",
-            "LOCAL_CELLID *",
-            "LOCAL_CELLID",
-
-            "LOCAL CELLID **",
-            "LOCAL CELLID *",
-            "LOCAL CELLID"
-
-        );
-
-
-    if (index !== -1) {
-
-        row[index] =
-            params.local_cellid;
-
-    }
-
-}
-
-
-/* =========================================================
-   5G2600 - BW
-========================================================= */
-
-function write5GBW(
-    params,
-    headers,
-    row
-) {
-
-    const index =
-        findHeader(
-
-            headers,
-
-            "BW **",
-            "BW *",
-            "BW",
-
-            "BANDWIDTH **",
-            "BANDWIDTH *",
-            "BANDWIDTH"
-
-        );
-
-
-    if (index !== -1) {
-
-        row[index] =
-            params.bw;
-
-    }
-
-}
-
-
-/* =========================================================
-   5G2600 - CELL COUNT
-========================================================= */
-
-function write5GCellCount(
-    params,
-    headers,
-    row
-) {
-
-    const index =
-        findHeader(
-
-            headers,
-
-            "CELL COUNT **",
-            "CELL COUNT *",
-            "CELL COUNT",
-
-            "CELL_COUNT **",
-            "CELL_COUNT *",
-            "CELL_COUNT"
-
-        );
-
-
-    if (index !== -1) {
-
-        row[index] =
-            params.cell_count;
-
-    }
-
-}
-
-
-/* =========================================================
-   RNC - 3G2100 ONLY
-========================================================= */
-
-function writeRNC(
-    params,
-    headers,
-    row,
-    is3G2100
-) {
-
-    if (!is3G2100) {
-
-        return;
-
-    }
-
-
-    const index =
-        findHeader(
-
-            headers,
-
-            "RNC *",
-            "RNC",
-
-            "RNC_NAME *",
-            "RNC_NAME",
-
-            "RNC NAME *",
-            "RNC NAME"
-
-        );
-
-
-    if (index !== -1) {
-
-        row[index] =
-            params.rnc;
-
-    }
-
-}
-
-
-/* =========================================================
-   SAFE ROW
-========================================================= */
-
-function convertRowToSafeValues(
-    row
-) {
-
-    return row.map(
-        (value) => {
-
-            if (
-                value === null ||
-                value === undefined
-            ) {
-
-                return "";
-
+            if (worksheet.rowCount > 1) {
+                worksheet.spliceRows(2, worksheet.rowCount - 1);
             }
 
+            let rowNumber = 2;
 
-            if (
-                typeof value === "number" &&
-                Number.isNaN(value)
-            ) {
-
-                return "";
-
+            for (const item of familyData.orders) {
+                for (const sourceRow of item.response.rows) {
+                    setWorksheetRowFromValues(
+                        worksheet,
+                        rowNumber++,
+                        item.response.headers,
+                        sourceRow,
+                        templateHeaders
+                    );
+                }
             }
 
-
-            return String(value);
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   AUTO GENERATE
-========================================================= */
-
-async function autoGenerate(
-    inputParams
-) {
-
-    const params =
-        normalizeDeployParams(
-            inputParams
-        );
-
-
-    /* =====================================================
-       SYSTEM
-    ===================================================== */
-
-    const normalizedSystem =
-        params.system
-            .trim()
-            .toUpperCase();
-
-
-    const is3G2100 =
-        normalizedSystem ===
-        "3G2100";
-
-
-    const is4G =
-        normalizedSystem.startsWith(
-            "4G"
-        );
-
-
-    const is5G2600 =
-        normalizedSystem ===
-        "5G2600";
-
-
-    const hasCellParameters =
-        is3G2100 ||
-        is4G ||
-        is5G2600;
-
-
-    const systemInfo = {
-
-        normalizedSystem,
-        is3G2100,
-        is4G,
-        is5G2600,
-        hasCellParameters
-
-    };
-
-
-    /* =====================================================
-       BASIC VALIDATION
-    ===================================================== */
-
-    const basicError =
-        validateBasicParameters(
-            params
-        );
-
-
-    if (basicError) {
-
-        return basicError;
-
-    }
-
-
-    /* =====================================================
-       RNC
-    ===================================================== */
-
-    const rncError =
-        validateRNC(
-            params,
-            is3G2100
-        );
-
-
-    if (rncError) {
-
-        return rncError;
-
-    }
-
-
-    /* =====================================================
-       5G2600
-    ===================================================== */
-
-    if (is5G2600) {
-
-        const error =
-            validate5G2600(
-                params
-            );
-
-
-        if (error) {
-
-            return error;
-
+            const buffer = await workbook.xlsx.writeBuffer();
+            zip.file(familyData.filename, buffer);
         }
 
-    }
-
-
-    /* =====================================================
-       DATASET
-    ===================================================== */
-
-    let filePath;
-
-
-    try {
-
-        filePath =
-            getDatasetFile(
-                params.system
-            );
-
-    } catch (error) {
-
         return {
-
-            error:
-                error.message
-
+            blob: await zip.generateAsync({
+                type: "blob",
+                compression: "DEFLATE"
+            }),
+            filename: "Orders.zip",
+            errors
         };
-
     }
 
-
-    /* =====================================================
-       READ EXCEL
-    ===================================================== */
-
-    let dataset;
-
-
-    try {
-
-        dataset =
-            await readDataset(
-                filePath
-            );
-
-    } catch (error) {
-
-        return {
-
-            error:
-                `Failed to read dataset: ${error.message}`
-
-        };
-
+    function downloadBlob(blob, filename) {
+        const blobUrl = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
     }
 
-
-    const headers =
-        dataset.headers;
-
-
-    const row =
-        dataset.row;
-
-
-    /* =====================================================
-       WRITE STANDARD PARAMETERS
-    ===================================================== */
-
-    writeStandardParameters(
-
-        params,
-
-        headers,
-
-        row,
-
-        systemInfo
-
-    );
-
-
-    /* =====================================================
-       5G2600
-    ===================================================== */
-
-    if (is5G2600) {
-
-        write5GGNodeBId(
-            params,
-            headers,
-            row
-        );
-
-
-        write5GCellId(
-            params,
-            headers,
-            row
-        );
-
-
-        write5GLocalCellId(
-            params,
-            headers,
-            row
-        );
-
-
-        write5GBW(
-            params,
-            headers,
-            row
-        );
-
-
-        write5GCellCount(
-            params,
-            headers,
-            row
-        );
-
-    }
-
-
-    /* =====================================================
-       RNC
-    ===================================================== */
-
-    if (is3G2100) {
-
-        writeRNC(
-            params,
-            headers,
-            row,
-            is3G2100
-        );
-
-    }
-
-
-    /* =====================================================
-       SAFE ROW
-    ===================================================== */
-
-    const safeRow =
-        convertRowToSafeValues(
-            row
-        );
-
-
-    /* =====================================================
-       FILE NAME
-    ===================================================== */
-
-    const cleanSiteCode =
-        params.site_code
-            .trim()
-            .toUpperCase();
-
-
-    const fileName =
-        cleanSiteCode
-
-            ? `${normalizedSystem}_${cleanSiteCode}.xlsx`
-
-            : `${normalizedSystem}.xlsx`;
-
-
-    /* =====================================================
-       RETURN RESULT
-    ===================================================== */
-
-    return {
-
-        success:
-            true,
-
-        system:
-            params.system,
-
-        siteCode:
-            params.site_code,
-
-        nodebName:
-            params.nodeb_name,
-
-        type:
-            params.type,
-
-        towerType:
-            params.tower_type,
-
-        cellId:
-            params.cell_id,
-
-        nodebId:
-            params.nodeb_id,
-
-        gnodebId:
-            params.gnodeb_id,
-
-        localCellid:
-            params.local_cellid,
-
-        rnc:
-            params.rnc,
-
-        rncOptions:
-            RNC_3G2100_OPTIONS,
-
-        bw:
-            params.bw,
-
-        bwOptions:
-            BW_5G2600_OPTIONS,
-
-        cellCount:
-            params.cell_count,
-
-        filePath:
-            filePath
-                .split("/")
-                .pop(),
-
-        fileName:
-            fileName,
-
-        sheetName:
-            dataset.sheetName,
-
-        headers:
-            headers,
-
-        row:
-            safeRow
-
-    };
-
-}
-
-
-/* =========================================================
-   GLOBAL API
-========================================================= */
-
-window.AutoGenDeploy = {
-
-    generate:
-        autoGenerate,
-
-    getDatasetFile:
+    window.AutoGenDeploy = Object.freeze({
+        generate,
+        exportSingle,
+        exportBatch,
         getDatasetFile,
-
-    readDataset:
-        readDataset,
-
-    RNC_OPTIONS:
-        RNC_3G2100_OPTIONS,
-
-    BW_OPTIONS:
-        BW_5G2600_OPTIONS,
-
-    CELL_COUNT_MIN:
-        DEPLOY_CELL_COUNT_MIN,
-
-    CELL_COUNT_MAX:
-        DEPLOY_CELL_COUNT_MAX
-
-};
-
-
-/* =========================================================
-   BACKWARD COMPATIBILITY
-========================================================= */
-
-window.autogen =
-    autoGenerate;
-
+        getExportFilename,
+        RNC_3G2100_OPTIONS: [...RNC_3G2100_OPTIONS],
+        BW_5G2600_OPTIONS: [...BW_5G2600_OPTIONS],
+        downloadBlob
+    });
+})();
