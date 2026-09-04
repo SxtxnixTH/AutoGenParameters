@@ -280,6 +280,12 @@
         return stripped === "" ? "0" : stripped;
     }
 
+    function normalizeSummaryNodeId(value, system) {
+        // Summary IDs always remove leading zeros.
+        // No system-specific exceptions.
+        return normalizeDisplayId(value);
+    }
+
     function normalize5G2600CellId(value) {
         const text = String(value ?? "").trim();
 
@@ -513,6 +519,7 @@
         const system = String(params.system || "").trim().toUpperCase();
         const cellId = String(params.cell_id || "").trim();
         const localCellId = String(params.local_cellid || "").trim();
+        if (!cellId) return { error: "Please enter a valid CELL ID." };
         if (!/^\d+$/.test(cellId)) return { error: "CELL ID must contain digits only." };
 
         const numericCellId = Number(cellId);
@@ -544,7 +551,7 @@
         if (!params.gnodeb_id) return { error: "GNODEB ID is required for 5G2600." };
         if (!/^\d{6}$/.test(params.gnodeb_id)) return { error: "GNODEB ID must be 6 digits." };
 
-        if (!params.cell_id) return { error: "CELL ID is required for 5G2600." };
+        if (!params.cell_id) return { error: "Please enter a valid CELL ID." };
         const cellId5G = String(params.cell_id).trim();
         if (!/^\d{1,5}$/.test(cellId5G)) {
             return { error: "CELL ID must be 1-5 digits for 5G2600." };
@@ -810,8 +817,14 @@
             cellId: ctx.normalized_system === "5G2600"
                 ? normalize5G2600CellId(ctx.cell_id)
                 : normalizeDisplayId(ctx.cell_id),
-            nodebId: normalizeDisplayId(ctx.nodeb_id),
-            gnodebId: normalizeDisplayId(ctx.gnodeb_id),
+            nodebId: normalizeSummaryNodeId(
+                ctx.nodeb_id,
+                ctx.normalized_system
+            ),
+            gnodebId: normalizeSummaryNodeId(
+                ctx.gnodeb_id,
+                ctx.normalized_system
+            ),
             localCellid: ctx.normalized_system === "5G2600"
                 ? normalize5G2600CellId(ctx.local_cellid)
                 : normalizeDisplayId(ctx.local_cellid),
