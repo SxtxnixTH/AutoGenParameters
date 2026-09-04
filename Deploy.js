@@ -322,7 +322,24 @@
        reused for the ZIP entries and their filenames.
     ========================================================= */
 
-    function createDownloadTimestamp(date = new Date()) {
+    function getMachineLocalDate() {
+        const now = new Date();
+
+        // Rebuild the Date from the browser/machine local components.
+        // This prevents the ZIP timestamp from being reconstructed from
+        // an ISO/UTC string and shifted by the local timezone.
+        return new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate(),
+            now.getHours(),
+            now.getMinutes(),
+            now.getSeconds(),
+            0
+        );
+    }
+
+    function createDownloadTimestamp(date = getMachineLocalDate()) {
         const pad2 = (value) => String(value).padStart(2, "0");
         const dd = pad2(date.getDate());
         const mm = pad2(date.getMonth() + 1);
