@@ -1221,10 +1221,7 @@ function sync4GLocalCellId() {
 
 function normalize5GCellIdInput() {
     if (!is5G2600System(selectedSystem) || !cellId5GInput) return;
-    const value = String(cellId5GInput.value || "").trim();
-    if (/^\d{4}$/.test(value)) {
-        cellId5GInput.value = value.padStart(5, "0");
-    }
+    cellId5GInput.value = String(cellId5GInput.value || "").trim().slice(0, 5);
 }
 
 function sync5GLocalCellId() {
@@ -1277,19 +1274,20 @@ function updateSystemSpecificValidation() {
 
     /* CELL ID */
 
-    const cellValid =
-        !hasCellParameters(
-            selectedSystem
-        ) ||
-        (
-            cellInput &&
-            isValidFixedNumber(
-                cellInput.value,
-                getCellIdLength(
-                    selectedSystem
-                )
-            )
-        );
+    const cellValue = cellInput ? String(cellInput.value || "").trim() : "";
+    const cellNumber = /^\d+$/.test(cellValue) ? Number(cellValue) : NaN;
+    let cellValid = !hasCellParameters(selectedSystem);
+
+    if (hasCellParameters(selectedSystem)) {
+        if (is3G) {
+            cellValid = /^\d{5}$/.test(cellValue) && Number.isFinite(cellNumber) && cellNumber > 0;
+        } else if (is4G) {
+            cellValid = /^\d{3}$/.test(cellValue) && Number.isFinite(cellNumber) &&
+                (selectedSystem === "4G2600" ? cellNumber >= 10 : cellNumber > 0);
+        } else if (is5G) {
+            cellValid = /^\d{1,5}$/.test(cellValue) && Number.isFinite(cellNumber) && cellNumber > 0;
+        }
+    }
 
 
     /* NODE ID */
@@ -1315,15 +1313,13 @@ function updateSystemSpecificValidation() {
 
     if (is3G) {
 
+        const localValue = localCellIdInput ? String(localCellIdInput.value || "").trim() : "";
+        const localLength = getLocalCellIdLength(selectedSystem, selectedType);
+        const localNumber = /^\d+$/.test(localValue) ? Number(localValue) : NaN;
         localCellIdValid =
             localCellIdInput &&
-            isValidFixedNumber(
-                localCellIdInput.value,
-                getLocalCellIdLength(
-                            selectedSystem,
-                            selectedType
-                        )
-            );
+            new RegExp(`^\\d{${localLength}}$`).test(localValue) &&
+            Number.isFinite(localNumber) && localNumber > 0;
     }
 
 
@@ -3123,6 +3119,9 @@ function getResultRows(data) {
 function normalizeDisplayId(value) {
     const text = String(value ?? "").trim();
     if (!/^\d+$/.test(text)) return text;
+    if (text.length >= 2 && text[0] === "0" && text[1] !== "0") {
+        return text;
+    }
     const stripped = text.replace(/^0+/, "");
     return stripped === "" ? "0" : stripped;
 }
@@ -3136,9 +3135,6 @@ function displayInputId(value, system = selectedSystem, preserve5GCellId = false
 
 function normalizeResultIdParameter(header, value, system = selectedSystem) {
     const key = String(header ?? "").trim().toUpperCase().replace(/\s+/g, "_");
-    if (is5G2600System(system) && (key === "CELL_ID" || key === "LOCAL_CELLID")) {
-        return String(value ?? "").trim();
-    }
     const idKeys = new Set([
         "CELL_ID", "NODEB_ID", "ENODEB_ID", "GNODEB_ID", "LOCAL_CELLID"
     ]);
@@ -4335,7 +4331,9 @@ if (autoBtn) {
                     ) {
 
                         message =
-                            "Please enter a valid CELL ID.";
+                            selectedSystem === "4G2600"
+                                ? "CELL ID must be greater than or equal to 10."
+                                : "CELL ID must be greater than 0.";
 
                     } else if (
                         is4G &&
@@ -4343,7 +4341,9 @@ if (autoBtn) {
                     ) {
 
                         message =
-                            "Please enter a valid CELL ID / LOCAL CELLID.";
+                            selectedSystem === "4G2600"
+                                ? "CELL ID must be greater than or equal to 10."
+                                : "CELL ID must be greater than 0.";
 
                     } else if (
                         is5G &&
@@ -4351,7 +4351,7 @@ if (autoBtn) {
                     ) {
 
                         message =
-                            "Please enter a valid CELL ID / LOCAL CELLID.";
+                            "CELL ID must be greater than 0 and contain 1-5 digits.";
 
                     /* =================================================
                     NODE ID

@@ -269,6 +269,9 @@
     function normalizeDisplayId(value) {
         const text = String(value ?? "").trim();
         if (!/^\d+$/.test(text)) return text;
+        if (text.length >= 2 && text[0] === "0" && text[1] !== "0") {
+            return text;
+        }
         const stripped = text.replace(/^0+/, "");
         return stripped === "" ? "0" : stripped;
     }
@@ -279,16 +282,6 @@
 
     function normalizeGeneratedIdValue(key, value, system = "") {
         const normalizedKey = normalizeColumnName(key);
-        const normalizedSystem = String(system || "").trim().toUpperCase();
-
-        // 5G2600 CELL_ID / LOCAL_CELLID must preserve leading zeroes.
-        if (normalizedSystem === "5G2600" &&
-            (normalizedKey === "CELL_ID" || normalizedKey === "LOCAL_CELLID")) {
-            return value;
-        }
-
-        // All other ID fields use the display rule: remove leading zeroes,
-        // while an all-zero value remains exactly one zero.
         return ID_COLUMNS.has(normalizedKey) ? normalizeDisplayId(value) : value;
     }
 
@@ -299,7 +292,8 @@
         const base = Number(baseText);
         const pos = Number(posText);
         if (!Number.isFinite(base) || !Number.isFinite(pos)) return "";
-        const value = pos === CELL_COUNT_MAX ? base - 1 : base + (pos - 1);
+        const rawValue = pos === CELL_COUNT_MAX ? base - 1 : base + (pos - 1);
+        const value = Math.max(0, rawValue);
         return String(value).padStart(length, "0");
     }
 
@@ -458,24 +452,51 @@
         return null;
     }
 
+    function validateCellParameters(params) {
+        const system = String(params.system || "").trim().toUpperCase();
+        const cellId = String(params.cell_id || "").trim();
+        const localCellId = String(params.local_cellid || "").trim();
+        if (!/^\d+$/.test(cellId)) return { error: "CELL ID must contain digits only." };
+
+        const numericCellId = Number(cellId);
+        if (!Number.isFinite(numericCellId)) return { error: "CELL ID must be a valid number." };
+
+        if (system === "3G2100") {
+            if (cellId.length !== 5) return { error: "CELL ID must be 5 digits for 3G2100." };
+            if (numericCellId <= 0) return { error: "CELL ID must be greater than 0 for 3G2100." };
+            if (!/^\d+$/.test(localCellId)) return { error: "LOCAL CELLID must contain digits only." };
+            const maxLocal = String(params.type || "").trim().toUpperCase().startsWith("DIST") ? 999 : 99;
+            const localNumber = Number(localCellId);
+            if (!Number.isFinite(localNumber) || localNumber <= 0 || localNumber > maxLocal) {
+                return { error: `LOCAL CELLID must be between 1 and ${maxLocal} for 3G2100.` };
+            }
+        } else if (system === "4G1800" || system === "4G2100") {
+            if (cellId.length !== 3) return { error: `CELL ID must be 3 digits for ${system}.` };
+            if (numericCellId <= 0) return { error: `CELL ID must be greater than 0 for ${system}.` };
+        } else if (system === "4G2600") {
+            if (cellId.length !== 3) return { error: "CELL ID must be 3 digits for 4G2600." };
+            if (numericCellId < 10) return { error: "CELL ID must be greater than or equal to 10 for 4G2600." };
+        } else if (system === "5G2600") {
+            if (cellId.length < 1 || cellId.length > 5) return { error: "CELL ID must be 1-5 digits for 5G2600." };
+            if (numericCellId <= 0) return { error: "CELL ID must be greater than 0 for 5G2600." };
+        }
+        return null;
+    }
+
     function validate5G2600(params) {
         if (!params.gnodeb_id) return { error: "GNODEB ID is required for 5G2600." };
         if (!/^\d{6}$/.test(params.gnodeb_id)) return { error: "GNODEB ID must be 6 digits." };
 
         if (!params.cell_id) return { error: "CELL ID is required for 5G2600." };
         const cellId5G = String(params.cell_id).trim();
-        if (!/^\d{4,5}$/.test(cellId5G)) {
-            return { error: "CELL ID must be 4-5 digits for 5G2600." };
+        if (!/^\d{1,5}$/.test(cellId5G)) {
+            return { error: "CELL ID must be 1-5 digits for 5G2600." };
         }
-
-        // 5G2600 uses a 5-digit internal format with the first two digits = 05.
-        // A user-entered 5101 therefore becomes 05101 for validation/generation.
-        params.cell_id = cellId5G.padStart(5, "0");
-        if (!params.cell_id.startsWith("05")) {
-            return { error: "CELL ID digit 1-2 must be 05." };
+        if (Number(cellId5G) <= 0) {
+            return { error: "CELL ID must be greater than 0 for 5G2600." };
         }
-
-        params.local_cellid = params.cell_id;
+        params.cell_id = cellId5G;
+        params.local_cellid = cellId5G;
 
         if (!params.bw) return { error: "BW is required for 5G2600." };
         if (!BW_5G2600_OPTIONS.includes(params.bw)) {
@@ -529,6 +550,9 @@
 
         const rncError = validateRNC(params, is3G2100);
         if (rncError) throw new Error(rncError.error);
+
+        const cellError = validateCellParameters(params);
+        if (cellError) throw new Error(cellError.error);
 
         if (is5G2600) {
             const fiveGError = validate5G2600(params);
@@ -799,11 +823,18 @@
     function excelExportValue(normalizedKey, value, is3G2100 = false, is5G2600 = false, is4G = false) {
         if (value === null || value === undefined || value === "") return null;
 
-        const preserve5GId = is5G2600 &&
-            (normalizedKey === "CELL_ID" || normalizedKey === "LOCAL_CELLID");
-        if (!preserve5GId && (INTEGER_ID_COLUMNS.has(normalizedKey) ||
-            (is3G2100 && INTEGER_COLUMNS_3G2100.has(normalizedKey)) ||
-            (is4G && INTEGER_COLUMNS_4G.has(normalizedKey))) ) {
+        if (INTEGER_ID_COLUMNS.has(normalizedKey)) {
+            const text = String(value).trim();
+            if (text === "") return null;
+            const formatted = normalizeDisplayId(text);
+            // Keep a significant leading zero as text; otherwise export IDs as numbers.
+            if (/^0\d+/.test(formatted)) return formatted;
+            const numeric = Number(formatted);
+            return Number.isFinite(numeric) ? numeric : formatted;
+        }
+
+        if ((is3G2100 && INTEGER_COLUMNS_3G2100.has(normalizedKey)) ||
+            (is4G && INTEGER_COLUMNS_4G.has(normalizedKey))) {
             const text = String(value).trim();
             if (text === "") return null;
             const numeric = Number(text);
@@ -1018,3 +1049,4 @@
         downloadBlob
     });
 })();
+
