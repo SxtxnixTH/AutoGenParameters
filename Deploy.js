@@ -198,7 +198,7 @@
         MCC: "520", MNC: "03", CN_OPERATOR_GROUP_INDEX: "0", LOCAL_AREA_ID: "0",
         BW: "20", FREQ_BAND: "41", DUPLEX: "TDD", RSI: "-1", PCI: "-1",
         RSPWR: "9", CELL_TXRX: "64T64R", COVERAGE_SCENARIO: "NONE",
-        PA: "-3", PB: "1", CELL_RADIUS: "9770", EMTC_FLAG: "FALSE",
+        PA: "-3", PB: "1", CELL_RADIUS: "9000", EMTC_FLAG: "FALSE",
         MULTI_TYPE: "NORMAL", CELL_STATUS: "NO", ONSERVICE: "NO",
         CELL_BARRED: "NO", CELL_RESERVE: "NO", REF_CODE_PHASE: "",
         RRU_MODEL_1: "AAU5639w", RRU_NUM_1: "1"
@@ -264,6 +264,23 @@
         if (key.startsWith("MICRO")) return TOWER_CODE_MICRO[count] || "";
         if (key.startsWith("MACRO")) return TOWER_CODE_MACRO[count] || "";
         return "";
+    }
+
+    function normalizeDisplayId(value) {
+        const text = String(value ?? "").trim();
+        if (!/^\d+$/.test(text)) return text;
+        const stripped = text.replace(/^0+/, "");
+        return stripped === "" ? "0" : stripped;
+    }
+
+    const ID_COLUMNS = new Set([
+        "CELL_ID", "NODEB_ID", "ENODEB_ID", "GNODEB_ID", "LOCAL_CELLID"
+    ]);
+
+    function normalizeGeneratedIdValue(key, value) {
+        return ID_COLUMNS.has(normalizeColumnName(key))
+            ? normalizeDisplayId(value)
+            : value;
     }
 
     function sequenceNumericValue(baseValue, position, length) {
@@ -491,7 +508,8 @@
     function buildTemplateRow(excelHeaders, baseRow, computedValues) {
         const normalized = {};
         for (const [key, value] of Object.entries(computedValues)) {
-            normalized[normalizeColumnName(key)] = value;
+            const normalizedKey = normalizeColumnName(key);
+            normalized[normalizedKey] = normalizeGeneratedIdValue(normalizedKey, value);
         }
 
         return excelHeaders.map((header, index) => {
@@ -550,11 +568,13 @@
 
     function computePairValues(siteCode, typeCode, towerType, position, cellId) {
         const towerCode = getTowerCode(towerType, position);
-        let base264 = Number.parseInt(String(cellId ?? "").trim(), 10);
-        if (!Number.isFinite(base264)) base264 = 0;
+        // 4G2600 input is the 265 reference (e.g. 181).
+        // Generate 265 from the entered value first, then derive 264 by -10.
+        let base265 = Number.parseInt(String(cellId ?? "").trim(), 10);
+        if (!Number.isFinite(base265)) base265 = 0;
 
-        const cell264Id = sequenceNumericValue(String(base264), position, 3);
-        const cell265Id = sequenceNumericValue(String(base264 + 10), position, 3);
+        const cell265Id = sequenceNumericValue(String(base265), position, 3);
+        const cell264Id = sequenceNumericValue(String(base265 - 10), position, 3);
 
         const cell264Values = {
             ...FIX_4G2600_COMMON,
@@ -650,10 +670,10 @@
             nodebName: ctx.nodeb_name,
             type: ctx.type,
             towerType: ctx.tower_type,
-            cellId: ctx.cell_id,
-            nodebId: ctx.nodeb_id,
-            gnodebId: ctx.gnodeb_id,
-            localCellid: ctx.local_cellid,
+            cellId: normalizeDisplayId(ctx.cell_id),
+            nodebId: normalizeDisplayId(ctx.nodeb_id),
+            gnodebId: normalizeDisplayId(ctx.gnodeb_id),
+            localCellid: normalizeDisplayId(ctx.local_cellid),
             rnc: ctx.rnc,
             rncOptions: RNC_3G2100_OPTIONS,
             bw: ctx.bw,

@@ -3107,11 +3107,26 @@ function getResultRows(data) {
     return Array.isArray(data?.row) ? [data.row] : [];
 }
 
+function normalizeDisplayId(value) {
+    const text = String(value ?? "").trim();
+    if (!/^\d+$/.test(text)) return text;
+    const stripped = text.replace(/^0+/, "");
+    return stripped === "" ? "0" : stripped;
+}
+
+function normalizeResultIdParameter(header, value) {
+    const key = String(header ?? "").trim().toUpperCase().replace(/\s+/g, "_");
+    const idKeys = new Set([
+        "CELL_ID", "NODEB_ID", "ENODEB_ID", "GNODEB_ID", "LOCAL_CELLID"
+    ]);
+    return idKeys.has(key) ? normalizeDisplayId(value) : String(value ?? "").trim();
+}
+
 function renderParameterTable(headers, row, title = "") {
     const rows = headers.map((header, index) => `
         <tr class="generated-parameter-row">
             <th>${escapeHtml(header)}</th>
-            <td>${escapeHtml(String(row?.[index] ?? "").trim())}</td>
+            <td>${escapeHtml(normalizeResultIdParameter(header, row?.[index]))}</td>
         </tr>
     `).join("");
     return `
@@ -3158,8 +3173,8 @@ function renderPairedResult(data) {
     const pairs = Array.isArray(data.pairs) ? data.pairs : [];
     const pairBlocks = pairs.map(pair => `
         <div class="pair-block">
-            ${renderParameterTable(pair.cell264.headers, pair.cell264.row, `CELL ${pair.pairIndex} (264)`)}
             ${renderParameterTable(pair.cell265.headers, pair.cell265.row, `CELL ${pair.pairIndex} (265)`)}
+            ${renderParameterTable(pair.cell264.headers, pair.cell264.row, `CELL ${pair.pairIndex} (264)`)}
         </div>
     `).join("");
     return `
@@ -3167,7 +3182,7 @@ function renderPairedResult(data) {
             <p><strong>SYSTEM:</strong> ${escapeHtml(system)}</p>
             <p><strong>SITE CODE:</strong> ${escapeHtml(siteCode)}</p>
             <p><strong>${escapeHtml(getNodeNameLabel(system))}:</strong> ${escapeHtml(nodeName)}</p>
-            <p><strong>ENODEB ID:</strong> ${escapeHtml(enodebIdInput ? enodebIdInput.value : "")}</p>
+            <p><strong>ENODEB ID:</strong> ${escapeHtml(normalizeDisplayId(enodebIdInput ? enodebIdInput.value : ""))}</p>
             <p><strong>TYPE:</strong> ${escapeHtml(displayType)}</p>
             <p><strong>TOWER TYPE:</strong> ${escapeHtml(displayTowerType)}</p>
             <p><strong>CELL COUNT:</strong> ${escapeHtml(String(pairCount))}</p>
@@ -3209,9 +3224,9 @@ function renderGeneratedResult(data) {
             ${is3G ? `<p><strong>RNC:</strong> ${escapeHtml(displayRNC)}</p>` : ""}
             <p><strong>SITE CODE:</strong> ${escapeHtml(siteCode)}</p>
             <p><strong>${escapeHtml(getNodeNameLabel(system))}:</strong> ${escapeHtml(nodeName)}</p>
-            ${is3G ? `<p><strong>NODEB ID:</strong> ${escapeHtml(nodebIdInput ? nodebIdInput.value : "")}</p>` : ""}
-            ${is4G ? `<p><strong>ENODEB ID:</strong> ${escapeHtml(enodebIdInput ? enodebIdInput.value : "")}</p>` : ""}
-            ${is5G ? `<p><strong>GNODEB ID:</strong> ${escapeHtml(gnodebIdInput ? gnodebIdInput.value : "")}</p>` : ""}
+            ${is3G ? `<p><strong>NODEB ID:</strong> ${escapeHtml(normalizeDisplayId(nodebIdInput ? nodebIdInput.value : ""))}</p>` : ""}
+            ${is4G ? `<p><strong>ENODEB ID:</strong> ${escapeHtml(normalizeDisplayId(enodebIdInput ? enodebIdInput.value : ""))}</p>` : ""}
+            ${is5G ? `<p><strong>GNODEB ID:</strong> ${escapeHtml(normalizeDisplayId(gnodebIdInput ? gnodebIdInput.value : ""))}</p>` : ""}
             ${is5G ? `<p><strong>BW:</strong> ${escapeHtml(displayBW)}</p>` : ""}
             <p><strong>TYPE:</strong> ${escapeHtml(displayType)}</p>
             ${(is3G || is4G || is5G) ? `<p><strong>TOWER TYPE:</strong> ${escapeHtml(displayTowerType)}</p>` : ""}
