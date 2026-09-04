@@ -837,16 +837,11 @@ function getCellIdLength(system) {
 }
 
 
-function getLocalCellIdLength(system) {
+function getLocalCellIdLength(system, typeValue = selectedType) {
 
-    if (is5G2600System(system)) {
-        return 5;
-    }
-
-    if (is4GSystem(system)) {
-        return 3;
-    }
-
+    if (is5G2600System(system)) return 5;
+    if (is4GSystem(system)) return 3;
+    if (is3G2100System(system) && String(typeValue || "").trim().toUpperCase() === "DISTRIBUTED") return 3;
     return 2;
 }
 
@@ -907,6 +902,14 @@ function getAutoType(nodebName) {
    TYPE DISPLAY
 ========================================================= */
 
+function update3GLocalCellIdInputLength() {
+    if (!localCellIdInput || !is3G2100System(selectedSystem)) return;
+    localCellIdInput.maxLength = getLocalCellIdLength(selectedSystem, selectedType);
+    if (localCellIdInput.value.length > localCellIdInput.maxLength) {
+        localCellIdInput.value = localCellIdInput.value.slice(0, localCellIdInput.maxLength);
+    }
+}
+
 function updateTypeDisplay() {
 
     if (typeSelectedText) {
@@ -927,6 +930,7 @@ function updateTypeDisplay() {
     );
 }
 
+    update3GLocalCellIdInputLength();
 
 /* =========================================================
    RNC DISPLAY
@@ -1215,6 +1219,14 @@ function sync4GLocalCellId() {
    SYNC 5G LOCAL CELLID
 ========================================================= */
 
+function normalize5GCellIdInput() {
+    if (!is5G2600System(selectedSystem) || !cellId5GInput) return;
+    const value = String(cellId5GInput.value || "").trim();
+    if (/^\d{4}$/.test(value)) {
+        cellId5GInput.value = value.padStart(5, "0");
+    }
+}
+
 function sync5GLocalCellId() {
 
     if (
@@ -1225,8 +1237,8 @@ function sync5GLocalCellId() {
         return;
     }
 
-    localCellId5GInput.value =
-        cellId5GInput.value;
+    normalize5GCellIdInput();
+    localCellId5GInput.value = cellId5GInput.value;
 }
 
 
@@ -1308,8 +1320,9 @@ function updateSystemSpecificValidation() {
             isValidFixedNumber(
                 localCellIdInput.value,
                 getLocalCellIdLength(
-                    selectedSystem
-                )
+                            selectedSystem,
+                            selectedType
+                        )
             );
     }
 
@@ -3114,19 +3127,29 @@ function normalizeDisplayId(value) {
     return stripped === "" ? "0" : stripped;
 }
 
-function normalizeResultIdParameter(header, value) {
+function displayInputId(value, system = selectedSystem, preserve5GCellId = false) {
+    if (preserve5GCellId && is5G2600System(system)) {
+        return String(value ?? "").trim();
+    }
+    return normalizeDisplayId(value);
+}
+
+function normalizeResultIdParameter(header, value, system = selectedSystem) {
     const key = String(header ?? "").trim().toUpperCase().replace(/\s+/g, "_");
+    if (is5G2600System(system) && (key === "CELL_ID" || key === "LOCAL_CELLID")) {
+        return String(value ?? "").trim();
+    }
     const idKeys = new Set([
         "CELL_ID", "NODEB_ID", "ENODEB_ID", "GNODEB_ID", "LOCAL_CELLID"
     ]);
     return idKeys.has(key) ? normalizeDisplayId(value) : String(value ?? "").trim();
 }
 
-function renderParameterTable(headers, row, title = "") {
+function renderParameterTable(headers, row, title = "", system = selectedSystem) {
     const rows = headers.map((header, index) => `
         <tr class="generated-parameter-row">
             <th>${escapeHtml(header)}</th>
-            <td>${escapeHtml(normalizeResultIdParameter(header, row?.[index]))}</td>
+            <td>${escapeHtml(normalizeResultIdParameter(header, row?.[index], system))}</td>
         </tr>
     `).join("");
     return `
@@ -3173,8 +3196,8 @@ function renderPairedResult(data) {
     const pairs = Array.isArray(data.pairs) ? data.pairs : [];
     const pairBlocks = pairs.map(pair => `
         <div class="pair-block">
-            ${renderParameterTable(pair.cell265.headers, pair.cell265.row, `CELL ${pair.pairIndex} (265)`)}
-            ${renderParameterTable(pair.cell264.headers, pair.cell264.row, `CELL ${pair.pairIndex} (264)`)}
+            ${renderParameterTable(pair.cell265.headers, pair.cell265.row, `CELL ${pair.pairIndex} (265)`, system)}
+            ${renderParameterTable(pair.cell264.headers, pair.cell264.row, `CELL ${pair.pairIndex} (264)`, system)}
         </div>
     `).join("");
     return `
@@ -3216,7 +3239,7 @@ function renderGeneratedResult(data) {
     const is4G = is4GSystem(currentSystem);
     const is5G = is5G2600System(currentSystem);
 
-    const cellBlocks = rows.map((row, index) => renderParameterTable(headers, row, `CELL ${index + 1}`)).join("");
+    const cellBlocks = rows.map((row, index) => renderParameterTable(headers, row, `CELL ${index + 1}`, system)).join("");
 
     return `
         <div class="autogen-summary">
@@ -4138,6 +4161,11 @@ if (autoBtn) {
                CELL ID
             ================================================= */
 
+            if (is5G) {
+                normalize5GCellIdInput();
+                sync5GLocalCellId();
+            }
+
             const activeCellInput =
                 getActiveCellInput(
                     selectedSystem
@@ -4195,7 +4223,8 @@ if (autoBtn) {
                     isValidFixedNumber(
                         localCellIdInput.value,
                         getLocalCellIdLength(
-                            selectedSystem
+                            selectedSystem,
+                            selectedType
                         )
                     );
             }

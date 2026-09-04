@@ -277,10 +277,19 @@
         "CELL_ID", "NODEB_ID", "ENODEB_ID", "GNODEB_ID", "LOCAL_CELLID"
     ]);
 
-    function normalizeGeneratedIdValue(key, value) {
-        return ID_COLUMNS.has(normalizeColumnName(key))
-            ? normalizeDisplayId(value)
-            : value;
+    function normalizeGeneratedIdValue(key, value, system = "") {
+        const normalizedKey = normalizeColumnName(key);
+        const normalizedSystem = String(system || "").trim().toUpperCase();
+
+        // 5G2600 CELL_ID / LOCAL_CELLID must preserve leading zeroes.
+        if (normalizedSystem === "5G2600" &&
+            (normalizedKey === "CELL_ID" || normalizedKey === "LOCAL_CELLID")) {
+            return value;
+        }
+
+        // All other ID fields use the display rule: remove leading zeroes,
+        // while an all-zero value remains exactly one zero.
+        return ID_COLUMNS.has(normalizedKey) ? normalizeDisplayId(value) : value;
     }
 
     function sequenceNumericValue(baseValue, position, length) {
@@ -308,6 +317,38 @@
         if (!cleanSystem) return "export.xlsx";
         if (!cleanSite) return `${cleanSystem}.xlsx`;
         return `${cleanSystem}_${cleanSite}.xlsx`;
+    }
+
+    /* =========================================================
+       DOWNLOAD TIMESTAMP
+
+       The visible Results page keeps the original filename.
+       Timestamping is applied only when the actual download
+       is created.  For ZIP downloads one master timestamp is
+       reused for the ZIP entries and their filenames.
+    ========================================================= */
+
+    function createDownloadTimestamp(date = new Date()) {
+        const pad2 = (value) => String(value).padStart(2, "0");
+        const dd = pad2(date.getDate());
+        const mm = pad2(date.getMonth() + 1);
+        const yyyy = String(date.getFullYear());
+        const hh = pad2(date.getHours());
+        const mi = pad2(date.getMinutes());
+        const ss = pad2(date.getSeconds());
+
+        return {
+            date,
+            text: `${dd}${mm}${yyyy}_${hh}${mi}${ss}`
+        };
+    }
+
+    function getTimestampedExportFilename(system, siteCode, timestampText) {
+        const base = getExportFilename(system, siteCode);
+        if (!timestampText || !base.toLowerCase().endsWith(".xlsx")) {
+            return base;
+        }
+        return `${base.slice(0, -5)}_${timestampText}.xlsx`;
     }
 
     function findHeader(headers, ...aliases) {
@@ -422,7 +463,17 @@
         if (!/^\d{6}$/.test(params.gnodeb_id)) return { error: "GNODEB ID must be 6 digits." };
 
         if (!params.cell_id) return { error: "CELL ID is required for 5G2600." };
-        if (!/^\d{5}$/.test(params.cell_id)) return { error: "CELL ID must be 5 digits." };
+        const cellId5G = String(params.cell_id).trim();
+        if (!/^\d{4,5}$/.test(cellId5G)) {
+            return { error: "CELL ID must be 4-5 digits for 5G2600." };
+        }
+
+        // 5G2600 uses a 5-digit internal format with the first two digits = 05.
+        // A user-entered 5101 therefore becomes 05101 for validation/generation.
+        params.cell_id = cellId5G.padStart(5, "0");
+        if (!params.cell_id.startsWith("05")) {
+            return { error: "CELL ID digit 1-2 must be 05." };
+        }
 
         params.local_cellid = params.cell_id;
 
@@ -509,7 +560,11 @@
         const normalized = {};
         for (const [key, value] of Object.entries(computedValues)) {
             const normalizedKey = normalizeColumnName(key);
-            normalized[normalizedKey] = normalizeGeneratedIdValue(normalizedKey, value);
+            normalized[normalizedKey] = normalizeGeneratedIdValue(
+                normalizedKey,
+                value,
+                computedValues.SYSTEM
+            );
         }
 
         return excelHeaders.map((header, index) => {
@@ -542,7 +597,8 @@
         if (normalizedSystem === "3G2100") {
             Object.assign(values, FIX_3G2100);
             values.CELL_ID = sequenceNumericValue(cellId, position, 5);
-            values.LOCAL_CELLID = sequenceNumericValue(localCellid, position, 2);
+            const localLength = String(typeCode || "").trim().toUpperCase() === "D" ? 3 : 2;
+            values.LOCAL_CELLID = sequenceNumericValue(localCellid, position, localLength);
             values.SAC = values.CELL_ID;
             values.TIME_OFFSET = TIME_OFFSET_BY_CELL_COUNT[String(position)] || "";
             values.RRU_MODEL_1 = rruModelForPosition(position, total);
@@ -670,10 +726,14 @@
             nodebName: ctx.nodeb_name,
             type: ctx.type,
             towerType: ctx.tower_type,
-            cellId: normalizeDisplayId(ctx.cell_id),
+            cellId: ctx.normalized_system === "5G2600"
+                ? String(ctx.cell_id ?? "").trim()
+                : normalizeDisplayId(ctx.cell_id),
             nodebId: normalizeDisplayId(ctx.nodeb_id),
             gnodebId: normalizeDisplayId(ctx.gnodeb_id),
-            localCellid: normalizeDisplayId(ctx.local_cellid),
+            localCellid: ctx.normalized_system === "5G2600"
+                ? String(ctx.local_cellid ?? "").trim()
+                : normalizeDisplayId(ctx.local_cellid),
             rnc: ctx.rnc,
             rncOptions: RNC_3G2100_OPTIONS,
             bw: ctx.bw,
@@ -697,20 +757,91 @@
         return buildPreviewResponse(ctx, dataset);
     }
 
+    /* =========================================================
+       EXCEL EXPORT DATATYPE HANDLING
+
+       Keep blank cells as true Excel blanks (null), not empty
+       strings.  The 3G import system validates a number of
+       columns as INT, so those values must be written as real
+       JavaScript numbers by ExcelJS.
+    ========================================================== */
+
+    const INTEGER_COLUMNS_3G2100 = new Set([
+        "MCC", "CELL_ID", "NODEB_ID", "LOCAL_CELLID",
+        "LAC", "RNC_ID", "RAC", "URA_ID1", "URA_ID2", "URA_ID3",
+        "SAC", "PSC", "CPICHPWR", "MAX_TX_PWR", "BW", "FREQ_BAND",
+        "DL_UARFCN", "UL_UARFCN", "SECTOR_QUANTITY", "CELL_RADIUS",
+        "CARRIER_INDICATOR", "CN_OPERATOR_GROUP_INDEX", "LOCAL_AREA_ID",
+        "SERVICE_PRIORITY_GROUP_INDEX", "TIME_OFFSET", "RRU_NUM_1",
+        "RRU_NUM_2", "RTFMCSIDENTIFIER", "NRTFMCSIDENTIFIER",
+        "HSDPAFMCSIDENTIFIER", "HSPAFMCSIDENTIFIER", "DCELLHSDPAFMCSID",
+        "RTWITHHSDPAFMCSIDENTIFIER", "RTWITHHSPAFMCSIDENTIFIER",
+        "RTFMCIIDENTIFIER", "NRTFMCIIDENTIFIER", "HSDPAFMCIIDENTIFIER",
+        "RTWITHHSDPAFMCIIDENTIFIER", "RTFMCGIDENTIFIER",
+        "NRTFMCGIDENTIFIER", "HSDPAFMCGIDENTIFIER",
+        "RTWITHHSDPAFMCGIDENTIFIER", "CELLWEIGHTFORHSDPALAYERING",
+        "CELLBARRED", "OBJECT_NUMBER", "TCELL", "RZ", "LCG",
+        "TX_FREQUENCY(MHZ)", "RECEIVING_FREQUENCY(MHZ)"
+    ]);
+
+    const INTEGER_ID_COLUMNS = new Set([
+        "CELL_ID", "NODEB_ID", "ENODEB_ID", "GNODEB_ID", "LOCAL_CELLID"
+    ]);
+    const INTEGER_COLUMNS_4G = new Set([
+        "ENODEB_ID", "CELL_ID", "LOCAL_CELLID", "TAC", "LAC", "SBTS_ID",
+        "POWER_INDEX", "SECTOR_EQUIPMENT_ID", "CN_OPERATOR_GROUP_INDEX", "LOCAL_AREA_ID",
+        "FREQ_BAND", "CARRIER_INDICATOR", "DL_EARFCN", "UL_EARFCN", "BW", "RSI", "PCI",
+        "RSPWR", "PA", "PB", "CELL_RADIUS", "RRU_NUM_1", "RRU_NUM_2", "RCN_ID",
+        "PMAX", "PRACHCS", "ULCOMP_SET", "PRACH_CONFINDEX", "EXPECTED_CELLSIZE",
+        "EXPECTED_CELLRANGE", "EUTRA_CELL_ID", "DLRSBOOST", "DIRECTION_INSTALLATION", "CA_POOL_ID"
+    ]);
+
+    function excelExportValue(normalizedKey, value, is3G2100 = false, is5G2600 = false, is4G = false) {
+        if (value === null || value === undefined || value === "") return null;
+
+        const preserve5GId = is5G2600 &&
+            (normalizedKey === "CELL_ID" || normalizedKey === "LOCAL_CELLID");
+        if (!preserve5GId && (INTEGER_ID_COLUMNS.has(normalizedKey) ||
+            (is3G2100 && INTEGER_COLUMNS_3G2100.has(normalizedKey)) ||
+            (is4G && INTEGER_COLUMNS_4G.has(normalizedKey))) ) {
+            const text = String(value).trim();
+            if (text === "") return null;
+            const numeric = Number(text);
+            return Number.isFinite(numeric) ? numeric : value;
+        }
+
+        return value;
+    }
+
     function setWorksheetRowFromValues(worksheet, rowNumber, headers, sourceRow, templateHeaders) {
         const sourceValues = {};
+        const normalizedTemplateKeys = templateHeaders.map(normalizeColumnName);
+        const is3G2100 = normalizedTemplateKeys.includes("RTFMCSIDENTIFIER");
+        const is5G2600 = normalizedTemplateKeys.includes("SSBDESCMETHOD") || normalizedTemplateKeys.includes("SSB_DESC_METHOD");
+        const is4G = !is3G2100 && !is5G2600 && normalizedTemplateKeys.includes("ENODEB_NAME");
+
         for (let i = 0; i < headers.length; i++) {
             const key = normalizeColumnName(headers[i]);
-            if (key) sourceValues[key] = i < sourceRow.length ? String(sourceRow[i] ?? "") : "";
+            if (key) {
+                sourceValues[key] = i < sourceRow.length ? sourceRow[i] : null;
+            }
         }
 
         for (let column = 1; column <= templateHeaders.length; column++) {
             const templateKey = normalizeColumnName(templateHeaders[column - 1]);
             const cell = worksheet.getCell(rowNumber, column);
-            cell.value =
-                templateKey && Object.prototype.hasOwnProperty.call(sourceValues, templateKey)
-                    ? sourceValues[templateKey]
-                    : "";
+
+            if (templateKey && Object.prototype.hasOwnProperty.call(sourceValues, templateKey)) {
+                cell.value = excelExportValue(
+                    templateKey,
+                    sourceValues[templateKey],
+                    is3G2100,
+                    is5G2600,
+                    is4G
+                );
+            } else {
+                cell.value = null;
+            }
         }
     }
 
@@ -747,11 +878,16 @@
 
     async function exportSingle(params) {
         const result = await createWorkbookForOrder(params);
+        const timestamp = createDownloadTimestamp();
         return {
             blob: new Blob([result.buffer], {
                 type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             }),
-            filename: result.filename
+            filename: getTimestampedExportFilename(
+                params.system,
+                params.site_code,
+                timestamp.text
+            )
         };
     }
 
@@ -800,6 +936,10 @@
             throw new Error("No valid orders to export.");
         }
 
+        // One master timestamp for the entire ZIP download.
+        // Every Excel entry inside the ZIP uses exactly this same
+        // timestamp and the same timestamp in its filename.
+        const masterTimestamp = createDownloadTimestamp();
         const zip = new window.JSZip();
 
         for (const [family, familyData] of families.entries()) {
@@ -835,7 +975,15 @@
             }
 
             const buffer = await workbook.xlsx.writeBuffer();
-            zip.file(familyData.filename, buffer);
+            const timestampedFilename = `${family}_Orders_${masterTimestamp.text}.xlsx`;
+
+            // JSZip stores this date in the ZIP entry metadata.  Therefore
+            // extracted files inherit the same master timestamp as the ZIP
+            // generation moment rather than the individual workbook build time.
+            zip.file(timestampedFilename, buffer, {
+                date: masterTimestamp.date,
+                createFolders: false
+            });
         }
 
         return {
