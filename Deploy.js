@@ -268,11 +268,15 @@
 
     function normalizeDisplayId(value) {
         const text = String(value ?? "").trim();
-        if (!/^\d+$/.test(text)) return text;
-        if (text.length >= 2 && text[0] === "0" && text[1] !== "0") {
+
+        if (!/^\d+$/.test(text)) {
             return text;
         }
+
+        // Always remove all leading zeros for ID values.
+        // Examples: 01 -> 1, 011 -> 11, 001 -> 1, 099 -> 99.
         const stripped = text.replace(/^0+/, "");
+
         return stripped === "" ? "0" : stripped;
     }
 
@@ -1069,4 +1073,3 @@
         downloadBlob
     });
 })();
-
