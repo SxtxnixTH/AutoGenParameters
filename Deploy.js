@@ -325,21 +325,16 @@
     function getMachineLocalDate() {
         const now = new Date();
 
-        // Rebuild the Date from the browser/machine local components.
-        // This prevents the ZIP timestamp from being reconstructed from
-        // an ISO/UTC string and shifted by the local timezone.
+        // JSZip 3.x serializes ZIP DOS date/time from UTC getters.
+        // Shift the Date value by the machine's local timezone offset so
+        // JSZip writes the machine-local wall-clock time into the ZIP.
+        // No timezone (+7/-7) is hardcoded.
         return new Date(
-            now.getFullYear(),
-            now.getMonth(),
-            now.getDate(),
-            now.getHours(),
-            now.getMinutes(),
-            now.getSeconds(),
-            0
+            now.getTime() - (now.getTimezoneOffset() * 60 * 1000)
         );
     }
 
-    function createDownloadTimestamp(date = getMachineLocalDate()) {
+    function createDownloadTimestamp(date = new Date()) {
         const pad2 = (value) => String(value).padStart(2, "0");
         const dd = pad2(date.getDate());
         const mm = pad2(date.getMonth() + 1);
@@ -349,9 +344,17 @@
         const ss = pad2(date.getSeconds());
 
         return {
-            date,
+            // This Date is intentionally timezone-shifted for JSZip.
+            // JSZip reads UTC components when writing ZIP metadata.
+            date: getMachineLocalDateFrom(date),
             text: `${dd}${mm}${yyyy}_${hh}${mi}${ss}`
         };
+    }
+
+    function getMachineLocalDateFrom(date) {
+        return new Date(
+            date.getTime() - (date.getTimezoneOffset() * 60 * 1000)
+        );
     }
 
     function getTimestampedExportFilename(system, siteCode, timestampText) {
