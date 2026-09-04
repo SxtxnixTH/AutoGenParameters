@@ -273,20 +273,53 @@
             return text;
         }
 
-        // Always remove all leading zeros for ID values.
-        // Examples: 01 -> 1, 011 -> 11, 001 -> 1, 099 -> 99.
+        // Normal rule for 3G/4G IDs and 5G GNODEB ID:
+        // remove all leading zeros.
         const stripped = text.replace(/^0+/, "");
 
         return stripped === "" ? "0" : stripped;
     }
 
+    function normalize5G2600CellId(value) {
+        const text = String(value ?? "").trim();
+
+        if (!/^\d+$/.test(text)) {
+            return text;
+        }
+
+        // 5G2600 CELL ID special rule:
+        // If the first two digits are 00, remove leading zeros.
+        // If the second digit is not 0, keep the first zero.
+        // Examples: 00123 -> 123, 00012 -> 12,
+        //           01123 -> 01123, 01234 -> 01234, 09999 -> 09999.
+        if (text.length >= 2 && text[0] === "0" && text[1] !== "0") {
+            return text;
+        }
+
+        const stripped = text.replace(/^0+/, "");
+        return stripped === "" ? "0" : stripped;
+    }
+
     const ID_COLUMNS = new Set([
-        "CELL_ID", "NODEB_ID", "ENODEB_ID", "GNODEB_ID", "LOCAL_CELLID"
+        "CELL_ID", "NODEB_ID", "ENODEB_ID", "GNODEB_ID", "LOCAL_CELLID",
+        "SAC"
     ]);
 
     function normalizeGeneratedIdValue(key, value, system = "") {
         const normalizedKey = normalizeColumnName(key);
-        return ID_COLUMNS.has(normalizedKey) ? normalizeDisplayId(value) : value;
+        const normalizedSystem = String(system || "").trim().toUpperCase();
+
+        if (!ID_COLUMNS.has(normalizedKey)) {
+            return value;
+        }
+
+        // Only 5G2600 CELL_ID / LOCAL_CELLID use the special leading-zero rule.
+        if (normalizedSystem === "5G2600" &&
+            (normalizedKey === "CELL_ID" || normalizedKey === "LOCAL_CELLID")) {
+            return normalize5G2600CellId(value);
+        }
+
+        return normalizeDisplayId(value);
     }
 
     function sequenceNumericValue(baseValue, position, length) {
@@ -775,12 +808,12 @@
             type: ctx.type,
             towerType: ctx.tower_type,
             cellId: ctx.normalized_system === "5G2600"
-                ? String(ctx.cell_id ?? "").trim()
+                ? normalize5G2600CellId(ctx.cell_id)
                 : normalizeDisplayId(ctx.cell_id),
             nodebId: normalizeDisplayId(ctx.nodeb_id),
             gnodebId: normalizeDisplayId(ctx.gnodeb_id),
             localCellid: ctx.normalized_system === "5G2600"
-                ? String(ctx.local_cellid ?? "").trim()
+                ? normalize5G2600CellId(ctx.local_cellid)
                 : normalizeDisplayId(ctx.local_cellid),
             rnc: ctx.rnc,
             rncOptions: RNC_3G2100_OPTIONS,
@@ -850,7 +883,11 @@
         if (INTEGER_ID_COLUMNS.has(normalizedKey)) {
             const text = String(value).trim();
             if (text === "") return null;
-            const formatted = normalizeDisplayId(text);
+            const formatted = (is5G2600 &&
+                (normalizedKey === "CELL_ID" || normalizedKey === "LOCAL_CELLID"))
+                ? normalize5G2600CellId(text)
+                : normalizeDisplayId(text);
+
             // Keep a significant leading zero as text; otherwise export IDs as numbers.
             if (/^0\d+/.test(formatted)) return formatted;
             const numeric = Number(formatted);
