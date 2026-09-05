@@ -4331,9 +4331,7 @@ if (autoBtn) {
                     ) {
 
                         message =
-                            selectedSystem === "4G2600"
-                                ? "CELL ID must be greater than or equal to 10."
-                                : "CELL ID must be greater than 0.";
+                            "Please enter a valid CELL ID.";
 
                     } else if (
                         is4G &&
@@ -4341,9 +4339,7 @@ if (autoBtn) {
                     ) {
 
                         message =
-                            selectedSystem === "4G2600"
-                                ? "CELL ID must be greater than or equal to 10."
-                                : "CELL ID must be greater than 0.";
+                            "Please enter a valid CELL ID / LOCAL CELLID.";
 
                     } else if (
                         is5G &&
@@ -4351,7 +4347,7 @@ if (autoBtn) {
                     ) {
 
                         message =
-                            "CELL ID must be greater than 0 and contain 1-5 digits.";
+                            "Please enter a valid CELL ID / LOCAL CELLID.";
 
                     /* =================================================
                     NODE ID
