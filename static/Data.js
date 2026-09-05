@@ -4331,7 +4331,6 @@ if (autoBtn) {
                     ) {
 
                         message =
-                         !cellId
                            ? "Please enter a valid CELL ID."
                            : "CELL ID must be greater than 0.";
 
@@ -4341,7 +4340,6 @@ if (autoBtn) {
                     ) {
 
                         message =
-                         !cellId
                            ? "Please enter a valid CELL ID."
                            : selectedSystem === "4G2600"
                               ? "CELL ID must be greater than or equal to 10."
@@ -4353,7 +4351,6 @@ if (autoBtn) {
                     ) {
 
                         message =
-                         !cellId
                            ? "Please enter a valid CELL ID."
                            : "CELL ID must be greater than 0.";
 
