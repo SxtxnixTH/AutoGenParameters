@@ -4330,29 +4330,28 @@ if (autoBtn) {
                         !cellValid
                     ) {
 
-                        message =
-                           ? "Please enter a valid CELL ID."
-                           : "CELL ID must be greater than 0.";
+                    message =    
+                    selectedSystem === "4G2600"    
+                        ? "CELL ID must be greater than or equal to 10."    
+                        : "CELL ID must be greater than 0.";    
 
-                    } else if (
-                        is4G &&
-                        !cellValid
-                    ) {
+            } else if (    
+                is4G &&    
+                !cellValid    
+            ) {    
 
-                        message =
-                           ? "Please enter a valid CELL ID."
-                           : selectedSystem === "4G2600"
-                              ? "CELL ID must be greater than or equal to 10."
-                              : "CELL ID must be greater than 0.";
+                message =    
+                    selectedSystem === "4G2600"    
+                        ? "CELL ID must be greater than or equal to 10."    
+                        : "CELL ID must be greater than 0.";    
 
-                    } else if (
-                        is5G &&
-                        !cellValid
-                    ) {
+            } else if (    
+                is5G &&    
+                !cellValid    
+            ) {    
 
-                        message =
-                           ? "Please enter a valid CELL ID."
-                           : "CELL ID must be greater than 0.";
+                message =    
+                    "CELL ID must be greater than 0 and contain 1-5 digits.";
 
                     /* =================================================
                     NODE ID
